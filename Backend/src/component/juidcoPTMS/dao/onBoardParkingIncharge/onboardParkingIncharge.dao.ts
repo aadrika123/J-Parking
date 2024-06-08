@@ -1,0 +1,134 @@
+/**
+ * Author: Krish Vishwakarma
+ * status: Open
+ *  Use: Manage Parking Incharge
+ */
+
+import { Request } from "express";
+import { generateRes } from "../../../../util/generateRes";
+import generateUniqueId from "../../../../util/helper/generateUniqueNo";
+
+import { Prisma, PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+class ParkingInchargeDao {
+  async create(req: Request) {
+    const {
+      first_name,
+      middle_name,
+      last_name,
+      age,
+      blood_grp,
+      mobile_no,
+      address,
+      email_id,
+      emergency_mob_no,
+      kyc_doc,
+      fitness_doc,
+    } = req.body;
+
+    const isExistingConductorEmail = await prisma.parking_incharge.findFirst({
+      where: { email_id: email_id },
+    });
+
+    if (isExistingConductorEmail) {
+      return generateRes({
+        status: 409,
+        error_type: "VALIDATION",
+        validation_error: "Email Already Exist",
+      });
+    }
+
+    const uniqueId = generateUniqueId("INC");
+
+    const date = new Date();
+    const query: Prisma.parking_inchargeCreateArgs = {
+      data: {
+        first_name: first_name,
+        middle_name: middle_name,
+        last_name: last_name,
+        age: age,
+        blood_grp: blood_grp,
+        mobile_no: mobile_no,
+        address: address,
+        email_id: email_id,
+        emergency_mob_no: emergency_mob_no,
+        kyc_doc: kyc_doc,
+        fitness_doc: fitness_doc,
+        cunique_id: uniqueId,
+        updated_at: date,
+      },
+    };
+
+    const data = await prisma.parking_incharge.create(query);
+
+    return generateRes(data);
+  }
+
+  async get(req: Request) {
+    const { cunique_id, name, search } = req.query;
+    const limit: number = Number(req.query.limit);
+    const page: number = Number(req.query.page);
+
+    const offset = (page - 1) * limit;
+
+    const qr_func = (extend?: string) => {
+      return `
+        SELECT * FROM parking_incharge ${
+          extend ? extend : ""
+        } LIMIT $1 OFFSET $2
+      `;
+    };
+    let qr = qr_func();
+
+    let searchConditions = "";
+
+    // ------------------  FILTER ------------------//
+
+    if (search !== "" && search !== undefined) {
+      qr = qr_func(`
+        WHERE 
+        first_name ILIKE '%${search}%' 
+        OR last_name ILIKE '%${search}%'
+        OR CAST(cunique_id AS TEXT) ILIKE '%${search}%'
+      `);
+    } else if (
+      (cunique_id !== "" && cunique_id !== undefined) ||
+      (name !== "" && name !== undefined)
+    ) {
+      const condition: string[] = [];
+
+      if (cunique_id) {
+        condition.push(`
+          WHERE cunique_id ILIKE '${cunique_id}'
+        `);
+      }
+
+      if (name) {
+        condition.push(`
+          WHERE first_name ILIKE '${name}'
+        `);
+      }
+
+      searchConditions += condition.join(" AND ");
+
+      qr = qr_func(searchConditions);
+    }
+
+    const countQuery = `
+      SELECT COUNT(id)::INT FROM parking_incharge ${searchConditions};
+    `;
+    // -------------------  FILTER -------------------//
+
+    const countResult = await prisma.$queryRawUnsafe<any[]>(countQuery);
+    const totalItems = parseInt(countResult[0].count);
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const dataResult = await prisma.$queryRawUnsafe<any[]>(qr, limit, offset);
+
+    return generateRes({ page, totalItems, totalPages, data: dataResult });
+  }
+}
+
+export default ParkingInchargeDao;

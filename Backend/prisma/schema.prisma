@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model parking_area {
+  id                    Int                 @id @default(autoincrement())
+  address               String
+  zip_code              String
+  station               String
+  landmark              String
+  two_wheeler_capacity  Int
+  four_wheeler_capacity Int
+  total_parking_area    Int?
+  agreement_doc         String?
+  type_parking_space    type_parking_space?
+  created_at            DateTime            @default(now()) @map("created_at")
+  updated_at            DateTime            @updatedAt @map("updated_at")
+  receipts              receipts[]
+}
+
+model parking_incharge {
+  id               Int        @id @default(autoincrement())
+  first_name       String
+  middle_name      String?
+  last_name        String
+  age              String
+  blood_grp        String
+  mobile_no        String
+  emergency_mob_no String?
+  address          String?
+  email_id         String?  
+  cunique_id       String     @unique @db.VarChar
+  kyc_doc          String?
+  fitness_doc      String?
+  zip_code         String?
+  created_at       DateTime   @default(now()) @map("created_at")
+  updated_at       DateTime   @updatedAt @map("updated_at")
+  receipts         receipts[]
+}
+
+model scheduler {
+  id          Int      @id @default(autoincrement())
+  incharge_id String?
+  location_id Int?
+  zip_code    String?
+  from_date   DateTime @db.Date
+  to_date     DateTime @db.Date
+  from_time   Int?
+  to_time     Int?
+  created_at  DateTime @default(now()) @map("created_at")
+  updated_at  DateTime @updatedAt @map("updated_at")
+}
+
+enum type_parking_space {
+  Organized
+  UnOrganized
+}
+
+model receipts {
+  id                 Int                 @id @default(autoincrement())
+  incharge_id        String
+  parking_incharge   parking_incharge    @relation(fields: [incharge_id], references: [cunique_id])
+  area_id            Int
+  area               parking_area        @relation(fields: [area_id], references: [id])
+  vehicle_type       vehicle_type
+  type_parking_space type_parking_space?
+  vehicle_no         String
+  amount             Int
+  receipt_no         String              @unique
+  date               DateTime            @db.Date
+  time               String
+  created_at         DateTime            @default(now()) @map("created_at")
+  updated_at         DateTime            @updatedAt @map("updated_at")
+}
+
+enum vehicle_type {
+  two_wheeler
+  four_wheeler
+}

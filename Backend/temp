@@ -1,0 +1,56 @@
+
+
+// asycn function findMany(table: string, select?: string[]) {
+  
+//   const values = [];
+  
+//   if(select) {
+//     select.foreach((item) => {
+      
+//     })
+//   }
+  
+//   const query = `SELECT * FROM ${table}`
+  
+//   const data = await pool.query(query)
+  
+//   return data
+// }
+
+
+// const query = findMany("master")
+
+// console.log(query)
+
+
+const add = 
+  {
+    name: "krish",
+    age: 21
+  }
+
+const keys = Object.keys(add);
+
+const result = keys.join(", ");
+
+console.log(result,  keys.length);
+
+function createMany(table: string, data: any){
+      const keys = Object.keys(add);
+      const result = keys.join(", "); 
+      const values = keys.foreach((_, index) => {
+        `
+      })
+      const query = `
+        INSERT INTO ${table} (
+          ${result}
+        ) VALUES (${values}) RETURNING *;
+      `;
+      
+      
+      return query;
+}
+
+const data = createMany("master", add)
+
+console.log(data)
