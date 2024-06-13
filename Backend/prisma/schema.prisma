@@ -15,6 +15,8 @@ model parking_area {
   landmark              String
   two_wheeler_capacity  Int
   four_wheeler_capacity Int
+  two_wheeler_rate      Int
+  four_wheeler_rate     Int
   total_parking_area    Int?
   agreement_doc         String?
   type_parking_space    type_parking_space?
@@ -33,7 +35,7 @@ model parking_incharge {
   mobile_no        String
   emergency_mob_no String?
   address          String?
-  email_id         String?  
+  email_id         String?
   cunique_id       String     @unique @db.VarChar
   kyc_doc          String?
   fitness_doc      String?
@@ -47,7 +49,6 @@ model scheduler {
   id          Int      @id @default(autoincrement())
   incharge_id String?
   location_id Int?
-  zip_code    String?
   from_date   DateTime @db.Date
   to_date     DateTime @db.Date
   from_time   Int?
@@ -73,7 +74,8 @@ model receipts {
   amount             Int
   receipt_no         String              @unique
   date               DateTime            @db.Date
-  time               String
+  in_time            String
+  out_time           String
   created_at         DateTime            @default(now()) @map("created_at")
   updated_at         DateTime            @updatedAt @map("updated_at")
 }

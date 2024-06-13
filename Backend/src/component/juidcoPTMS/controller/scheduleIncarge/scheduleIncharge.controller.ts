@@ -24,7 +24,7 @@ class ScheduleInchargeController {
 
     try {
       const data = await this.scheduleIncharge.getDetailsByLocation(req);
-      console.log(data);
+      console.log("i",data);
       return res.json({
         data: data,
       });

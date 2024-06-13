@@ -10,15 +10,23 @@ class ReportDao {
     let query: string = "";
     const conductor: string = ", receipts.incharge_id ";
 
-    function query_fn(extend_query: string, incharge?: string): string {
+    function query_fn(
+      extend_query: string,
+      incharge?: string,
+      monthlyWise?: boolean
+    ): string {
       return `
-      select area_id, sum(amount)::INT as total_collection ,date, receipts.incharge_id ${
-        incharge || ""
-      } from receipts 
+      select area_id, sum(amount)::INT as total_collection , ${
+        !monthlyWise ? "EXTRACT (MONTH FROM date) as month" : "date"
+      } , receipts.incharge_id ${incharge || ""} from receipts 
         LEFT JOIN parking_area as bm ON receipts.area_id = bm.id
         LEFT JOIN parking_incharge as cm ON receipts.incharge_id = cm.cunique_id
-        ${extend_query} group by area_id, date, receipts.incharge_id
-         ${incharge || ""} order by date ASC
+        ${extend_query} group by area_id, ${
+        !monthlyWise ? "EXTRACT (MONTH FROM date)" : "date"
+      }, receipts.incharge_id
+         ${incharge || ""} order by ${
+        !monthlyWise ? "EXTRACT (MONTH FROM date)" : "date"
+      } ASC
       `;
     }
 
@@ -45,7 +53,7 @@ class ReportDao {
       `);
     }
 
-    // ======================== BY CONDUCTOR ================================//
+    // ======================== BY INCHARGE ================================//
     if (from_date && incharge_id) {
       const query_extend = `where receipts.incharge_id = '${incharge_id}' AND date::text = '${from_date}'`;
       query = query_fn(query_extend, conductor);
@@ -67,9 +75,20 @@ class ReportDao {
         group by area_id, amount, date
         ORDER BY date ASC`);
     }
-    // ======================== BY CONDUCTOR ================================//
 
-    // ======================== BY BUS================================//
+    // if (month && incharge_id) {
+    //   const query_extend = `where receipts.incharge_id = '${incharge_id}' AND date::text = '${from_date}'`;
+    //   query = query_fn(query_extend, conductor, true);
+
+    //   amounts = await prisma.$queryRawUnsafe(`
+    //     select area_id, incharge_id,amount::INT, count(amount)::INT, sum(amount)::INT,date::DATE from receipts 
+    //     group by incharge_id, amount, date, area_id
+    //     having date = '${from_date}'`);
+    // }
+
+    // ======================== BY INCHARGE ================================//
+
+    // ======================== BY AREA ================================//
     if (from_date && area_id) {
       const query_extend = `where receipts.area_id = '${area_id}' AND date::text = '${from_date}'`;
       query = query_fn(query_extend);
@@ -91,13 +110,11 @@ class ReportDao {
         group by area_id, amount, date
         ORDER BY date ASC`);
     }
-    // ======================== BY BUS================================//
+    // ======================== BY AREA ================================//
 
     const [data] = await prisma.$transaction([
       prisma.$queryRawUnsafe<any[]>(`${query}`),
     ]);
-
-    console.log(data);
 
     const result = {
       data: [...data],
@@ -117,7 +134,7 @@ class ReportDao {
 
     query = query_fn("");
 
-    //   ------------------------- FILTER BY BUS -----------------------------//
+    //   ------------------------- FILTER BY AREA -----------------------------//
     if (area_id) {
       query = query_fn(`where area_id = '${area_id}'`);
     }
@@ -132,9 +149,9 @@ class ReportDao {
         `where area_id = '${area_id}' AND date BETWEEN '${from_date}' AND '${to_date}'`
       );
     }
-    //   ------------------------- FILTER BY BUS -----------------------------//
+    //   ------------------------- FILTER BY AREA -----------------------------//
 
-    //   ------------------------- FILTER BY CONDUCTOR-----------------------------//
+    //   ------------------------- FILTER BY INCHARGE -----------------------------//
     if (incharge_id) {
       query = query_fn(`where incharge_id = '${incharge_id}'`);
     }
@@ -148,7 +165,7 @@ class ReportDao {
         `where incharge_id = '${incharge_id}' AND date BETWEEN '${from_date}' AND '${to_date}'`
       );
     }
-    //   ------------------------- FILTER BY CONDUCTOR-----------------------------//
+    //   ------------------------- FILTER BY INCHARGE-----------------------------//
 
     //   ------------------------- FILTER BY CURRENT_DATE TOTAL COLLECTION-----------------------------//
     if (curr_date) {

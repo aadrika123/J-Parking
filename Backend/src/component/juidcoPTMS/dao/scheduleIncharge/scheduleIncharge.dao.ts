@@ -9,11 +9,11 @@ class ScheduleInchargeDao {
     const location: string = String(req.body.location);
 
     const qr_1 = await prisma.$queryRawUnsafe(`
-      select address, zip_code from parking_area where address ILIKE '%${location}%'
+      select address from parking_area where address ILIKE '%${location}%'
     `);
 
     const qr_2 = await prisma.$queryRawUnsafe(`
-      select first_name, cunique_id, address, zip_code from parking_incharge where address ILIKE '%${location}%'
+      select first_name, cunique_id, address from parking_incharge where address ILIKE '%${location}%'
     `);
 
     const data = {
@@ -28,7 +28,6 @@ class ScheduleInchargeDao {
     const {
       location_id,
       incharge_id,
-      zip_code,
       from_date,
       to_date,
       from_time,
@@ -60,7 +59,6 @@ class ScheduleInchargeDao {
       data: {
         location_id: location_id,
         incharge_id: incharge_id,
-        zip_code: zip_code,
         from_date: new Date(from_date),
         to_date: new Date(to_date),
         from_time: setFromTime,
@@ -80,7 +78,6 @@ class ScheduleInchargeDao {
       id,
       location_id,
       incharge_id,
-      zip_code,
       from_date,
       to_date,
       from_time,
@@ -95,29 +92,28 @@ class ScheduleInchargeDao {
     SET 
       location_id = $1,
       incharge_id = $2,
-      zip_code = $3,
-      from_date = $4,
-      to_date = $5,
-      from_time = $6,
-      to_time = $7,
+      from_date = $3,
+      to_date = $4,
+      from_time = $5,
+      to_time = $6,
       updated_at = NOW()
-    WHERE id = $8
+    WHERE id = $7
     RETURNING *;
   `;
+
 
     const values = [
       location_id,
       incharge_id,
-      zip_code,
-      from_date,
-      to_date,
+      new Date(from_date),
+      new Date(to_date),
       setFromTime,
       setToTime,
       id,
     ];
 
     try {
-      const result = await prisma.$queryRawUnsafe<any[]>(query, values);
+      const result = await prisma.$queryRawUnsafe<any[]>(query, ...values);
       if (result.length > 0) {
         return {
           status: "success",
@@ -199,7 +195,6 @@ class ScheduleInchargeDao {
       qr = qr_func(`
         WHERE 
         pk.first_name ILIKE '%${search}%' 
-        OR scheduler.zip_code ILIKE '%${search}%' 
         OR CAST(scheduler.incharge_id AS TEXT) ILIKE '%${search}%'
       `);
     } else if (
@@ -238,6 +233,9 @@ class ScheduleInchargeDao {
 
       const dataResult = await prisma.$queryRawUnsafe<any[]>(qr);
 
+      console.log("qr", qr)
+
+      console.log("dataResult", dataResult)
       return generateRes({
         page,
         totalItems,
@@ -252,3 +250,8 @@ class ScheduleInchargeDao {
 }
 
 export default ScheduleInchargeDao;
+
+
+
+/*
+ */

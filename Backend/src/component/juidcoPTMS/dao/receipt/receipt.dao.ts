@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { generateRes } from "../../../../util/generateRes";
 import { generateUnique } from "../../../../util/helper/generateUniqueNo";
 
@@ -24,7 +24,8 @@ class ReceiptDao {
         incharge_id: req.body.incharge_id,
         date: date,
         area_id: req.body.area_id,
-        time: req.body.time,
+        in_time: req.body.in_time,
+        out_time: req.body.out_time,
         receipt_no: receipt_no,
       },
     });
@@ -33,124 +34,125 @@ class ReceiptDao {
   };
 
   // ======================== GET RECEIPTS =========================================//
-  // get = async (req: Request) => {
-  //   const { from_date, to_date, vehicle_no, incharge_id, area_id } = req.body;
-  //   const page: number = Number(req.query.page);
-  //   const limit: number = Number(req.query.limit);
-  //   const search: string = String(req.query.search);
+  static get = async (req: Request) => {
+    const { from_date, to_date, vehicle_no, incharge_id, area_id } = req.body;
+    const page: number = Number(req.query.page);
+    const limit: number = Number(req.query.limit);
+    const search: string = String(req.query.search);
 
-  //   const d1 = new Date(from_date);
-  //   const d2 = new Date(to_date);
-  //   const query: Prisma.receiptsFindManyArgs = {
-  //     skip: (page - 1) * limit,
-  //     take: limit,
-  //     select: {
-  //       amount: true,
-  //       area: {
-  //         select: {
-  //           id: true,
-  //           address: true,
-  //           zip_code: true,
-  //           four_wheeler_capacity: true,
-  //           two_wheeler_capacity: true,
-  //           landmark: true,
-  //           station: true,
-  //         },
-  //       },
-  //       parking_incharge: {
-  //         select: {
-  //           first_name: true,
-  //           middle_name: true,
-  //           last_name: true,
-  //           age: true,
-  //           blood_grp: true,
-  //           mobile_no: true,
-  //           emergency_mob_no: true,
-  //           email_id: true,
-  //           cunique_id: true,
-  //         },
-  //       },
-  //       time: true,
-  //       receipt_no: true,
-  //       date: true,
-  //     },
-  //   };
+    const d1 = new Date(from_date);
+    const d2 = new Date(to_date);
+    const query: Prisma.receiptsFindManyArgs = {
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        amount: true,
+        area: {
+          select: {
+            id: true,
+            address: true,
+            zip_code: true,
+            four_wheeler_capacity: true,
+            two_wheeler_capacity: true,
+            landmark: true,
+            station: true,
+          },
+        },
+        parking_incharge: {
+          select: {
+            first_name: true,
+            middle_name: true,
+            last_name: true,
+            age: true,
+            blood_grp: true,
+            mobile_no: true,
+            emergency_mob_no: true,
+            email_id: true,
+            cunique_id: true,
+          },
+        },
+        in_time: true,
+        out_time: true,
+        receipt_no: true,
+        date: true,
+      },
+    };
 
-  //   if (search !== "" && typeof search === "string" && search !== "undefined") {
-  //     query.where = {
-  //       OR: [
-  //         {
-  //           vehicle_no: { contains: search, mode: "insensitive" },
-  //         },
+    if (search !== "" && typeof search === "string" && search !== "undefined") {
+      query.where = {
+        OR: [
+          {
+            vehicle_no: { contains: search, mode: "insensitive" },
+          },
 
-  //         {
-  //           parking_incharge: {
-  //             first_name: { contains: search, mode: "insensitive" },
-  //           },
-  //         },
+          {
+            parking_incharge: {
+              first_name: { contains: search, mode: "insensitive" },
+            },
+          },
 
-  //         {
-  //           parking_incharge: {
-  //             cunique_id: { contains: search, mode: "insensitive" },
-  //           },
-  //         },
-  //       ],
-  //     };
-  //   }
+          {
+            parking_incharge: {
+              cunique_id: { contains: search, mode: "insensitive" },
+            },
+          },
+        ],
+      };
+    }
 
-  //   if (vehicle_no) {
-  //     query.where = {
-  //       OR: [
-  //         {
-  //           vehicle_no: { equals: vehicle_no, mode: "insensitive" },
-  //         },
-  //       ],
-  //     };
-  //   }
+    if (vehicle_no) {
+      query.where = {
+        OR: [
+          {
+            vehicle_no: { equals: vehicle_no, mode: "insensitive" },
+          },
+        ],
+      };
+    }
 
-  //   if (from_date && to_date && conductor_id) {
-  //     query.where = {
-  //       AND: [
-  //         {
-  //           conductor: {
-  //             cunique_id: { equals: conductor_id, mode: "insensitive" },
-  //           },
-  //         },
-  //         {
-  //           date: {
-  //             gte: d1,
-  //             lte: d2,
-  //           },
-  //         },
-  //       ],
-  //     };
-  //   }
+    if (from_date && to_date && incharge_id) {
+      query.where = {
+        AND: [
+          {
+            parking_incharge: {
+              cunique_id: { equals: incharge_id, mode: "insensitive" },
+            },
+          },
+          {
+            date: {
+              gte: d1,
+              lte: d2,
+            },
+          },
+        ],
+      };
+    }
 
-  //   if (from_date && to_date && bus_no) {
-  //     query.where = {
-  //       AND: [
-  //         {
-  //           bus: {
-  //             register_no: { equals: bus_no, mode: "insensitive" },
-  //           },
-  //         },
-  //         {
-  //           date: {
-  //             gte: d1,
-  //             lte: d2,
-  //           },
-  //         },
-  //       ],
-  //     };
-  //   }
+    if (from_date && to_date && area_id) {
+      query.where = {
+        AND: [
+          {
+            area: {
+              id: { equals: area_id },
+            },
+          },
+          {
+            date: {
+              gte: d1,
+              lte: d2,
+            },
+          },
+        ],
+      };
+    }
 
-  //   const [data, count] = await prisma.$transaction([
-  //     prisma.receipts.findMany(query),
-  //     prisma.receipts.count({ where: query.where }),
-  //   ]);
+    const [data, count] = await prisma.$transaction([
+      prisma.receipts.findMany(query),
+      prisma.receipts.count({ where: query.where }),
+    ]);
 
-  //   return generateRes({ data, count, page, limit });
-  // };
+    return generateRes({ data, count, page, limit });
+  };
 
   four_wheeler_status = async () => {
     const date = new Date().toISOString().split("T")[0];

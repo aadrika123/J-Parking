@@ -23,6 +23,8 @@ class ParkingAreaDao {
       total_parking_area,
       type_parking_space,
       agreement_doc,
+      two_wheeler_rate,
+      four_wheeler_rate,
     } = req.body;
 
     const query: Prisma.parking_areaCreateArgs = {
@@ -35,8 +37,10 @@ class ParkingAreaDao {
         four_wheeler_capacity: parseInt(four_wheeler_capacity),
         total_parking_area: parseInt(total_parking_area),
         type_parking_space:
-          type_parking_space === 1 ? "Organized" : "UnOrganized",
+          type_parking_space === 0 ? "Organized" : "UnOrganized",
         agreement_doc: agreement_doc,
+        two_wheeler_rate: parseInt(two_wheeler_rate),
+        four_wheeler_rate: parseInt(four_wheeler_rate),
       },
     };
 

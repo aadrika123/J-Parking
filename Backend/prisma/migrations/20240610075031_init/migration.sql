@@ -13,6 +13,8 @@ CREATE TABLE "parking_area" (
     "landmark" TEXT NOT NULL,
     "two_wheeler_capacity" INTEGER NOT NULL,
     "four_wheeler_capacity" INTEGER NOT NULL,
+    "two_wheeler_rate" INTEGER NOT NULL,
+    "four_wheeler_rate" INTEGER NOT NULL,
     "total_parking_area" INTEGER,
     "agreement_doc" TEXT,
     "type_parking_space" "type_parking_space",
@@ -71,7 +73,8 @@ CREATE TABLE "receipts" (
     "amount" INTEGER NOT NULL,
     "receipt_no" TEXT NOT NULL,
     "date" DATE NOT NULL,
-    "time" TEXT NOT NULL,
+    "in_time" TEXT NOT NULL,
+    "out_time" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 

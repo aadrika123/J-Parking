@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { baseUrl } from "../../../../util/common";
 // import BusGenerateReportServices from "../../controller/reportGeneration/busReport.services";
 import ReportController from "../../controller/report/report.controller";
+import InchargeReportController from "../../controller/inchargeReport/inchargeReport.controller";
 
 export default class ReportRoute {
   constructor(app: express.Application) {
@@ -38,6 +39,12 @@ export default class ReportRoute {
       .route(`${baseUrl}/report/collection`)
       .post((req: Request, res: Response) =>
         reportGeneration.getCollections(req, res, "0504")
+      );
+
+    app
+      .route(`${baseUrl}/report/incharge-daywise`)
+      .post((req: Request, res: Response) =>
+        InchargeReportController.report(req, res, "0505")
       );
   }
 }

@@ -9,7 +9,11 @@ export default class ReceiptRoute {
   }
   init(app: express.Application, receipt: ReceiptController): void {
     app
-      .route(`${baseUrl}/receipt-generate`)
+      .route(`${baseUrl}/receipt-create`)
       .post((req: Request, res: Response) => receipt.post(req, res, "0501"));
+
+    app
+      .route(`${baseUrl}/receipt-get`)
+      .get((req: Request, res: Response) => receipt.get(req, res, "0502"));
   }
 }
