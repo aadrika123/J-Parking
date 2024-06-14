@@ -1,6 +1,7 @@
 import { Request } from "express";
 import { PrismaClient } from "@prisma/client";
 import { generateRes } from "../../../../util/generateRes";
+import { getCurrentWeekRange } from "../../../../util/helper";
 
 const prisma = new PrismaClient();
 class ReportDao {
@@ -81,7 +82,7 @@ class ReportDao {
     //   query = query_fn(query_extend, conductor, true);
 
     //   amounts = await prisma.$queryRawUnsafe(`
-    //     select area_id, incharge_id,amount::INT, count(amount)::INT, sum(amount)::INT,date::DATE from receipts 
+    //     select area_id, incharge_id,amount::INT, count(amount)::INT, sum(amount)::INT,date::DATE from receipts
     //     group by incharge_id, amount, date, area_id
     //     having date = '${from_date}'`);
     // }
@@ -191,29 +192,93 @@ class ReportDao {
   };
 
   getCollections = async (req: Request) => {
-    const { from_date, to_date, vehicle_type } = req.body;
-
-    const fromDate = new Date(from_date);
-    const toDate = new Date(to_date);
+    const { from_date, to_date, area_id } = req.body;
 
     function qr_func(condition?: string) {
       return `
-        select count(vehicle_no)::INT, sum(amount)::INT, date from receipts
+        select count(vehicle_no)::INT, sum(amount)::INT, incharge_id, date from receipts
         ${condition || ""}
-        group by vehicle_no, date
+        group by vehicle_no, date, incharge_id
       `;
     }
 
-    let qr_1 = qr_func();
-    let qr_2 = qr_func(`where vehicle_type = '${vehicle_type}'`);
+    let qr_1 = qr_func(`where area_id = ${area_id}`);
+    let qr_2 = qr_func(
+      `where vehicle_type = 'two_wheeler' and area_id = ${area_id}`
+    );
+    let qr_3 = qr_func(
+      `where vehicle_type = 'four_wheeler' and area_id = ${area_id}`
+    );
+    const qr_4 = `
+      select * from parking_area where id = ${area_id}
+    `;
 
     if (from_date && to_date) {
       qr_1 = qr_func(`
-        where date between '${fromDate}' and '${toDate}'
+        where date between '${from_date}' and '${to_date}' and area_id = ${area_id}
       `);
 
       qr_2 = qr_func(`
-        where date between '${fromDate}' and '${toDate}' and vehicle_type = '${vehicle_type}'
+        where date between '${from_date}' and '${to_date}' and vehicle_type = 'two_wheeler' and area_id = ${area_id}
+      `);
+
+      qr_3 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and vehicle_type = 'four_wheeler' and area_id = ${area_id}
+      `);
+    }
+
+    const [data1, data2, data3, data4] = await prisma.$transaction([
+      prisma.$queryRawUnsafe(qr_1),
+      prisma.$queryRawUnsafe(qr_2),
+      prisma.$queryRawUnsafe(qr_3),
+      prisma.$queryRawUnsafe(qr_4),
+    ]);
+
+    const data = {
+      all: data1,
+      two_wheeler: data2,
+      four_wheeler: data3,
+      location_info: data4,
+    };
+
+    return generateRes(data);
+  };
+
+  getWeeklyCollection = async (req: Request) => {
+    const { from_date, to_date } = req.body;
+
+    const { startOfWeek, endOfWeek } = getCurrentWeekRange();
+
+    const qr_func = (condition?: string) => {
+      return `
+        SELECT
+          COUNT(vehicle_no)::INT AS vehicle_count,
+          SUM(amount)::INT AS total_amount,
+          pa.type_parking_space,
+          incharge_id,
+          date
+        FROM receipts
+        join parking_area as pa on receipts.area_id = pa.id
+        ${condition || `where date between '${startOfWeek}' and '${endOfWeek}'`}
+        GROUP BY
+          date,
+          incharge_id,
+          pa.type_parking_space
+        ORDER BY
+          date, incharge_id;
+      `;
+    };
+
+    let qr_1 = qr_func(`where pa.type_parking_space = 'UnOrganized'`);
+    let qr_2 = qr_func(`where pa.type_parking_space = 'Organized'`);
+
+    if (from_date && to_date) {
+      qr_1 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and pa.type_parking_space = 'UnOrganized'
+      `);
+
+      qr_2 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and pa.type_parking_space = 'Organized'
       `);
     }
 
@@ -223,8 +288,102 @@ class ReportDao {
     ]);
 
     const data = {
-      all: data1,
-      by_type: data2,
+      UnOrganized: data1,
+      Organized: data2,
+    };
+    return generateRes(data);
+  };
+
+  getVehicleCollection = async (req: Request) => {
+    const { from_date, to_date } = req.body;
+
+    const { startOfWeek, endOfWeek } = getCurrentWeekRange();
+
+    const qr_func = (condition?: string) => {
+      return `
+         SELECT
+          COUNT(vehicle_no)::INT as vehicle_count,
+            SUM(amount)::INT AS total_amount,
+            date
+            FROM receipts 
+         ${
+           condition || `where date between '${startOfWeek}' and '${endOfWeek}'`
+         }
+            GROUP BY
+              date
+            ORDER BY
+              date;
+      `;
+    };
+
+    let qr_1 = qr_func(`where vehicle_type = 'two_wheeler'`);
+    let qr_2 = qr_func(`where vehicle_type = 'four_wheeler'`);
+
+    if (from_date && to_date) {
+      qr_1 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and vehicle_type = 'two_wheeler'
+      `);
+
+      qr_2 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and vehicle_type = 'four_wheeler'
+      `);
+    }
+
+    console.log(qr_1);
+
+    const [data1, data2] = await prisma.$transaction([
+      prisma.$queryRawUnsafe(qr_1),
+      prisma.$queryRawUnsafe(qr_2),
+    ]);
+
+    const data = {
+      two_wheeler: data1,
+      four_wheeler: data2,
+    };
+
+    return generateRes(data);
+  };
+
+  getVehicleCount = async (req: Request) => {
+    const { from_date, to_date } = req.body;
+
+    const { startOfWeek, endOfWeek } = getCurrentWeekRange();
+
+    const qr_func = (condition?: string) => {
+      return `
+        	SELECT
+            COUNT(vehicle_no)::INT AS vehicle_count,
+            SUM(amount)::INT AS total_amount,
+            date
+          FROM receipts
+         ${
+           condition || `where date between '${startOfWeek}' and '${endOfWeek}'`
+         } group by date
+		
+      `;
+    };
+
+    let qr_1 = qr_func(`where vehicle_type = 'two_wheeler'`);
+    let qr_2 = qr_func(`where vehicle_type = 'four_wheeler'`);
+
+    if (from_date && to_date) {
+      qr_1 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and vehicle_type = 'two_wheeler'
+      `);
+
+      qr_2 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and vehicle_type = 'four_wheeler'
+      `);
+    }
+
+    const [data1, data2] = await prisma.$transaction([
+      prisma.$queryRawUnsafe(qr_1),
+      prisma.$queryRawUnsafe(qr_2),
+    ]);
+
+    const data = {
+      two_wheeler: data1,
+      four_wheeler: data2,
     };
 
     return generateRes(data);

@@ -20,6 +20,7 @@ class ParkingAreaDao {
       landmark,
       two_wheeler_capacity,
       four_wheeler_capacity,
+
       total_parking_area,
       type_parking_space,
       agreement_doc,
@@ -123,6 +124,17 @@ class ParkingAreaDao {
       console.log(error);
       return { message: "Something went wrong" };
     }
+  }
+
+  async get_all_parking_area() {
+    const data = await prisma.parking_area.findMany({
+      select: {
+        id: true,
+        address: true,
+        station: true,
+      },
+    });
+    return generateRes(data);
   }
 }
 

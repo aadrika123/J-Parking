@@ -2,17 +2,55 @@ import { Request } from "express";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { generateRes } from "../../../../util/generateRes";
 import { generateUnique } from "../../../../util/helper/generateUniqueNo";
+import { timeDifferenceInHours } from "../../../../util/helper";
 
 const prisma = new PrismaClient();
 
 export const genrateDate = () => {};
 class ReceiptDao {
+  static getAreaAmount = async (req: Request) => {
+    const { area_id } = req.query;
+    const data = await prisma.parking_area.findUnique({
+      where: {
+        id: Number(area_id),
+      },
+      select: {
+        two_wheeler_rate: true,
+        four_wheeler_rate: true,
+      },
+    });
+
+    return generateRes(data);
+  };
+
   static post = async (req: Request) => {
+    const { in_time, out_time } = req.body;
     const type_parking_space: number = req.body.type_parking_space;
     const vehicle_type: number = req.body.vehicle_type;
 
     const date = new Date();
     const receipt_no = generateUnique("PK");
+
+    const getAreaAmount = await prisma.parking_area.findUnique({
+      where: {
+        id: Number(req.body.area_id),
+      },
+      select: {
+        two_wheeler_rate: true,
+        four_wheeler_rate: true,
+      },
+    });
+
+    const two_wheeler_rate = getAreaAmount?.two_wheeler_rate || 0;
+    const four_wheeler_rate = getAreaAmount?.four_wheeler_rate || 0;
+
+    const time_diff = timeDifferenceInHours(in_time, out_time);
+
+    if (vehicle_type === 0) {
+      req.body.amount = two_wheeler_rate * time_diff;
+    } else {
+      req.body.amount = four_wheeler_rate * time_diff;
+    }
 
     const data = await prisma.receipts.create({
       data: {
@@ -24,8 +62,8 @@ class ReceiptDao {
         incharge_id: req.body.incharge_id,
         date: date,
         area_id: req.body.area_id,
-        in_time: req.body.in_time,
-        out_time: req.body.out_time,
+        in_time: in_time,
+        out_time: out_time,
         receipt_no: receipt_no,
       },
     });

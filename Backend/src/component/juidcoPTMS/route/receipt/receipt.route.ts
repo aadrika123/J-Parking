@@ -15,5 +15,9 @@ export default class ReceiptRoute {
     app
       .route(`${baseUrl}/receipt-get`)
       .get((req: Request, res: Response) => receipt.get(req, res, "0502"));
+
+    app
+      .route(`${baseUrl}/get-area-amount`)
+      .get((req: Request, res: Response) => receipt.getAreaAmount(req, res, "0503"));
   }
 }

@@ -69,5 +69,38 @@ class ParkingAreaController {
       return CommonRes.SERVER_ERROR(error, resObj, res);
     }
   }
+
+  get_all_parking_area = async (req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "GET",
+      version: "1.0",
+    };
+
+    try {
+      const data = await this.parkingAreaDao.get_all_parking_area();
+
+      if (data?.status === "ERROR") {
+        return res.json({
+          error: data.detail,
+        });
+      }
+
+      if (!data) {
+        return res.json({
+          message: "NO DATA FOUND",
+        });
+      }
+
+      return CommonRes.SUCCESS(
+        "Parkng Area Found Successfully",
+        data,
+        resObj,
+        res
+      );
+    } catch (error) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
 }
 export default ParkingAreaController;

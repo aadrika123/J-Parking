@@ -42,7 +42,7 @@ class InchargeReportDao {
     if (month && year) {
       qr = qr_func(true);
     }
-
+1
     const [data] = await prisma.$transaction([
       prisma.$queryRawUnsafe<any[]>(`${qr}`),
     ]);

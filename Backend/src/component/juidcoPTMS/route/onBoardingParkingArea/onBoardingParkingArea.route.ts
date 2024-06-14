@@ -23,5 +23,11 @@ export default class OnBoardingAreaRoute {
       .get((req: Request, res: Response) =>
         parkingAreaController.get(req, res, "0102")
       );
+
+    app
+      .route(`${baseUrl}/get-all-parking-area`)
+      .get((req: Request, res: Response) =>
+        parkingAreaController.get_all_parking_area(req, res, "0103")
+      );
   }
 }

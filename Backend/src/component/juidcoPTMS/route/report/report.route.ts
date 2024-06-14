@@ -46,5 +46,23 @@ export default class ReportRoute {
       .post((req: Request, res: Response) =>
         InchargeReportController.report(req, res, "0505")
       );
+
+    app
+      .route(`${baseUrl}/report/weekly-collection`)
+      .post((req: Request, res: Response) =>
+        reportGeneration.getWeeklyCollection(req, res, "0506")
+      );
+
+    app
+      .route(`${baseUrl}/report/vehicle-collection`)
+      .post((req: Request, res: Response) =>
+        reportGeneration.getVehicleCollection(req, res, "0507")
+      );
+
+    app
+      .route(`${baseUrl}/report/vehicle-count`)
+      .post((req: Request, res: Response) =>
+        reportGeneration.getVehicleCount(req, res, "0508")
+      );
   }
 }
