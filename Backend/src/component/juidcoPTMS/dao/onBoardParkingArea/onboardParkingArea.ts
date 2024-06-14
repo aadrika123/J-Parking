@@ -136,6 +136,17 @@ class ParkingAreaDao {
     });
     return generateRes(data);
   }
+
+  async delete_parking_area(req: Request) {
+    const { id } = req.body;
+    const data = await prisma.parking_area.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    return generateRes(data);
+  }
 }
 
 export default ParkingAreaDao;

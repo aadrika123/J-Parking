@@ -41,5 +41,11 @@ export default class ScheduleInchargeRoute {
       .post((req: Request, res: Response) =>
         scheduleInchargeController.deleteScheduler(req, res, "0305")
       );
+
+      app
+      .route(`${baseUrl}/get-schedule-incharge`)
+      .post((req: Request, res: Response) =>
+        scheduleInchargeController.getAreaScheduleIncharge(req, res, "0306")
+      );
   }
 }

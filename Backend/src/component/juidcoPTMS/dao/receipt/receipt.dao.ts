@@ -46,17 +46,21 @@ class ReceiptDao {
 
     const time_diff = timeDifferenceInHours(in_time, out_time);
 
+    let amount: number = 0;
+
     if (vehicle_type === 0) {
-      req.body.amount = two_wheeler_rate * time_diff;
+      amount = two_wheeler_rate * time_diff;
     } else {
-      req.body.amount = four_wheeler_rate * time_diff;
+      amount = four_wheeler_rate * time_diff;
     }
+
+    type_parking_space === 0;
 
     const data = await prisma.receipts.create({
       data: {
         vehicle_no: req.body.vehicle_no,
         vehicle_type: vehicle_type === 0 ? "two_wheeler" : "four_wheeler",
-        amount: req.body.amount,
+        amount: type_parking_space === 0 ? amount : req.body.amount,
         type_parking_space:
           type_parking_space === 0 ? "Organized" : "UnOrganized",
         incharge_id: req.body.incharge_id,

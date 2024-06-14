@@ -29,5 +29,11 @@ export default class OnBoardingAreaRoute {
       .get((req: Request, res: Response) =>
         parkingAreaController.get_all_parking_area(req, res, "0103")
       );
+
+    app
+      .route(`${baseUrl}/delete-parking-area`)
+      .post((req: Request, res: Response) =>
+        parkingAreaController.delete_parking_area(req, res, "0104")
+      );
   }
 }

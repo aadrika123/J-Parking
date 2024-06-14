@@ -183,7 +183,7 @@ class ReportDao {
   getRealTimeCollection = async () => {
     const date = new Date().toISOString().split("T")[0];
     const qr_real_time = `
-           	SELECT SUM (amount)::INT, extract (HOUR from created_at) as "from" , extract (HOUR from created_at)+1 as "to"  FROM receipts 
+          SELECT SUM (amount)::INT, extract (HOUR from created_at) as "from" , extract (HOUR from created_at)+1 as "to"  FROM receipts 
         	where date = '${date}'
         	group by (extract (HOUR from created_at))  
         `;
@@ -196,9 +196,18 @@ class ReportDao {
 
     function qr_func(condition?: string) {
       return `
-        select count(vehicle_no)::INT, sum(amount)::INT, incharge_id, date from receipts
+        select count(vehicle_no)::INT, sum(amount)::INT, date from receipts
         ${condition || ""}
-        group by vehicle_no, date, incharge_id
+        group by vehicle_no, date
+      `;
+    }
+
+    function qr_func_2(condition?: string) {
+      return `
+        select incharge_id, SUM (amount)::INT, pi.* from receipts
+        join parking_incharge as pi on receipts.incharge_id = pi.cunique_id
+        ${condition || ""}
+        group by incharge_id, pi.id
       `;
     }
 
@@ -213,6 +222,8 @@ class ReportDao {
       select * from parking_area where id = ${area_id}
     `;
 
+    let qr_5 = qr_func_2(`where area_id = ${area_id}`);
+
     if (from_date && to_date) {
       qr_1 = qr_func(`
         where date between '${from_date}' and '${to_date}' and area_id = ${area_id}
@@ -225,13 +236,18 @@ class ReportDao {
       qr_3 = qr_func(`
         where date between '${from_date}' and '${to_date}' and vehicle_type = 'four_wheeler' and area_id = ${area_id}
       `);
+
+      qr_5 = qr_func_2(`
+        where date between '${from_date}' and '${to_date}' and area_id = ${area_id}
+      `);
     }
 
-    const [data1, data2, data3, data4] = await prisma.$transaction([
+    const [data1, data2, data3, data4, data5] = await prisma.$transaction([
       prisma.$queryRawUnsafe(qr_1),
       prisma.$queryRawUnsafe(qr_2),
       prisma.$queryRawUnsafe(qr_3),
       prisma.$queryRawUnsafe(qr_4),
+      prisma.$queryRawUnsafe(qr_5),
     ]);
 
     const data = {
@@ -239,6 +255,7 @@ class ReportDao {
       two_wheeler: data2,
       four_wheeler: data3,
       location_info: data4,
+      incharge: data5,
     };
 
     return generateRes(data);
@@ -328,9 +345,6 @@ class ReportDao {
         where date between '${from_date}' and '${to_date}' and vehicle_type = 'four_wheeler'
       `);
     }
-
-    console.log(qr_1);
-
     const [data1, data2] = await prisma.$transaction([
       prisma.$queryRawUnsafe(qr_1),
       prisma.$queryRawUnsafe(qr_2),

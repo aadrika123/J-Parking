@@ -50,7 +50,7 @@ export default class ReceiptController {
         message: "Ticket Generated Successfully!",
         data: data,
       });
-    } catch (error) {
+    } catch (error: any) {
       return CommonRes.SERVER_ERROR(error, resObj, res);
     }
   };

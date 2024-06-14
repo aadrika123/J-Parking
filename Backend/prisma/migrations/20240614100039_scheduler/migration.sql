@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "scheduler" ALTER COLUMN "from_time" SET DATA TYPE TEXT,
+ALTER COLUMN "to_time" SET DATA TYPE TEXT;

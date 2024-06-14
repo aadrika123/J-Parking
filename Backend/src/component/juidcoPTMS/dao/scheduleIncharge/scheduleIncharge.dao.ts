@@ -25,17 +25,11 @@ class ScheduleInchargeDao {
   };
 
   createScheduleIncharge = async (req: Request) => {
-    const {
-      location_id,
-      incharge_id,
-      from_date,
-      to_date,
-      from_time,
-      to_time,
-    } = req.body;
+    const { location_id, incharge_id, from_date, to_date, from_time, to_time } =
+      req.body;
 
-    const setFromTime = Number(from_time.replace(":", "").padStart(4, "0"));
-    const setToTime = Number(to_time.replace(":", "").padStart(4, "0"));
+    // const setFromTime = Number(from_time.replace(":", "").padStart(4, "0"));
+    // const setToTime = Number(to_time.replace(":", "").padStart(4, "0"));
 
     try {
       const checkFromDate = await prisma.$queryRawUnsafe<any[]>(`
@@ -61,8 +55,8 @@ class ScheduleInchargeDao {
         incharge_id: incharge_id,
         from_date: new Date(from_date),
         to_date: new Date(to_date),
-        from_time: setFromTime,
-        to_time: setToTime,
+        from_time: from_time,
+        to_time: to_time,
       },
     };
 
@@ -84,8 +78,8 @@ class ScheduleInchargeDao {
       to_time,
     } = req.body;
 
-    const setFromTime = Number(from_time.replace(":", "").padStart(4, "0"));
-    const setToTime = Number(to_time.replace(":", "").padStart(4, "0"));
+    // const setFromTime = Number(from_time.replace(":", "").padStart(4, "0"));
+    // const setToTime = Number(to_time.replace(":", "").padStart(4, "0"));
 
     const query = `
     UPDATE scheduler 
@@ -101,14 +95,13 @@ class ScheduleInchargeDao {
     RETURNING *;
   `;
 
-
     const values = [
       location_id,
       incharge_id,
       new Date(from_date),
       new Date(to_date),
-      setFromTime,
-      setToTime,
+      from_time,
+      to_time,
       id,
     ];
 
@@ -137,34 +130,16 @@ class ScheduleInchargeDao {
   deleteScheduler = async (req: Request) => {
     const { id } = req.body;
 
-    const query = `
-      DELETE FROM scheduler
-      WHERE id = $1
-      RETURNING *;
-    `;
-
-    const values = [id];
-
     try {
-      const result = await prisma.$queryRawUnsafe<any[]>(query, values);
-      if (result.length > 0) {
-        return {
-          status: "success",
-          message: "Scheduler deleted successfully",
-          data: result[0],
-        };
-      } else {
-        return {
-          status: "error",
-          message: "Scheduler not found",
-        };
-      }
+      await prisma.scheduler.delete({
+        where: {
+          id: id,
+        },
+      });
+
+      return generateRes({ deleted: id });
     } catch (error) {
-      console.error("Error executing query", error);
-      return {
-        status: "error",
-        message: "Internal Server Error",
-      };
+      return { error: "Internal Server Error" };
     }
   };
 
@@ -187,7 +162,8 @@ class ScheduleInchargeDao {
 
     let qr = qr_func();
 
-    let searchConditions = "";
+    let searchConditions
+     = "";
 
     // ------------------  FILTER ------------------//
 
@@ -233,9 +209,9 @@ class ScheduleInchargeDao {
 
       const dataResult = await prisma.$queryRawUnsafe<any[]>(qr);
 
-      console.log("qr", qr)
+      console.log("qr", qr);
 
-      console.log("dataResult", dataResult)
+      console.log("dataResult", dataResult);
       return generateRes({
         page,
         totalItems,
@@ -247,11 +223,24 @@ class ScheduleInchargeDao {
       return { error: "Internal Server Error" };
     }
   }
+
+  getAreaScheduleIncharge = async (req: Request) => {
+    const { incharge_id, from_date, to_date } = req.body;
+
+    const query: string = `
+	    select incharge_id, parking_area.* from scheduler
+      join parking_area on scheduler.location_id::INT = parking_area.id
+    	where incharge_id = '${incharge_id}' AND '${from_date}' between from_date and to_date 
+      or '${to_date}' between from_date and to_date;
+    `;
+
+    const data = await prisma.$queryRawUnsafe<any[]>(query);
+    console.log(data);
+    return generateRes(data);
+  };
 }
 
 export default ScheduleInchargeDao;
-
-
 
 /*
  */

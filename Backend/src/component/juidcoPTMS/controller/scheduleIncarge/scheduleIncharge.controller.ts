@@ -24,7 +24,7 @@ class ScheduleInchargeController {
 
     try {
       const data = await this.scheduleIncharge.getDetailsByLocation(req);
-      console.log("i",data);
+      console.log("i", data);
       return res.json({
         data: data,
       });
@@ -42,7 +42,7 @@ class ScheduleInchargeController {
 
     try {
       const data = await this.scheduleIncharge.createScheduleIncharge(req);
-      console.log(data)
+      console.log(data);
       if (!data) {
         return CommonRes.NOT_FOUND("Not Found", data, resObj, res);
       }
@@ -108,5 +108,25 @@ class ScheduleInchargeController {
       return CommonRes.SERVER_ERROR(error, resObj, res);
     }
   }
+
+  getAreaScheduleIncharge = async (
+    req: Request,
+    res: Response,
+    apiId: string
+  ) => {
+    const resObj: resObj = {
+      apiId,
+      action: "POST",
+      version: "1.0",
+    };
+    try {
+      const data = await this.scheduleIncharge.getAreaScheduleIncharge(req);
+      return res.json({
+        data: data,
+      });
+    } catch (error) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
 }
 export default ScheduleInchargeController;

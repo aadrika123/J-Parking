@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { sendResponse } from "../sendResponse";
 import { resObj } from "../types";
+import { errorResponse } from "../ERROR/errorResponse";
 
 const CommonRes = Object.freeze({
   VALIDATION_ERROR: (
@@ -24,7 +25,7 @@ const CommonRes = Object.freeze({
     resObj: resObj,
     res: Response
   ): Promise<object> => {
-    return sendResponse(
+    return errorResponse(
       false,
       error,
       "",

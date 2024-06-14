@@ -22,7 +22,7 @@ import ReportRoute from "./route/report/report.route";
  * | Comman Route for ptms
  */
 
-export default class PtmsRoute {
+export default class ParkingRoute {
   constructor(app: express.Application) {
     new FileUploadRoute(app);
     new OnBoardingInchargeRoute(app);
