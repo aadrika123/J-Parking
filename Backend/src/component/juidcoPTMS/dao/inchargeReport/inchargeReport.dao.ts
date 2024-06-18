@@ -14,16 +14,28 @@ class InchargeReportDao {
       ${
         !monthlyWise
           ? `
-        select sum(amount)::INT as total_collection ,date, receipts.incharge_id
-        from receipts 
-        LEFT JOIN parking_area AS bm ON receipts.area_id = bm.id
-        LEFT JOIN parking_incharge AS cm ON receipts.incharge_id = cm.cunique_id
-        GROUP BY date, receipts.incharge_id
-        having receipts.incharge_id = '${incharge_id}' ${condition || ""}
+        		  SELECT 
+                SUM(CASE WHEN receipts.vehicle_type = 'two_wheeler' THEN amount ELSE 0 END)::INT AS total_two_wheeler_collection,
+                SUM(CASE WHEN receipts.vehicle_type = 'four_wheeler' THEN amount ELSE 0 END)::INT AS total_four_wheeler_collection,
+                SUM(amount)::INT as total_amount,
+                date,
+                receipts.incharge_id
+              FROM receipts
+              LEFT JOIN parking_area AS bm ON receipts.area_id = bm.id
+              LEFT JOIN parking_incharge AS cm ON receipts.incharge_id = cm.cunique_id
+              GROUP BY date, receipts.incharge_id
+              HAVING receipts.incharge_id = '${incharge_id}'
+          ${condition || ""}
       `
           : ` 
-        select sum(amount)::INT as total_collection ,extract(month from date) as month, extract(year from date) as year, receipts.incharge_id
-        from receipts 
+        SELECT 
+          SUM(CASE WHEN receipts.vehicle_type = 'two_wheeler' THEN amount ELSE 0 END)::INT AS total_two_wheeler_collection,
+          SUM(CASE WHEN receipts.vehicle_type = 'four_wheeler' THEN amount ELSE 0 END)::INT AS total_four_wheeler_collection,
+          SUM(amount)::INT as total_amount,
+          extract(month from date) as month,
+          extract(year from date) as year,
+          receipts.incharge_id
+        FROM receipts 
         LEFT JOIN parking_area AS bm ON receipts.area_id = bm.id
         LEFT JOIN parking_incharge AS cm ON receipts.incharge_id = cm.cunique_id
         GROUP BY extract(month from date), extract(year from date), receipts.incharge_id

@@ -38,7 +38,7 @@ class ParkingAreaDao {
         four_wheeler_capacity: parseInt(four_wheeler_capacity),
         total_parking_area: parseInt(total_parking_area),
         type_parking_space:
-          type_parking_space === 0 ? "Organized" : "UnOrganized",
+          Number(type_parking_space) === 0 ? "Organized" : "UnOrganized",
         agreement_doc: agreement_doc,
         two_wheeler_rate: parseInt(two_wheeler_rate),
         four_wheeler_rate: parseInt(four_wheeler_rate),

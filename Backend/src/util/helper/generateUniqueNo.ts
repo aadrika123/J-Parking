@@ -21,7 +21,7 @@ export const generateReceiptNumber = (id: any) => {
 };
 
 export default function generateUniqueId(unique: any) {
-  const length = 8;
+  const length = 4;
   const possibleDigits = "0123456789"; // All possible digits
 
   for (let i = 0; i < length; i++) {

@@ -26,6 +26,7 @@ class ParkingInchargeDao {
       emergency_mob_no,
       kyc_doc,
       fitness_doc,
+      ulb_id,
     } = req.body;
 
     const isExistingConductorEmail = await prisma.parking_incharge.findFirst({
@@ -40,7 +41,13 @@ class ParkingInchargeDao {
       });
     }
 
-    const uniqueId = generateUniqueId("INC");
+    const ulb_code = await prisma.$queryRaw<any[]>`
+      SELECT code FROM ulb_masters WHERE id = ${ulb_id}::INT
+    `
+
+    console.log(ulb_code, "ulb_code=========>>>")
+
+    const uniqueId = generateUniqueId(`PMSA-${ulb_code[0]?.code}-`);
 
     const date = new Date();
     const query: Prisma.parking_inchargeCreateArgs = {

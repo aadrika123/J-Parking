@@ -25,7 +25,7 @@ class ReceiptDao {
 
   static post = async (req: Request) => {
     const { in_time, out_time } = req.body;
-    const type_parking_space: number = req.body.type_parking_space;
+    const type_parking_space: number = Number(req.body.type_parking_space);
     const vehicle_type: number = req.body.vehicle_type;
 
     const date = new Date();
