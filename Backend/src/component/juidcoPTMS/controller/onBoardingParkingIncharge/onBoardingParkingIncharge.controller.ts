@@ -80,5 +80,30 @@ class ParkingInchargeController {
       return res.json({ error: error });
     }
   }
+
+  async delete(req: Request, res: Response, apiId: string) {
+    const resObj: resObj = {
+      apiId,
+      action: "DELETE",
+      version: "1.0",
+    };
+
+    try {
+      const data = await this.parkingInchargeDao.delete(req);
+
+      if (!data) {
+        return res.json({
+          error: "failed to delete Incharge!",
+        });
+      }
+
+      return res.json({
+        message: "Incharge Deleted Successfully!",
+        data: data,
+      });
+    } catch (error: any) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  }
 }
 export default ParkingInchargeController;

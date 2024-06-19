@@ -43,9 +43,9 @@ class ParkingInchargeDao {
 
     const ulb_code = await prisma.$queryRaw<any[]>`
       SELECT code FROM ulb_masters WHERE id = ${ulb_id}::INT
-    `
+    `;
 
-    console.log(ulb_code, "ulb_code=========>>>")
+    console.log(ulb_code, "ulb_code=========>>>");
 
     const uniqueId = generateUniqueId(`PMSA-${ulb_code[0]?.code}-`);
 
@@ -135,6 +135,16 @@ class ParkingInchargeDao {
     const dataResult = await prisma.$queryRawUnsafe<any[]>(qr, limit, offset);
 
     return generateRes({ page, totalItems, totalPages, data: dataResult });
+  }
+
+  async delete(req: Request) {
+    const { id } = req.body;
+
+    const data = await prisma.parking_incharge.delete({
+      where: { id: Number(id) },
+    });
+
+    return generateRes(data);
   }
 }
 

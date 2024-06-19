@@ -22,5 +22,11 @@ export default class OnBoardingInchargeRoute {
       .get((req: Request, res: Response) =>
         parkingInchargeController.get(req, res, "0102")
       );
+
+    app
+      .route(`${baseUrl}/delete-parking-incharge`)
+      .post((req: Request, res: Response) =>
+        parkingInchargeController.delete(req, res, "0103")
+      );
   }
 }
