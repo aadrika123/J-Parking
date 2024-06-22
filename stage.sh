@@ -1,5 +1,5 @@
 #!/bin/sh
-SERVER_PORT=6001
+SERVER_PORT=6002
 DB_PASSWORD="Secure@2023%3F"
 
 installModules () {
