@@ -1,0 +1,26 @@
+{
+  date: '2024-06-22T05:16:04.281Z',
+  message: '\n' +
+    'Invalid `prisma.receipts.create()` invocation in\n' +
+    '/home/krish-vishwakarma/Desktop/J-Parking/Backend/src/component/juidcoPTMS/dao/receipt/receipt.dao.ts:59:40\n' +
+    '\n' +
+    '  56 \n' +
+    '  57 type_parking_space === 0;\n' +
+    '  58 \n' +
+    '→ 59 const data = await prisma.receipts.create(\n' +
+    'Foreign key constraint failed on the field: `receipts_incharge_id_fkey (index)`',
+  apiId: '0501',
+  level: 'error',
+  timestamp: '6/22/2024, 10:46:04 AM'
+}
+{
+  date: '2024-06-22T05:16:46.582Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRaw()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42P01`. Message: `relation "ulb_masters" does not exist`',
+  apiId: '0101',
+  level: 'error',
+  timestamp: '6/22/2024, 10:46:46 AM'
+}

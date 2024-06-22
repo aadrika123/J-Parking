@@ -1,0 +1,22 @@
+{
+  date: '2024-06-21T07:20:31.146Z',
+  message: '\n' +
+    'Invalid `prisma.parking_area.create()` invocation in\n' +
+    '/home/krish-vishwakarma/Desktop/J-Parking/Backend/src/component/juidcoPTMS/dao/onBoardParkingArea/onboardParkingArea.ts:48:44\n' +
+    '\n' +
+    '  45   },\n' +
+    '  46 };\n' +
+    '  47 \n' +
+    '→ 48 const data = await prisma.parking_area.create(\n' +
+    'error: Environment variable not found: DATABASE_URL.\n' +
+    '  -->  schema.prisma:7\n' +
+    '   | \n' +
+    ' 6 |   provider = "postgresql"\n' +
+    ' 7 |   url      = env("DATABASE_URL")\n' +
+    '   | \n' +
+    '\n' +
+    'Validation Error Count: 1',
+  apiId: '0201',
+  level: 'error',
+  timestamp: '6/21/2024, 12:50:31 PM'
+}

@@ -1,7 +1,7 @@
 import { Request } from "express";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { generateRes } from "../../../../util/generateRes";
-import { generateUnique } from "../../../../util/helper/generateUniqueNo";
+import generateUniqueId from "../../../../util/helper/generateUniqueNo";
 import { timeDifferenceInHours } from "../../../../util/helper";
 
 const prisma = new PrismaClient();
@@ -29,7 +29,8 @@ class ReceiptDao {
     const vehicle_type: number = req.body.vehicle_type;
 
     const date = new Date();
-    const receipt_no = generateUnique("PK");
+
+    const receipt_no = generateUniqueId("T0050");
 
     const getAreaAmount = await prisma.parking_area.findUnique({
       where: {
@@ -69,6 +70,42 @@ class ReceiptDao {
         in_time: in_time,
         out_time: out_time,
         receipt_no: receipt_no,
+      },
+      select: {
+        amount: true,
+        vehicle_no: true,
+        vehicle_type: true,
+        type_parking_space: true,
+        incharge_id: true,
+
+        area: {
+          select: {
+            id: true,
+            address: true,
+            zip_code: true,
+            four_wheeler_capacity: true,
+            two_wheeler_capacity: true,
+            landmark: true,
+            station: true,
+          },
+        },
+        parking_incharge: {
+          select: {
+            first_name: true,
+            middle_name: true,
+            last_name: true,
+            age: true,
+            blood_grp: true,
+            mobile_no: true,
+            emergency_mob_no: true,
+            email_id: true,
+            cunique_id: true,
+          },
+        },
+        in_time: true,
+        out_time: true,
+        receipt_no: true,
+        date: true,
       },
     });
 
