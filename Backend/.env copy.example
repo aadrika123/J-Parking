@@ -5,3 +5,8 @@ PORT=5001
 # DATABASE_URL="postgresql://postgres:root@localhost:5432/juidco_hrms?schema=public"
 # "postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=SCHEMA"
 DATABASE_URL="postgresql://postgres:123456@localhost:5432/juidco_ptms"
+
+
+DMS_UPLOAD = "https://jharkhandegovernance.com/dms/backend/document/upload"
+
+DMS_GET = "https://jharkhandegovernance.com/dms/backend/document/view-by-reference"
