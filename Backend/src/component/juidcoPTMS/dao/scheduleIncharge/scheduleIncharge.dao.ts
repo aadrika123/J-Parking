@@ -32,9 +32,10 @@ class ScheduleInchargeDao {
     // const setToTime = Number(to_time.replace(":", "").padStart(4, "0"));
 
     try {
+      const new_from_time = Number(from_time.split(":").join(""));
       const checkFromDate = await prisma.$queryRawUnsafe<any[]>(`
-       select id from scheduler where '${from_date}' between from_date and to_date 
-       or'${to_date}' between from_date and to_date 
+       select id from scheduler where ('${from_date}' between from_date and to_date 
+       or '${to_date}' between from_date and to_date) and CAST(REPLACE(to_time, ':', '') AS INT) >= ${new_from_time}
       `);
 
       if (checkFromDate.length > 0) {
@@ -162,8 +163,7 @@ class ScheduleInchargeDao {
 
     let qr = qr_func();
 
-    let searchConditions
-     = "";
+    let searchConditions = "";
 
     // ------------------  FILTER ------------------//
 

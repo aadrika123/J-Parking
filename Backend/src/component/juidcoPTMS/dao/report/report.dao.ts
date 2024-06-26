@@ -192,7 +192,7 @@ class ReportDao {
   };
 
   getCollections = async (req: Request) => {
-    const { from_date, to_date, area_id } = req.body;
+    const { from_date, to_date, area_id, incharge_id } = req.body;
 
     function qr_func(condition?: string) {
       return `
@@ -218,13 +218,36 @@ class ReportDao {
     let qr_3 = qr_func(
       `where vehicle_type = 'four_wheeler' and area_id = ${area_id}`
     );
-    const qr_4 = `
-      select * from parking_area where id = ${area_id}
-    `;
+
+    let qr_4 = "";
 
     let qr_5 = qr_func_2(`where area_id = ${area_id}`);
 
-    if (from_date && to_date) {
+    if(area_id){
+      qr_4 = `
+      select * from parking_area where id = ${area_id}
+    `;
+    }
+
+    if (incharge_id) {
+      qr_1 = qr_func(`where incharge_id = '${incharge_id}'`);
+      qr_2 = qr_func(
+        `where vehicle_type = 'two_wheeler' and incharge_id = '${incharge_id}'`
+      );
+      qr_3 = qr_func(
+        `where vehicle_type = 'four_wheeler' and incharge_id = '${incharge_id}'`
+      );
+
+      qr_4 = `
+        select * from parking_area
+        join receipts as rc on parking_area.id = rc.area_id
+        where rc.incharge_id = '${incharge_id}'
+      `;
+
+      qr_5 = qr_func_2(`where incharge_id = '${incharge_id}'`);
+    }
+
+    if (from_date && to_date && area_id) {
       qr_1 = qr_func(`
         where date between '${from_date}' and '${to_date}' and area_id = ${area_id}
       `);
@@ -237,10 +260,43 @@ class ReportDao {
         where date between '${from_date}' and '${to_date}' and vehicle_type = 'four_wheeler' and area_id = ${area_id}
       `);
 
+      qr_4 = `
+      select * from parking_area where id = ${area_id}
+    `;
+
       qr_5 = qr_func_2(`
         where date between '${from_date}' and '${to_date}' and area_id = ${area_id}
       `);
     }
+
+    if (from_date && to_date && incharge_id) {
+      console.log(true, "incharge_id");
+      qr_1 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and incharge_id = '${incharge_id}'
+      `);
+
+      qr_2 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and vehicle_type = 'two_wheeler' and incharge_id = '${incharge_id}'
+      `);
+
+      qr_3 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and vehicle_type = 'four_wheeler' and incharge_id = '${incharge_id}'
+      `);
+
+      qr_4 = `
+        select * from parking_area
+        join receipts as rc on parking_area.id = rc.area_id
+        where rc.incharge_id = '${incharge_id}'
+      `;
+
+      qr_5 = qr_func_2(`
+        where date between '${from_date}' and '${to_date}' and incharge_id = '${incharge_id}'
+      `);
+    }
+
+    const check = await prisma.$queryRawUnsafe(qr_5);
+
+    console.log(check, "check");
 
     const [data1, data2, data3, data4, data5] = await prisma.$transaction([
       prisma.$queryRawUnsafe(qr_1),

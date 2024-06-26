@@ -1,0 +1,605 @@
+{
+  date: '2024-06-26T05:21:14.004Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRaw()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42P01`. Message: `relation "ulb_masters" does not exist`',
+  apiId: '0101',
+  level: 'error',
+  timestamp: '6/26/2024, 10:51:14 AM'
+}
+{
+  date: '2024-06-26T06:11:25.761Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRaw()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42P01`. Message: `relation "ulb_masters" does not exist`',
+  apiId: '0101',
+  level: 'error',
+  timestamp: '6/26/2024, 11:41:25 AM'
+}
+{
+  date: '2024-06-26T06:50:25.717Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:20:25 PM'
+}
+{
+  date: '2024-06-26T06:52:49.919Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "pmsa" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:22:49 PM'
+}
+{
+  date: '2024-06-26T06:53:37.538Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "pmsa" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:23:37 PM'
+}
+{
+  date: '2024-06-26T06:54:03.880Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:24:03 PM'
+}
+{
+  date: '2024-06-26T06:56:34.104Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:26:34 PM'
+}
+{
+  date: '2024-06-26T06:58:04.427Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:28:04 PM'
+}
+{
+  date: '2024-06-26T07:00:20.486Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:30:20 PM'
+}
+{
+  date: '2024-06-26T07:00:55.269Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:30:55 PM'
+}
+{
+  date: '2024-06-26T07:01:33.445Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:31:33 PM'
+}
+{
+  date: '2024-06-26T07:03:14.300Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:33:14 PM'
+}
+{
+  date: '2024-06-26T07:03:55.742Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:33:55 PM'
+}
+{
+  date: '2024-06-26T07:03:57.572Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:33:57 PM'
+}
+{
+  date: '2024-06-26T07:04:32.588Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:34:32 PM'
+}
+{
+  date: '2024-06-26T07:04:52.320Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:34:52 PM'
+}
+{
+  date: '2024-06-26T07:05:37.686Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:35:37 PM'
+}
+{
+  date: '2024-06-26T07:08:00.322Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:38:00 PM'
+}
+{
+  date: '2024-06-26T07:08:58.154Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:38:58 PM'
+}
+{
+  date: '2024-06-26T07:09:57.377Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:39:57 PM'
+}
+{
+  date: '2024-06-26T07:14:59.054Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:44:59 PM'
+}
+{
+  date: '2024-06-26T07:15:27.806Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:45:27 PM'
+}
+{
+  date: '2024-06-26T07:16:23.720Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:46:23 PM'
+}
+{
+  date: '2024-06-26T07:17:03.894Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:47:03 PM'
+}
+{
+  date: '2024-06-26T07:17:22.104Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:47:22 PM'
+}
+{
+  date: '2024-06-26T07:17:37.818Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:47:37 PM'
+}
+{
+  date: '2024-06-26T07:17:58.012Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:47:58 PM'
+}
+{
+  date: '2024-06-26T07:18:29.739Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "area_id" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:48:29 PM'
+}
+{
+  date: '2024-06-26T07:19:04.977Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "area_id" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:49:04 PM'
+}
+{
+  date: '2024-06-26T07:19:14.827Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "area_id" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:49:14 PM'
+}
+{
+  date: '2024-06-26T07:19:16.086Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "area_id" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:49:16 PM'
+}
+{
+  date: '2024-06-26T07:19:16.942Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "area_id" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:49:16 PM'
+}
+{
+  date: '2024-06-26T07:19:17.616Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "area_id" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:49:17 PM'
+}
+{
+  date: '2024-06-26T07:23:28.830Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:53:28 PM'
+}
+{
+  date: '2024-06-26T07:24:20.920Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:54:20 PM'
+}
+{
+  date: '2024-06-26T07:28:40.918Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:58:40 PM'
+}
+{
+  date: '2024-06-26T07:28:43.167Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 12:58:43 PM'
+}
+{
+  date: '2024-06-26T07:30:24.609Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:00:24 PM'
+}
+{
+  date: '2024-06-26T07:31:31.417Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:01:31 PM'
+}
+{
+  date: '2024-06-26T07:31:41.553Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:01:41 PM'
+}
+{
+  date: '2024-06-26T07:31:51.537Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:01:51 PM'
+}
+{
+  date: '2024-06-26T07:32:02.255Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:02:02 PM'
+}
+{
+  date: '2024-06-26T07:32:26.221Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:02:26 PM'
+}
+{
+  date: '2024-06-26T07:32:44.993Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:02:44 PM'
+}
+{
+  date: '2024-06-26T07:32:52.041Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:02:52 PM'
+}
+{
+  date: '2024-06-26T07:33:06.197Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "undefined" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:03:06 PM'
+}
+{
+  date: '2024-06-26T07:33:32.535Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "pmsa" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:03:32 PM'
+}
+{
+  date: '2024-06-26T07:41:25.143Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "pmsa" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:11:25 PM'
+}
+{
+  date: '2024-06-26T07:41:26.279Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "pmsa" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:11:26 PM'
+}
+{
+  date: '2024-06-26T07:41:48.544Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "pmsa" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:11:48 PM'
+}
+{
+  date: '2024-06-26T07:41:50.030Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "pmsa" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:11:50 PM'
+}
+{
+  date: '2024-06-26T07:42:45.265Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "pmsa" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:12:45 PM'
+}
+{
+  date: '2024-06-26T07:42:46.240Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "pmsa" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:12:46 PM'
+}
+{
+  date: '2024-06-26T07:43:26.685Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "pmsa" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:13:26 PM'
+}
+{
+  date: '2024-06-26T07:43:28.036Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42703`. Message: `column "pmsa" does not exist`',
+  apiId: '0504',
+  level: 'error',
+  timestamp: '6/26/2024, 1:13:28 PM'
+}
