@@ -228,7 +228,7 @@ class ScheduleInchargeDao {
     const { incharge_id, from_date, to_date } = req.body;
 
     const query: string = `
-	    select incharge_id, parking_area.* from scheduler
+	    select scheduler.*, parking_area.* from scheduler
       join parking_area on scheduler.location_id::INT = parking_area.id
     	where incharge_id = '${incharge_id}' AND '${from_date}' between from_date and to_date 
       or '${to_date}' between from_date and to_date;

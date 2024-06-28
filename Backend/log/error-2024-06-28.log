@@ -1,0 +1,140 @@
+{
+  date: '2024-06-28T04:59:10.964Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `22007`. Message: `ERROR: invalid input syntax for type date: "undefined"`',
+  apiId: '0306',
+  level: 'error',
+  timestamp: '6/28/2024, 10:29:10 AM'
+}
+{
+  date: '2024-06-28T05:05:09.979Z',
+  message: '\n' +
+    'Invalid `prisma.parking_incharge.create()` invocation in\n' +
+    '/home/krish/Desktop/aadrika/J-Parking/Backend/src/component/juidcoPTMS/dao/onBoardParkingIncharge/onboardParkingIncharge.dao.ts:69:48\n' +
+    '\n' +
+    '  66   },\n' +
+    '  67 };\n' +
+    '  68 \n' +
+    '→ 69 const data = await prisma.parking_incharge.create({\n' +
+    '       data: {\n' +
+    '         middle_name: undefined,\n' +
+    '         last_name: undefined,\n' +
+    '         age: undefined,\n' +
+    '         blood_grp: undefined,\n' +
+    '         mobile_no: undefined,\n' +
+    '         address: undefined,\n' +
+    '         email_id: undefined,\n' +
+    '         emergency_mob_no: undefined,\n' +
+    '         kyc_doc: undefined,\n' +
+    '         fitness_doc: undefined,\n' +
+    '         cunique_id: "PK-12121",\n' +
+    '         updated_at: new Date("2024-06-28T05:05:09.968Z"),\n' +
+    '     +   first_name: String\n' +
+    '       }\n' +
+    '     })\n' +
+    '\n' +
+    'Argument `first_name` is missing.',
+  apiId: '0101',
+  level: 'error',
+  timestamp: '6/28/2024, 10:35:09 AM'
+}
+{
+  date: '2024-06-28T05:14:47.156Z',
+  message: '\n' +
+    'Invalid `prisma.parking_incharge.create()` invocation in\n' +
+    '/home/krish/Desktop/aadrika/J-Parking/Backend/src/component/juidcoPTMS/dao/onBoardParkingIncharge/onboardParkingIncharge.dao.ts:69:48\n' +
+    '\n' +
+    '  66   },\n' +
+    '  67 };\n' +
+    '  68 \n' +
+    '→ 69 const data = await prisma.parking_incharge.create({\n' +
+    '       data: {\n' +
+    '         middle_name: undefined,\n' +
+    '         last_name: undefined,\n' +
+    '         age: undefined,\n' +
+    '         blood_grp: undefined,\n' +
+    '         mobile_no: undefined,\n' +
+    '         address: undefined,\n' +
+    '         email_id: undefined,\n' +
+    '         emergency_mob_no: undefined,\n' +
+    '         kyc_doc: undefined,\n' +
+    '         fitness_doc: undefined,\n' +
+    '         cunique_id: "PK-12121",\n' +
+    '         updated_at: new Date("2024-06-28T05:14:47.152Z"),\n' +
+    '     +   first_name: String\n' +
+    '       }\n' +
+    '     })\n' +
+    '\n' +
+    'Argument `first_name` is missing.',
+  apiId: '0101',
+  level: 'error',
+  timestamp: '6/28/2024, 10:44:47 AM'
+}
+{
+  date: '2024-06-28T05:16:17.201Z',
+  message: '\n' +
+    'Invalid `prisma.parking_incharge.create()` invocation in\n' +
+    '/home/krish/Desktop/aadrika/J-Parking/Backend/src/component/juidcoPTMS/dao/onBoardParkingIncharge/onboardParkingIncharge.dao.ts:70:48\n' +
+    '\n' +
+    '  67   },\n' +
+    '  68 };\n' +
+    '  69 \n' +
+    '→ 70 const data = await prisma.parking_incharge.create({\n' +
+    '       data: {\n' +
+    '         middle_name: undefined,\n' +
+    '         last_name: undefined,\n' +
+    '         age: undefined,\n' +
+    '         blood_grp: undefined,\n' +
+    '         mobile_no: undefined,\n' +
+    '         address: undefined,\n' +
+    '         email_id: undefined,\n' +
+    '         emergency_mob_no: undefined,\n' +
+    '         kyc_doc: undefined,\n' +
+    '         fitness_doc: undefined,\n' +
+    '         cunique_id: "PMSA-$-2380",\n' +
+    '         updated_at: new Date("2024-06-28T05:16:17.191Z"),\n' +
+    '     +   first_name: String\n' +
+    '       }\n' +
+    '     })\n' +
+    '\n' +
+    'Argument `first_name` is missing.',
+  apiId: '0101',
+  level: 'error',
+  timestamp: '6/28/2024, 10:46:17 AM'
+}
+{
+  date: '2024-06-28T05:19:05.887Z',
+  message: '\n' +
+    'Invalid `prisma.parking_incharge.create()` invocation in\n' +
+    '/home/krish/Desktop/aadrika/J-Parking/Backend/src/component/juidcoPTMS/dao/onBoardParkingIncharge/onboardParkingIncharge.dao.ts:70:48\n' +
+    '\n' +
+    '  67   },\n' +
+    '  68 };\n' +
+    '  69 \n' +
+    '→ 70 const data = await prisma.parking_incharge.create({\n' +
+    '       data: {\n' +
+    '         first_name: "rahul",\n' +
+    '         middle_name: "kumar",\n' +
+    '         last_name: "kumar",\n' +
+    '         age: 43,\n' +
+    '              ~~\n' +
+    '         blood_grp: "b+",\n' +
+    '         mobile_no: "24334534253",\n' +
+    '         address: "Ranchi Jharkhand",\n' +
+    '         email_id: "rahul@gmail.com",\n' +
+    '         emergency_mob_no: "52345324534",\n' +
+    '         kyc_doc: undefined,\n' +
+    '         fitness_doc: undefined,\n' +
+    '         cunique_id: "PMSA-$-0738",\n' +
+    '         updated_at: new Date("2024-06-28T05:19:05.884Z")\n' +
+    '       }\n' +
+    '     })\n' +
+    '\n' +
+    'Argument `age`: Invalid value provided. Expected String, provided Int.',
+  apiId: '0101',
+  level: 'error',
+  timestamp: '6/28/2024, 10:49:05 AM'
+}
