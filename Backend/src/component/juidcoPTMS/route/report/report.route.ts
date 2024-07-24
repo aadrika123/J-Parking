@@ -64,5 +64,11 @@ export default class ReportRoute {
       .post((req: Request, res: Response) =>
         reportGeneration.getVehicleCount(req, res, "0508")
       );
+
+    app
+      .route(`${baseUrl}/report/all`)
+      .post((req: Request, res: Response) =>
+        reportGeneration.generateAllReports(req, res, "0509")
+      );
   }
 }

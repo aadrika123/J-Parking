@@ -460,6 +460,54 @@ class ReportDao {
   };
 
   //   ------------------------- GET REAL-TIME COLLECTION ----------------------------//
+
+
+
+  // --------------------------- GENERATE ALL REPORTS ------------------------------////
+
+  generateAllReports = async (req: Request) => {
+    const { from_date, to_date } = req.body;
+
+    const qr_func = (condition?: string) => {
+      return `
+        SELECT
+          COUNT(vehicle_no)::INT AS vehicle_count,
+        SUM(amount)::INT AS total_amount, receipts.incharge_id, date, pa.*
+        FROM receipts
+        JOIN parking_area as pa on pa.id = area_id
+        ${
+          condition || `where date between '${from_date}' and '${to_date}'`
+        }
+        GROUP BY date, receipts.incharge_id, pa.id
+        ORDER BY date;
+      `;
+    };
+
+    let qr_1 = qr_func(`where vehicle_type = 'two_wheeler'`);
+    let qr_2 = qr_func(`where vehicle_type = 'four_wheeler'`);
+
+    if (from_date && to_date) {
+      qr_1 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and vehicle_type = 'two_wheeler'
+      `);
+
+      qr_2 = qr_func(`
+        where date between '${from_date}' and '${to_date}' and vehicle_type = 'four_wheeler'
+      `);
+    }
+    const [data1, data2] = await prisma.$transaction([
+      prisma.$queryRawUnsafe(qr_1),
+      prisma.$queryRawUnsafe(qr_2),
+    ]);
+
+    const data = {
+      two_wheeler: data1,
+      four_wheeler: data2,
+    };
+
+    return generateRes(data);
+  };
+
 }
 
 export default ReportDao;

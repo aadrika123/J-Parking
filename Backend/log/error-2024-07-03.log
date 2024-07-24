@@ -1,0 +1,11 @@
+{
+  date: '2024-07-03T09:05:43.733Z',
+  message: '\n' +
+    'Invalid `prisma.$queryRawUnsafe()` invocation:\n' +
+    '\n' +
+    '\n' +
+    'Raw query failed. Code: `42803`. Message: `ERROR: column "receipts.incharge_id" must appear in the GROUP BY clause or be used in an aggregate function`',
+  apiId: '0509',
+  level: 'error',
+  timestamp: '3/7/2024, 2:35:43 pm'
+}

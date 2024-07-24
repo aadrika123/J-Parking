@@ -1,0 +1,15 @@
+{
+  date: '2024-07-19T07:53:45.891Z',
+  message: '\n' +
+    'Invalid `prisma.receipts.create()` invocation in\n' +
+    '/home/krish/Desktop/aadrika/J-Parking/Backend/src/component/juidcoPTMS/dao/receipt/receipt.dao.ts:60:40\n' +
+    '\n' +
+    '  57 \n' +
+    '  58 type_parking_space === 0;\n' +
+    '  59 \n' +
+    '→ 60 const data = await prisma.receipts.create(\n' +
+    'Foreign key constraint failed on the field: `receipts_incharge_id_fkey (index)`',
+  apiId: '0501',
+  level: 'error',
+  timestamp: '19/7/2024, 1:23:45 pm'
+}
