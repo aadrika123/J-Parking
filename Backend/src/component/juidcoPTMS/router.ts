@@ -5,6 +5,7 @@ import FileUploadRoute from "./route/fileUpload.route";
 import ScheduleInchargeRoute from "./route/scheduleIncharge/scheduleIncharge.route";
 import ReceiptRoute from "./route/receipt/receipt.route";
 import ReportRoute from "./route/report/report.route";
+import UserRoute from "./route/user/user.route";
 
 /*
 |--------------------------------------------------------------------------
@@ -30,5 +31,6 @@ export default class ParkingRoute {
     new ScheduleInchargeRoute(app);
     new ReceiptRoute(app);
     new ReportRoute(app);
+    new UserRoute(app);
   }
 }
