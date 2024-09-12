@@ -71,7 +71,6 @@ class ScheduleInchargeDao {
   async updateSchedulerIncharge(req: Request) {
     const {
       id,
-      location_id,
       incharge_id,
       from_date,
       to_date,
@@ -83,23 +82,36 @@ class ScheduleInchargeDao {
     // const setFromTime = Number(from_time.replace(":", "").padStart(4, "0"));
     // const setToTime = Number(to_time.replace(":", "").padStart(4, "0"));
 
-    const query = `
-    UPDATE scheduler 
-    SET 
-      location_id = $1,
-      incharge_id = $2,
-      from_date = $3,
-      to_date = $4,
-      from_time = $5,
-      to_time = $6,
-      extended_hours = $8,
-      updated_at = NOW()
-    WHERE id = $7
-    RETURNING *;
-  `;
+  //   const query = `
+  //   UPDATE scheduler 
+  //   SET 
+  //     location_id = $1,
+  //     incharge_id = $2,
+  //     from_date = $3,
+  //     to_date = $4,
+  //     from_time = $5,
+  //     to_time = $6,
+  //     extended_hours = $8,
+  //     updated_at = NOW()
+  //   WHERE id = $7
+  //   RETURNING *;
+  // `;
+
+  const query = `
+  UPDATE scheduler 
+  SET 
+    incharge_id = $1,
+    from_date = $2,
+    to_date = $3,
+    from_time = $4,
+    to_time = $5,
+    extended_hours = $7,
+    updated_at = NOW()
+  WHERE id = $6
+  RETURNING *;
+`;
 
     const values = [
-      location_id,
       incharge_id,
       new Date(from_date),
       new Date(to_date),
