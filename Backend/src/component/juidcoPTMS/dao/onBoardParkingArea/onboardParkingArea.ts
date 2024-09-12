@@ -60,7 +60,7 @@ class ParkingAreaDao {
 
       const qr_func = (extend?: string) => {
         return `
-          SELECT * FROM parking_area ${extend ? extend : ""} LIMIT $1 OFFSET $2
+          SELECT * FROM parking_area ${extend ? extend : ""} order by id desc LIMIT $1 OFFSET $2
         `;
       };
       let qr = qr_func();
