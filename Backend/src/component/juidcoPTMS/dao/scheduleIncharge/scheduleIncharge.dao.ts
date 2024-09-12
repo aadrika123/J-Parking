@@ -77,6 +77,7 @@ class ScheduleInchargeDao {
       to_date,
       from_time,
       to_time,
+      extended_hours
     } = req.body;
 
     // const setFromTime = Number(from_time.replace(":", "").padStart(4, "0"));
@@ -91,6 +92,7 @@ class ScheduleInchargeDao {
       to_date = $4,
       from_time = $5,
       to_time = $6,
+      extended_hours = $8,
       updated_at = NOW()
     WHERE id = $7
     RETURNING *;
@@ -104,6 +106,7 @@ class ScheduleInchargeDao {
       from_time,
       to_time,
       id,
+      extended_hours
     ];
 
     try {

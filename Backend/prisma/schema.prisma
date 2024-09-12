@@ -46,15 +46,16 @@ model parking_incharge {
 }
 
 model scheduler {
-  id          Int      @id @default(autoincrement())
-  incharge_id String?
-  location_id Int?
-  from_date   DateTime @db.Date
-  to_date     DateTime @db.Date
-  from_time   String?
-  to_time     String?
-  created_at  DateTime @default(now()) @map("created_at")
-  updated_at  DateTime @updatedAt @map("updated_at")
+  id             Int      @id @default(autoincrement())
+  incharge_id    String?
+  location_id    Int?
+  from_date      DateTime @db.Date
+  to_date        DateTime @db.Date
+  from_time      String?
+  to_time        String?
+  extended_hours Json?
+  created_at     DateTime @default(now()) @map("created_at")
+  updated_at     DateTime @updatedAt @map("updated_at")
 }
 
 enum type_parking_space {
