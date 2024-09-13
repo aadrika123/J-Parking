@@ -28,6 +28,8 @@ class ParkingAreaDao {
       four_wheeler_rate,
     } = req.body;
 
+    const { ulb_id } = req.body.auth
+
     const query: Prisma.parking_areaCreateArgs = {
       data: {
         address: address,
@@ -42,6 +44,7 @@ class ParkingAreaDao {
         agreement_doc: agreement_doc,
         two_wheeler_rate: parseInt(two_wheeler_rate),
         four_wheeler_rate: parseInt(four_wheeler_rate),
+        ulb_id: ulb_id,
       },
     };
 
@@ -54,6 +57,7 @@ class ParkingAreaDao {
     const { zip_code, station, search } = req.query;
     const limit: number = Number(req.query.limit);
     const page: number = Number(req.query.page);
+    const { ulb_id } = req.body.auth
 
     try {
       const offset = (page - 1) * limit;
@@ -100,6 +104,15 @@ class ParkingAreaDao {
 
       // -------------------  FILTER -------------------//
 
+      const data = 'where'
+      const regex = new RegExp(`\\b${data}\\b`, 'i');
+      const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
+      if (regex.test(qr)) {
+        qr = qr.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+      } else {
+        qr = qr.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      }
+
       // -------------------  PAGINING -------------------//
       const countQuery = `
         SELECT COUNT(id)::INT FROM parking_area ${searchConditions};
@@ -126,8 +139,12 @@ class ParkingAreaDao {
     }
   }
 
-  async get_all_parking_area() {
+  async get_all_parking_area(req: Request) {
+    const { ulb_id } = req.body.auth
     const data = await prisma.parking_area.findMany({
+      where: {
+        ulb_id: ulb_id
+      },
       select: {
         id: true,
         address: true,

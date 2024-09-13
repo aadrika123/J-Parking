@@ -6,7 +6,7 @@ import { timeDifferenceInHours } from "../../../../util/helper";
 
 const prisma = new PrismaClient();
 
-export const genrateDate = () => {};
+export const genrateDate = () => { };
 class ReceiptDao {
   static getAreaAmount = async (req: Request) => {
     const { area_id } = req.query;
@@ -27,6 +27,7 @@ class ReceiptDao {
     const { in_time, out_time } = req.body;
     const type_parking_space: number = Number(req.body.type_parking_space);
     const vehicle_type: number = req.body.vehicle_type;
+    const { ulb_id } = req.body.auth
 
     const date = new Date();
 
@@ -70,6 +71,7 @@ class ReceiptDao {
         in_time: in_time,
         out_time: out_time,
         receipt_no: receipt_no,
+        ulb_id: ulb_id
       },
       select: {
         amount: true,
