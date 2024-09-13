@@ -14,7 +14,8 @@ export const sendResponse = async (
   apiId: string,
   version: string,
   res: Response,
-  deviceId?: string
+  deviceId?: string,
+  authenticated?: boolean
 ): Promise<any> => {
   if (!status) {
     resData = errorCodes[resData as keyof typeof errorCodes];
@@ -29,6 +30,7 @@ export const sendResponse = async (
   }
 
   const jsonRes = {
+    authenticated,
     status,
     message,
     "meta-data": {

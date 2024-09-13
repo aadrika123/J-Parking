@@ -78,7 +78,7 @@ class ParkingAreaController {
     };
 
     try {
-      const data = await this.parkingAreaDao.get_all_parking_area();
+      const data = await this.parkingAreaDao.get_all_parking_area(req);
 
       if (data?.status === "ERROR") {
         return res.json({

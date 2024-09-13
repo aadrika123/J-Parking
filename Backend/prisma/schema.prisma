@@ -19,6 +19,7 @@ model parking_area {
   four_wheeler_rate     Int
   total_parking_area    Int?
   agreement_doc         String?
+  ulb_id                Int                 @default(2)
   type_parking_space    type_parking_space?
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -40,6 +41,7 @@ model parking_incharge {
   kyc_doc          String?
   fitness_doc      String?
   zip_code         String?
+  ulb_id           Int        @default(2)
   created_at       DateTime   @default(now()) @map("created_at")
   updated_at       DateTime   @updatedAt @map("updated_at")
   receipts         receipts[]
@@ -54,6 +56,7 @@ model scheduler {
   from_time      String?
   to_time        String?
   extended_hours Json?
+  ulb_id         Int      @default(2)
   created_at     DateTime @default(now()) @map("created_at")
   updated_at     DateTime @updatedAt @map("updated_at")
 }
@@ -77,6 +80,7 @@ model receipts {
   date               DateTime            @db.Date
   in_time            String
   out_time           String
+  ulb_id             Int                 @default(2)
   created_at         DateTime            @default(now()) @map("created_at")
   updated_at         DateTime            @updatedAt @map("updated_at")
 }

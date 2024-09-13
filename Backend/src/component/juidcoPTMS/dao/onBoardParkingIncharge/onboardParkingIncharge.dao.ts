@@ -25,9 +25,10 @@ class ParkingInchargeDao {
       email_id,
       emergency_mob_no,
       kyc_doc,
-      fitness_doc,
-      ulb_id,
+      fitness_doc
     } = req.body;
+
+    const { ulb_id } = req.body.auth
 
     const isExistingConductorEmail = await prisma.parking_incharge.findFirst({
       where: { email_id: email_id },
@@ -62,6 +63,7 @@ class ParkingInchargeDao {
         emergency_mob_no: emergency_mob_no,
         kyc_doc: kyc_doc,
         fitness_doc: fitness_doc,
+        ulb_id: ulb_id,
         cunique_id: uniqueId,
         updated_at: date,
       },
@@ -76,13 +78,13 @@ class ParkingInchargeDao {
     const { cunique_id, name, search } = req.query;
     const limit: number = Number(req.query.limit);
     const page: number = Number(req.query.page);
+    const { ulb_id } = req.body.auth
 
     const offset = (page - 1) * limit;
 
     const qr_func = (extend?: string) => {
       return `
-        SELECT * FROM parking_incharge ${
-          extend ? extend : ""
+        SELECT * FROM parking_incharge ${extend ? extend : ""
         } LIMIT $1 OFFSET $2
       `;
     };
@@ -120,6 +122,16 @@ class ParkingInchargeDao {
       searchConditions += condition.join(" AND ");
 
       qr = qr_func(searchConditions);
+
+    }
+
+    const data = 'where'
+    const regex = new RegExp(`\\b${data}\\b`, 'i');
+    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
+    if (regex.test(qr)) {
+      qr = qr.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr = qr.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
     }
 
     const countQuery = `
