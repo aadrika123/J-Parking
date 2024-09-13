@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 class ReportDao {
   generateReport = async (req: Request) => {
     const { incharge_id, area_id, from_date, to_date } = req.body;
+    const { ulb_id } = req.body.auth
     let amounts: any = [];
     let query: string = "";
     const conductor: string = ", receipts.incharge_id ";
@@ -17,17 +18,14 @@ class ReportDao {
       monthlyWise?: boolean
     ): string {
       return `
-      select area_id, sum(amount)::INT as total_collection , ${
-        !monthlyWise ? "EXTRACT (MONTH FROM date) as month" : "date"
-      } , receipts.incharge_id ${incharge || ""} from receipts 
+      select area_id, sum(amount)::INT as total_collection , ${!monthlyWise ? "EXTRACT (MONTH FROM date) as month" : "date"
+        } , receipts.incharge_id ${incharge || ""} from receipts where ulb_id=${ulb_id}
         LEFT JOIN parking_area as bm ON receipts.area_id = bm.id
         LEFT JOIN parking_incharge as cm ON receipts.incharge_id = cm.cunique_id
-        ${extend_query} group by area_id, ${
-        !monthlyWise ? "EXTRACT (MONTH FROM date)" : "date"
-      }, receipts.incharge_id
-         ${incharge || ""} order by ${
-        !monthlyWise ? "EXTRACT (MONTH FROM date)" : "date"
-      } ASC
+        ${extend_query} group by area_id, ${!monthlyWise ? "EXTRACT (MONTH FROM date)" : "date"
+        }, receipts.incharge_id
+         ${incharge || ""} order by ${!monthlyWise ? "EXTRACT (MONTH FROM date)" : "date"
+        } ASC
       `;
     }
 
@@ -38,7 +36,7 @@ class ReportDao {
       query = query_fn(query_extend, conductor);
 
       amounts = await prisma.$queryRawUnsafe(`
-        select area_id, incharge_id,amount::INT, count(amount)::INT, sum(amount)::INT,date::DATE from receipts 
+        select area_id, incharge_id,amount::INT, count(amount)::INT, sum(amount)::INT,date::DATE from receipts where ulb_id=${ulb_id}
         group by area_id, incharge_id, amount, date
       `);
     }
@@ -49,7 +47,7 @@ class ReportDao {
 
       amounts = await prisma.$queryRawUnsafe(`
         select area_id,amount::INT, count(amount)::INT, sum(amount)::INT,date::DATE from receipts 
-        where area_id = '${area_id}'
+        where ulb_id=${ulb_id} and area_id = '${area_id}'
         group by area_id, amount, date
       `);
     }
@@ -60,7 +58,7 @@ class ReportDao {
       query = query_fn(query_extend, conductor);
 
       amounts = await prisma.$queryRawUnsafe(`
-        select area_id, incharge_id,amount::INT, count(amount)::INT, sum(amount)::INT,date::DATE from receipts 
+        select area_id, incharge_id,amount::INT, count(amount)::INT, sum(amount)::INT,date::DATE from receipts where ulb_id=${ulb_id}
         group by incharge_id, amount, date, area_id
         having date = '${from_date}'`);
     }
@@ -72,7 +70,7 @@ class ReportDao {
 
       amounts = await prisma.$queryRawUnsafe(`
         select area_id,amount::INT, count(amount)::INT, sum(amount)::INT,date::DATE from receipts
-        WHERE incharge_id = '${incharge_id}' AND date BETWEEN '${from_date}' AND '${to_date}'
+        WHERE ulb_id=${ulb_id} and incharge_id = '${incharge_id}' AND date BETWEEN '${from_date}' AND '${to_date}'
         group by area_id, amount, date
         ORDER BY date ASC`);
     }
@@ -96,7 +94,7 @@ class ReportDao {
 
       amounts = await prisma.$queryRawUnsafe(`
         select area_id,amount::INT, count(amount)::INT, sum(amount)::INT,date::DATE from receipts 
-        where area_id = '${area_id}'
+        where ulb_id=${ulb_id} and area_id = '${area_id}'
         group by area_id, amount, date
         having date = '${from_date}'`);
     }
@@ -107,7 +105,7 @@ class ReportDao {
       query = query_fn(query_extend);
       amounts = await prisma.$queryRawUnsafe(`
         select area_id,amount::INT, count(amount)::INT, sum(amount)::INT,date::DATE from receipts
-        WHERE area_id = '${area_id}' AND date BETWEEN '${from_date}' AND '${to_date}'
+        WHERE ulb_id=${ulb_id} and area_id = '${area_id}' AND date BETWEEN '${from_date}' AND '${to_date}'
         group by area_id, amount, date
         ORDER BY date ASC`);
     }
@@ -126,6 +124,7 @@ class ReportDao {
 
   getTotalAmount = async (req: Request) => {
     const { area_id, incharge_id, from_date, to_date, curr_date } = req.body;
+    const { ulb_id } = req.body.auth
     let query: string = "";
     function query_fn(extend_query: string): string {
       return `
@@ -173,6 +172,16 @@ class ReportDao {
       query = query_fn(`where date = '${curr_date}'`);
     }
     //   ------------------------- FILTER BY CURRENT_DATE TOTAL COLLECTION-----------------------------//
+
+    const whereData = 'where'
+    const regex = new RegExp(`\\b${whereData}\\b`, 'i');
+    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
+    if (regex.test(query)) {
+      query = query.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      query = query.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+    }
+
     const data = await prisma.$queryRawUnsafe(`${query}`);
 
     return generateRes(data);
@@ -180,11 +189,12 @@ class ReportDao {
 
   //   ------------------------- GET REAL-TIME COLLECTION ----------------------------//
 
-  getRealTimeCollection = async () => {
+  getRealTimeCollection = async (req: Request) => {
     const date = new Date().toISOString().split("T")[0];
+    const { ulb_id } = req.body.auth
     const qr_real_time = `
           SELECT SUM (amount)::INT, extract (HOUR from created_at) as "from" , extract (HOUR from created_at)+1 as "to"  FROM receipts 
-        	where date = '${date}'
+        	where ulb_id=${ulb_id} and date = '${date}'
         	group by (extract (HOUR from created_at))  
         `;
     const data = await prisma.$queryRawUnsafe(qr_real_time);
@@ -193,6 +203,7 @@ class ReportDao {
 
   getCollections = async (req: Request) => {
     const { from_date, to_date, area_id, incharge_id } = req.body;
+    const { ulb_id } = req.body.auth
 
     function qr_func(condition?: string) {
       return `
@@ -223,7 +234,7 @@ class ReportDao {
 
     let qr_5 = qr_func_2(`where area_id = ${area_id}`);
 
-    if(area_id){
+    if (area_id) {
       qr_4 = `
       select * from parking_area where id = ${area_id}
     `;
@@ -294,6 +305,35 @@ class ReportDao {
       `);
     }
 
+    const wheredata = 'where'
+    const regex = new RegExp(`\\b${wheredata}\\b`, 'i');
+    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
+    if (regex.test(qr_1)) {
+      qr_1 = qr_1.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+    }
+    if (regex.test(qr_2)) {
+      qr_2 = qr_2.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+    }
+    if (regex.test(qr_3)) {
+      qr_3 = qr_3.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr_3 = qr_3.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+    }
+    if (regex.test(qr_4)) {
+      qr_4 = qr_4.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr_4 = qr_4.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+    }
+    if (regex.test(qr_5)) {
+      qr_5 = qr_5.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr_5 = qr_5.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+    }
+
     const check = await prisma.$queryRawUnsafe(qr_5);
 
     console.log(check, "check");
@@ -319,6 +359,7 @@ class ReportDao {
 
   getWeeklyCollection = async (req: Request) => {
     const { from_date, to_date } = req.body;
+    const { ulb_id } = req.body.auth
 
     const { startOfWeek, endOfWeek } = getCurrentWeekRange();
 
@@ -355,6 +396,20 @@ class ReportDao {
       `);
     }
 
+    const wheredata = 'where'
+    const regex = new RegExp(`\\b${wheredata}\\b`, 'i');
+    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
+    if (regex.test(qr_1)) {
+      qr_1 = qr_1.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+    }
+    if (regex.test(qr_2)) {
+      qr_2 = qr_2.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+    }
+
     const [data1, data2] = await prisma.$transaction([
       prisma.$queryRawUnsafe(qr_1),
       prisma.$queryRawUnsafe(qr_2),
@@ -369,6 +424,7 @@ class ReportDao {
 
   getVehicleCollection = async (req: Request) => {
     const { from_date, to_date } = req.body;
+    const { ulb_id } = req.body.auth
 
     const { startOfWeek, endOfWeek } = getCurrentWeekRange();
 
@@ -379,9 +435,8 @@ class ReportDao {
             SUM(amount)::INT AS total_amount,
             date
             FROM receipts 
-         ${
-           condition || `where date between '${startOfWeek}' and '${endOfWeek}'`
-         }
+         ${condition || `where date between '${startOfWeek}' and '${endOfWeek}'`
+        }
             GROUP BY
               date
             ORDER BY
@@ -401,6 +456,21 @@ class ReportDao {
         where date between '${from_date}' and '${to_date}' and vehicle_type = 'four_wheeler'
       `);
     }
+
+    const wheredata = 'where'
+    const regex = new RegExp(`\\b${wheredata}\\b`, 'i');
+    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
+    if (regex.test(qr_1)) {
+      qr_1 = qr_1.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+    }
+    if (regex.test(qr_2)) {
+      qr_2 = qr_2.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+    }
+
     const [data1, data2] = await prisma.$transaction([
       prisma.$queryRawUnsafe(qr_1),
       prisma.$queryRawUnsafe(qr_2),
@@ -416,6 +486,7 @@ class ReportDao {
 
   getVehicleCount = async (req: Request) => {
     const { from_date, to_date } = req.body;
+    const { ulb_id } = req.body.auth
 
     const { startOfWeek, endOfWeek } = getCurrentWeekRange();
 
@@ -426,9 +497,8 @@ class ReportDao {
             SUM(amount)::INT AS total_amount,
             date
           FROM receipts
-         ${
-           condition || `where date between '${startOfWeek}' and '${endOfWeek}'`
-         } group by date
+         ${condition || `where date between '${startOfWeek}' and '${endOfWeek}'`
+        } group by date
 		
       `;
     };
@@ -444,6 +514,20 @@ class ReportDao {
       qr_2 = qr_func(`
         where date between '${from_date}' and '${to_date}' and vehicle_type = 'four_wheeler'
       `);
+    }
+
+    const wheredata = 'where'
+    const regex = new RegExp(`\\b${wheredata}\\b`, 'i');
+    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
+    if (regex.test(qr_1)) {
+      qr_1 = qr_1.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+    }
+    if (regex.test(qr_2)) {
+      qr_2 = qr_2.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    } else {
+      qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
     }
 
     const [data1, data2] = await prisma.$transaction([
