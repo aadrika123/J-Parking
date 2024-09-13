@@ -120,6 +120,7 @@ class ReceiptDao {
     const page: number = Number(req.query.page);
     const limit: number = Number(req.query.limit);
     const search: string = String(req.query.search);
+    const { ulb_id } = req.body.auth
 
     const d1 = new Date(from_date);
     const d2 = new Date(to_date);
@@ -161,6 +162,7 @@ class ReceiptDao {
 
     if (search !== "" && typeof search === "string" && search !== "undefined") {
       query.where = {
+        ulb_id: ulb_id,
         OR: [
           {
             vehicle_no: { contains: search, mode: "insensitive" },
@@ -183,6 +185,7 @@ class ReceiptDao {
 
     if (vehicle_no) {
       query.where = {
+        ulb_id: ulb_id,
         OR: [
           {
             vehicle_no: { equals: vehicle_no, mode: "insensitive" },
@@ -193,6 +196,7 @@ class ReceiptDao {
 
     if (from_date && to_date && incharge_id) {
       query.where = {
+        ulb_id: ulb_id,
         AND: [
           {
             parking_incharge: {
@@ -211,6 +215,7 @@ class ReceiptDao {
 
     if (from_date && to_date && area_id) {
       query.where = {
+        ulb_id: ulb_id,
         AND: [
           {
             area: {
@@ -235,10 +240,11 @@ class ReceiptDao {
     return generateRes({ data, count, page, limit });
   };
 
-  four_wheeler_status = async () => {
+  four_wheeler_status = async (req: Request) => {
+    const { ulb_id } = req.body.auth
     const date = new Date().toISOString().split("T")[0];
     const data = await prisma.$queryRawUnsafe(`
-        SELECT COUNT(id)::INT FROM receipts where date = '${date}';
+        SELECT COUNT(id)::INT FROM receipts where ulb_id=${ulb_id} and date = '${date}';
     `);
 
     return generateRes(data);
