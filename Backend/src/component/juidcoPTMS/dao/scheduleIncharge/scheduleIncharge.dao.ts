@@ -236,13 +236,23 @@ class ScheduleInchargeDao {
       const totalItems = parseInt(countResult[0].count);
       const totalPages = Math.ceil(totalItems / limit);
 
-      const data = 'where'
-      const regex = new RegExp(`\\b${data}\\b`, 'i');
-      
-      if (regex.test(qr)) {
-        qr = qr.replace(/(LIMIT \$\d OFFSET \$\d)/i, `AND ulb_id = '${ulb_id}' $1`);
+      const conditionRegex = /(group by|LIMIT|OFFSET)/i;
+      const data = 'where';
+      const whereRegex = new RegExp(`\\b${data}\\b`, 'i');
+
+      // First, check if WHERE clause exists
+      if (whereRegex.test(qr)) {
+        // If WHERE exists, insert ulb_id before JOIN, ORDER BY, LIMIT, or OFFSET
+        qr = qr.replace(conditionRegex, `AND scheduler.ulb_id = '${ulb_id}' $1`);
       } else {
-        qr = qr.replace(/(LIMIT \$\d OFFSET \$\d)/i, `WHERE ulb_id = '${ulb_id}' $1`);
+        // If WHERE does not exist, insert WHERE ulb_id before JOIN, ORDER BY, LIMIT, or OFFSET
+        if (conditionRegex.test(qr)) {
+          // If there is a JOIN, ORDER BY, LIMIT, or OFFSET, insert WHERE ulb_id before them
+          qr = qr.replace(conditionRegex, `WHERE scheduler.ulb_id = '${ulb_id}' $1`);
+        } else {
+          // If no JOIN, ORDER BY, LIMIT, or OFFSET, just append WHERE ulb_id
+          qr += ` WHERE scheduler.ulb_id = '${ulb_id}'`;
+        }
       }
 
       console.log(qr);
@@ -380,11 +390,17 @@ class ScheduleInchargeDao {
     const { incharge_id, from_date, to_date } = req.body;
     const { ulb_id } = req.body.auth
 
+    // const query: string = `
+    //   select scheduler.*, parking_area.* from scheduler
+    // 	where ulb_id=${ulb_id} and incharge_id = '${incharge_id}' AND '${from_date}' between from_date and to_date 
+    //   or '${to_date}' between from_date and to_date
+    //   join parking_area on scheduler.location_id::INT = parking_area.id
+    // `;
     const query: string = `
 	    select scheduler.*, parking_area.* from scheduler
-    	where ulb_id=${ulb_id} and incharge_id = '${incharge_id}' AND '${from_date}' between from_date and to_date 
-      or '${to_date}' between from_date and to_date
       join parking_area on scheduler.location_id::INT = parking_area.id
+    	where scheduler.ulb_id=${ulb_id} and incharge_id = '${incharge_id}' AND '${from_date}' between from_date and to_date 
+      or '${to_date}' between from_date and to_date;
     `;
 
     const data = await prisma.$queryRawUnsafe<any[]>(query);

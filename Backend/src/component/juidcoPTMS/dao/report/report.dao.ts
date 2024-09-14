@@ -173,13 +173,23 @@ class ReportDao {
     }
     //   ------------------------- FILTER BY CURRENT_DATE TOTAL COLLECTION-----------------------------//
 
-    const whereData = 'where'
+    const conditionRegex = /(JOIN|ORDER BY|LIMIT|OFFSET)/i;
+    const whereData = 'where';
     const regex = new RegExp(`\\b${whereData}\\b`, 'i');
-    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
+
+    // First, check if WHERE clause exists
     if (regex.test(query)) {
-      query = query.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+      // If WHERE exists, insert ulb_id before JOIN, ORDER BY, LIMIT, or OFFSET
+      query = query.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      query = query.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      // If WHERE does not exist, insert WHERE ulb_id before JOIN, ORDER BY, LIMIT, or OFFSET
+      if (conditionRegex.test(query)) {
+        // If there is a JOIN, ORDER BY, LIMIT, or OFFSET, insert WHERE ulb_id before them
+        query = query.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        // If no JOIN, ORDER BY, LIMIT, or OFFSET, just append WHERE ulb_id
+        query += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
 
     const data = await prisma.$queryRawUnsafe(`${query}`);
@@ -305,33 +315,59 @@ class ReportDao {
       `);
     }
 
-    const wheredata = 'where'
-    const regex = new RegExp(`\\b${wheredata}\\b`, 'i');
-    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
-    if (regex.test(qr_1)) {
-      qr_1 = qr_1.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    const conditionRegex = /(JOIN|ORDER BY|LIMIT|OFFSET)/i;
+    const whererData = 'where';
+    const whereRegex = new RegExp(`\\b${whererData}\\b`, 'i');
+
+    // First, check if WHERE clause exists
+    if (whereRegex.test(qr_1)) {
+      qr_1 = qr_1.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      if (conditionRegex.test(qr_1)) {
+        qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_1 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
-    if (regex.test(qr_2)) {
-      qr_2 = qr_2.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+
+    if (whereRegex.test(qr_2)) {
+      qr_2 = qr_2.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      if (conditionRegex.test(qr_2)) {
+        qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_2 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
-    if (regex.test(qr_3)) {
-      qr_3 = qr_3.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+
+    if (whereRegex.test(qr_3)) {
+      qr_3 = qr_3.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr_3 = qr_3.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      if (conditionRegex.test(qr_3)) {
+        qr_3 = qr_3.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_3 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
-    if (regex.test(qr_4)) {
-      qr_4 = qr_4.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+
+    if (whereRegex.test(qr_4)) {
+      qr_4 = qr_4.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr_4 = qr_4.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      if (conditionRegex.test(qr_4)) {
+        qr_4 = qr_4.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_4 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
-    if (regex.test(qr_5)) {
-      qr_5 = qr_5.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+
+    if (whereRegex.test(qr_5)) {
+      qr_5 = qr_5.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr_5 = qr_5.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      if (conditionRegex.test(qr_5)) {
+        qr_5 = qr_5.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_5 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
 
     const check = await prisma.$queryRawUnsafe(qr_5);
@@ -396,18 +432,28 @@ class ReportDao {
       `);
     }
 
-    const wheredata = 'where'
-    const regex = new RegExp(`\\b${wheredata}\\b`, 'i');
-    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
-    if (regex.test(qr_1)) {
-      qr_1 = qr_1.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    const conditionRegex = /(JOIN|ORDER BY|LIMIT|OFFSET)/i;
+    const whereData = 'where';
+    const whereRegex = new RegExp(`\\b${whereData}\\b`, 'i');
+
+    if (whereRegex.test(qr_1)) {
+      qr_1 = qr_1.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      if (conditionRegex.test(qr_1)) {
+        qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_1 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
-    if (regex.test(qr_2)) {
-      qr_2 = qr_2.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+
+    if (whereRegex.test(qr_2)) {
+      qr_2 = qr_2.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      if (conditionRegex.test(qr_2)) {
+        qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_2 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
 
     const [data1, data2] = await prisma.$transaction([
@@ -457,18 +503,28 @@ class ReportDao {
       `);
     }
 
-    const wheredata = 'where'
-    const regex = new RegExp(`\\b${wheredata}\\b`, 'i');
-    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
-    if (regex.test(qr_1)) {
-      qr_1 = qr_1.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    const conditionRegex = /(JOIN|ORDER BY|LIMIT|OFFSET)/i;
+    const whereData = 'where';
+    const whereRegex = new RegExp(`\\b${whereData}\\b`, 'i');
+
+    if (whereRegex.test(qr_1)) {
+      qr_1 = qr_1.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      if (conditionRegex.test(qr_1)) {
+        qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_1 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
-    if (regex.test(qr_2)) {
-      qr_2 = qr_2.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+
+    if (whereRegex.test(qr_2)) {
+      qr_2 = qr_2.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      if (conditionRegex.test(qr_2)) {
+        qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_2 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
 
     const [data1, data2] = await prisma.$transaction([
@@ -516,18 +572,28 @@ class ReportDao {
       `);
     }
 
-    const wheredata = 'where'
-    const regex = new RegExp(`\\b${wheredata}\\b`, 'i');
-    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
-    if (regex.test(qr_1)) {
-      qr_1 = qr_1.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    const conditionRegex = /(JOIN|ORDER BY|LIMIT|OFFSET)/i;
+    const whereData = 'where';
+    const whereRegex = new RegExp(`\\b${whereData}\\b`, 'i');
+
+    if (whereRegex.test(qr_1)) {
+      qr_1 = qr_1.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      if (conditionRegex.test(qr_1)) {
+        qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_1 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
-    if (regex.test(qr_2)) {
-      qr_2 = qr_2.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+
+    if (whereRegex.test(qr_2)) {
+      qr_2 = qr_2.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      if (conditionRegex.test(qr_2)) {
+        qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_2 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
 
     const [data1, data2] = await prisma.$transaction([
