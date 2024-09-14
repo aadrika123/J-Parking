@@ -382,9 +382,9 @@ class ScheduleInchargeDao {
 
     const query: string = `
 	    select scheduler.*, parking_area.* from scheduler
-      join parking_area on scheduler.location_id::INT = parking_area.id
     	where ulb_id=${ulb_id} and incharge_id = '${incharge_id}' AND '${from_date}' between from_date and to_date 
-      or '${to_date}' between from_date and to_date;
+      or '${to_date}' between from_date and to_date
+      join parking_area on scheduler.location_id::INT = parking_area.id
     `;
 
     const data = await prisma.$queryRawUnsafe<any[]>(query);
