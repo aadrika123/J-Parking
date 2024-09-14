@@ -238,14 +238,14 @@ class ScheduleInchargeDao {
 
       const data = 'where'
       const regex = new RegExp(`\\b${data}\\b`, 'i');
-      const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
+      
       if (regex.test(qr)) {
-        qr = qr.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+        qr = qr.replace(/(LIMIT \$\d OFFSET \$\d)/i, `AND ulb_id = '${ulb_id}' $1`);
       } else {
-        qr = qr.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+        qr = qr.replace(/(LIMIT \$\d OFFSET \$\d)/i, `WHERE ulb_id = '${ulb_id}' $1`);
       }
 
-      // console.log(qr);
+      console.log(qr);
 
       const dataResult = await prisma.$queryRawUnsafe<any[]>(qr);
 
@@ -383,7 +383,7 @@ class ScheduleInchargeDao {
     const query: string = `
 	    select scheduler.*, parking_area.* from scheduler
       join parking_area on scheduler.location_id::INT = parking_area.id
-    	where ulb_id=${ulb_id} incharge_id = '${incharge_id}' AND '${from_date}' between from_date and to_date 
+    	where ulb_id=${ulb_id} and incharge_id = '${incharge_id}' AND '${from_date}' between from_date and to_date 
       or '${to_date}' between from_date and to_date;
     `;
 
