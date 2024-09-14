@@ -47,7 +47,7 @@ class ParkingInchargeDao {
     // `;
 
     // const uniqueId = generateUniqueId(`PMSA-${ulb_code[0]?.code}-`);
-    const uniqueId = generateUniqueId(`PMSA-$-`);
+    const uniqueId = generateUniqueId(`PMSA-${ulb_id}-`);
 
     const date = new Date();
     const query: Prisma.parking_inchargeCreateArgs = {
@@ -124,14 +124,23 @@ class ParkingInchargeDao {
       qr = qr_func(searchConditions);
 
     }
+    const conditionRegex = /(JOIN|ORDER BY|LIMIT|OFFSET)/i;
+    const data = 'where';
+    const whereRegex = new RegExp(`\\b${data}\\b`, 'i');
 
-    const data = 'where'
-    const regex = new RegExp(`\\b${data}\\b`, 'i');
-    const conditionRegex = /(ORDER BY.*?)(LIMIT \$\d OFFSET \$\d|LIMIT \$\d|OFFSET \$\d)?$/i
-    if (regex.test(qr)) {
-      qr = qr.replace(conditionRegex, `$1 AND ulb_id = '${ulb_id}' $2`);
+    // First, check if WHERE clause exists
+    if (whereRegex.test(qr)) {
+      // If WHERE exists, insert ulb_id before JOIN, ORDER BY, LIMIT, or OFFSET
+      qr = qr.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
     } else {
-      qr = qr.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      // If WHERE does not exist, insert WHERE ulb_id before JOIN, ORDER BY, LIMIT, or OFFSET
+      if (conditionRegex.test(qr)) {
+        // If there is a JOIN, ORDER BY, LIMIT, or OFFSET, insert WHERE ulb_id before them
+        qr = qr.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        // If no JOIN, ORDER BY, LIMIT, or OFFSET, just append WHERE ulb_id
+        qr += ` WHERE ulb_id = '${ulb_id}'`;
+      }
     }
 
     const countQuery = `

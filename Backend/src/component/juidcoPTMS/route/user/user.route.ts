@@ -16,5 +16,12 @@ export default class UserRoute {
       .get((req: Request, res: Response) =>
         userController.getUser(req, res, "0602")
       );
+
+    app
+      .route(`${baseUrl}/user/get-ulb`)
+      .get((req: Request, res: Response) =>
+        userController.getUlbData(req, res, "0602")
+      );
+
   }
 }
