@@ -6,13 +6,12 @@ const prisma = new PrismaClient();
 
 class InchargeReportDao {
   static async report(req: Request) {
-    const { incharge_id, date, month, year } = req.body;
+    const { incharge_id, date, month, year, from_date, to_date } = req.body;
 
     function qr_func(monthlyWise: boolean, condition?: string) {
       return `
 
-      ${
-        !monthlyWise
+      ${!monthlyWise
           ? `
         		  SELECT 
                 SUM(CASE WHEN receipts.vehicle_type = 'two_wheeler' THEN amount ELSE 0 END)::INT AS total_two_wheeler_collection,
@@ -41,7 +40,7 @@ class InchargeReportDao {
         GROUP BY extract(month from date), extract(year from date), receipts.incharge_id
         having receipts.incharge_id = '${incharge_id}' and extract(month from date) = '${month}' and extract(year from date) = '${year}'
       `
-      }
+        }
       `;
     }
 
@@ -54,7 +53,11 @@ class InchargeReportDao {
     if (month && year) {
       qr = qr_func(true);
     }
-1
+
+    if (from_date && to_date) {
+      qr = qr_func(false, `AND date between '${from_date}' and '${to_date}' `);
+    }
+
     const [data] = await prisma.$transaction([
       prisma.$queryRawUnsafe<any[]>(`${qr}`),
     ]);
