@@ -155,4 +155,29 @@ export default class ReceiptController {
     }
   };
 
+  getInVehicle = async (req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "GET",
+      version: "1.0",
+    };
+
+    try {
+      const data = await ReceiptDao.getInVehicle(req);
+
+      if (!data) {
+        return res.json({
+          error: "failed to Get details!",
+        });
+      }
+
+      return res.json({
+        message: "Details Found Successfully!",
+        data: data,
+      });
+    } catch (error) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
+
 }
