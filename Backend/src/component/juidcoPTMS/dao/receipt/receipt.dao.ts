@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient, type_parking_space, vehicle_type } from "@prisma/client";
 import { generateRes } from "../../../../util/generateRes";
 import generateUniqueId from "../../../../util/helper/generateUniqueNo";
 import { timeDifferenceInHours } from "../../../../util/helper";
@@ -249,6 +249,51 @@ class ReceiptDao {
 
     return generateRes(data);
   };
+
+  static createReceipt = async (req: Request) => {
+    const { in_time } = req.body;
+    const type_parking_space: type_parking_space = req.body.type_parking_space; //UnOrganized || Organized
+    const vehicle_type: vehicle_type = req.body.vehicle_type; //four_wheeler || two_wheeler
+    const { ulb_id } = req.body.auth
+
+    const date = new Date();
+
+    const receipt_no = generateUniqueId("T0050");
+
+
+    const data = await prisma.receipts.create({
+      data: {
+        vehicle_no: req.body.vehicle_no,
+        vehicle_type: vehicle_type,
+        type_parking_space: type_parking_space,
+        incharge_id: req.body.incharge_id,
+        date: date ? date : new Date(),
+        area_id: Number(req.body.area_id),
+        in_time: in_time,
+        receipt_no: receipt_no,
+        ulb_id: ulb_id
+      }
+    });
+
+    return generateRes(data);
+  };
+
+  static getReceipt = async (req: Request) => {
+    const { receipt_no } = req.params;
+
+    if (!receipt_no) {
+      throw new Error('Receipt Number is required')
+    }
+
+    const data = await prisma.receipts.findFirst({
+      where: {
+        receipt_no: receipt_no
+      }
+    });
+
+    return generateRes(data);
+  };
+
 }
 
 export default ReceiptDao;

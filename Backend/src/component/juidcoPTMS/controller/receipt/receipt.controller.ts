@@ -79,4 +79,55 @@ export default class ReceiptController {
       return CommonRes.SERVER_ERROR(error, resObj, res);
     }
   };
+
+  createReceipt = async (req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "POST",
+      version: "1.0",
+    };
+
+    try {
+      const data = await ReceiptDao.createReceipt(req);
+
+      if (!data) {
+        return res.json({
+          error: "failed to generate ticket!",
+        });
+      }
+
+      return res.json({
+        message: "Ticket Generated Successfully!",
+        data: data,
+      });
+    } catch (error: any) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
+
+  getReceipt = async (req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "GET",
+      version: "1.0",
+    };
+
+    try {
+      const data = await ReceiptDao.getReceipt(req);
+
+      if (!data) {
+        return res.json({
+          error: "failed to Get ticket!",
+        });
+      }
+
+      return res.json({
+        message: "Ticket Found Successfully!",
+        data: data,
+      });
+    } catch (error) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
+
 }
