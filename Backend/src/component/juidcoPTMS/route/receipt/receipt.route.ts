@@ -26,6 +26,10 @@ export default class ReceiptRoute {
       .post((req: Request, res: Response) => receipt.createReceipt(req, res, "0504"));
 
     app
+      .route(`${baseUrl}/receipt/out`)
+      .post((req: Request, res: Response) => receipt.createReceiptOut(req, res, "0504"));
+
+    app
       .route(`${baseUrl}/receipt/:receipt_no`)
       .get((req: Request, res: Response) => receipt.getReceipt(req, res, "0505"));
 
