@@ -375,6 +375,26 @@ class ReceiptDao {
     return generateRes(data);
   };
 
+  static getInVehicle = async (req: Request) => {
+    const { vehicle_no } = req.params;
+    console.log(vehicle_no)
+
+    if (!vehicle_no) {
+      throw new Error('Vehicle Number is required')
+    }
+
+    const data = await prisma.receipts.findFirst({
+      where: {
+        vehicle_no: vehicle_no,
+        out_time: null
+      }
+    });
+
+    console.log(data)
+
+    return generateRes(data);
+  };
+
 }
 
 export default ReceiptDao;

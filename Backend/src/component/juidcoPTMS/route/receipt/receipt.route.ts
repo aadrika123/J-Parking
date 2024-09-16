@@ -33,5 +33,9 @@ export default class ReceiptRoute {
       .route(`${baseUrl}/receipt/:receipt_no`)
       .get((req: Request, res: Response) => receipt.getReceipt(req, res, "0505"));
 
+    app
+      .route(`${baseUrl}/receipt/vehicle/:vehicle_no`)
+      .get((req: Request, res: Response) => receipt.getInVehicle(req, res, "0505"));
+
   }
 }
