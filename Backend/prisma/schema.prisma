@@ -75,11 +75,11 @@ model receipts {
   vehicle_type       vehicle_type
   type_parking_space type_parking_space?
   vehicle_no         String
-  amount             Int
+  amount             Int?
   receipt_no         String              @unique
   date               DateTime            @db.Date
   in_time            String
-  out_time           String
+  out_time           String?
   ulb_id             Int                 @default(2)
   created_at         DateTime            @default(now()) @map("created_at")
   updated_at         DateTime            @updatedAt @map("updated_at")
