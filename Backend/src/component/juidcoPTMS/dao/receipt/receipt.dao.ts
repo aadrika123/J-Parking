@@ -255,10 +255,23 @@ class ReceiptDao {
     const type_parking_space: type_parking_space = req.body.type_parking_space; //UnOrganized || Organized
     const vehicle_type: vehicle_type = req.body.vehicle_type; //four_wheeler || two_wheeler
     const { ulb_id } = req.body.auth
+    let areaAmount: any
 
     const date = new Date();
 
     const receipt_no = generateUniqueId("T0050");
+
+    if (type_parking_space === 'UnOrganized') {
+      areaAmount = await prisma.parking_area.findUnique({
+        where: {
+          id: Number(req.body.area_id),
+        },
+        select: {
+          two_wheeler_rate: true,
+          four_wheeler_rate: true,
+        },
+      });
+    }
 
 
     const data = await prisma.receipts.create({
@@ -271,7 +284,9 @@ class ReceiptDao {
         area_id: Number(req.body.area_id),
         in_time: in_time,
         receipt_no: receipt_no,
-        ulb_id: ulb_id
+        ulb_id: ulb_id,
+        ...(type_parking_space === 'UnOrganized' && { out_time: in_time }),
+        ...(type_parking_space === 'UnOrganized' && { amount: vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate })
       },
       select: {
         receipt_no: true
@@ -293,6 +308,69 @@ class ReceiptDao {
         receipt_no: receipt_no
       }
     });
+
+    return generateRes(data);
+  };
+
+  static createReceiptOut = async (req: Request) => {
+    const { out_time, receipt_no } = req.body;
+
+    if (!receipt_no) {
+      throw new Error('Receipt Number is required')
+    }
+
+    if (!out_time) {
+      throw new Error('Out time is required')
+    }
+
+    const receipt = await prisma.receipts.findFirst({
+      where: {
+        receipt_no: receipt_no
+      },
+      select: {
+        in_time: true,
+        type_parking_space: true,
+        vehicle_type: true,
+        area_id: true
+      }
+    })
+
+    if (!receipt) {
+      throw new Error('No receipt found')
+    }
+
+    const getAreaAmount = await prisma.parking_area.findUnique({
+      where: {
+        id: receipt?.area_id,
+      },
+      select: {
+        two_wheeler_rate: true,
+        four_wheeler_rate: true,
+      },
+    });
+
+    const two_wheeler_rate = getAreaAmount?.two_wheeler_rate || 0;
+    const four_wheeler_rate = getAreaAmount?.four_wheeler_rate || 0;
+
+    const time_diff = timeDifferenceInHours(receipt?.in_time, out_time);
+
+    let amount: number = 0;
+
+    if (receipt?.vehicle_type === 'two_wheeler') {
+      amount = two_wheeler_rate * time_diff;
+    } else {
+      amount = four_wheeler_rate * time_diff;
+    }
+
+    const data = await prisma.receipts.update({
+      where: {
+        receipt_no: receipt_no
+      },
+      data: {
+        amount: amount,
+        out_time: out_time
+      }
+    })
 
     return generateRes(data);
   };
