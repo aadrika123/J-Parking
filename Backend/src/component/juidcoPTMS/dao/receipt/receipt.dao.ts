@@ -272,6 +272,9 @@ class ReceiptDao {
         in_time: in_time,
         receipt_no: receipt_no,
         ulb_id: ulb_id
+      },
+      select: {
+        receipt_no: true
       }
     });
 
