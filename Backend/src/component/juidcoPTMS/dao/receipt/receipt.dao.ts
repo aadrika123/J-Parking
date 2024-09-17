@@ -312,7 +312,7 @@ class ReceiptDao {
     return generateRes(data);
   };
 
-  static createReceiptOut = async (req: Request) => {
+  static calculateAmount = async (req: Request) => {
     const { out_time, receipt_no } = req.body;
 
     if (!receipt_no) {
@@ -331,12 +331,17 @@ class ReceiptDao {
         in_time: true,
         type_parking_space: true,
         vehicle_type: true,
-        area_id: true
+        area_id: true,
+        out_time: true
       }
     })
 
     if (!receipt) {
       throw new Error('No receipt found')
+    }
+
+    if (receipt?.out_time !== null) {
+      throw new Error('Vehicle already marked out')
     }
 
     const getAreaAmount = await prisma.parking_area.findUnique({
@@ -362,6 +367,68 @@ class ReceiptDao {
       amount = four_wheeler_rate * time_diff;
     }
 
+    return generateRes({ amount: amount });
+  };
+
+  static createReceiptOut = async (req: Request) => {
+    const { out_time, receipt_no, out_amount } = req.body;
+
+    if (!receipt_no) {
+      throw new Error('Receipt Number is required')
+    }
+
+    if (!out_time) {
+      throw new Error('Out time is required')
+    }
+
+    const receipt = await prisma.receipts.findFirst({
+      where: {
+        receipt_no: receipt_no
+      },
+      select: {
+        in_time: true,
+        type_parking_space: true,
+        vehicle_type: true,
+        area_id: true,
+        out_time: true
+      }
+    })
+
+    if (!receipt) {
+      throw new Error('No receipt found')
+    }
+
+    if (receipt?.out_time !== null) {
+      throw new Error('Vehicle already marked out')
+    }
+
+    const getAreaAmount = await prisma.parking_area.findUnique({
+      where: {
+        id: receipt?.area_id,
+      },
+      select: {
+        two_wheeler_rate: true,
+        four_wheeler_rate: true,
+      },
+    });
+
+    const two_wheeler_rate = getAreaAmount?.two_wheeler_rate || 0;
+    const four_wheeler_rate = getAreaAmount?.four_wheeler_rate || 0;
+
+    const time_diff = timeDifferenceInHours(receipt?.in_time, out_time);
+
+    let amount: number = 0;
+
+    if (receipt?.vehicle_type === 'two_wheeler') {
+      amount = two_wheeler_rate * time_diff;
+    } else {
+      amount = four_wheeler_rate * time_diff;
+    }
+
+    if (Number(out_amount) !== amount) {
+      throw new Error('Complete the payment first')
+    }
+
     const data = await prisma.receipts.update({
       where: {
         receipt_no: receipt_no
@@ -377,7 +444,6 @@ class ReceiptDao {
 
   static getInVehicle = async (req: Request) => {
     const { vehicle_no } = req.params;
-    console.log(vehicle_no)
 
     if (!vehicle_no) {
       throw new Error('Vehicle Number is required')
