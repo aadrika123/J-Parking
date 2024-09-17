@@ -42,11 +42,13 @@ export default class ReceiptController {
 
       if (!data) {
         return res.json({
+          success: false,
           error: "failed to generate ticket!",
         });
       }
 
       return res.json({
+        success: true,
         message: "Ticket Generated Successfully!",
         data: data,
       });
@@ -67,11 +69,13 @@ export default class ReceiptController {
 
       if (!data) {
         return res.json({
+          success: false,
           error: "failed to Get ticket!",
         });
       }
 
       return res.json({
+        success: true,
         message: "Ticket Found Successfully!",
         data: data,
       });
@@ -92,11 +96,13 @@ export default class ReceiptController {
 
       if (!data) {
         return res.json({
+          success: false,
           error: "failed to generate ticket!",
         });
       }
 
       return res.json({
+        success: true,
         message: "Ticket Generated Successfully!",
         data: data,
       });
@@ -117,11 +123,13 @@ export default class ReceiptController {
 
       if (!data) {
         return res.json({
+          success: false,
           error: "failed to calculate amount!",
         });
       }
 
       return res.json({
+        success: true,
         message: "Amount calculated Successfully!",
         data: data,
       });
@@ -142,11 +150,13 @@ export default class ReceiptController {
 
       if (!data) {
         return res.json({
+          success: false,
           error: "failed to generate ticket!",
         });
       }
 
       return res.json({
+        success: true,
         message: "Ticket Generated Successfully!",
         data: data,
       });
@@ -167,11 +177,13 @@ export default class ReceiptController {
 
       if (!data) {
         return res.json({
+          success: false,
           error: "failed to Get ticket!",
         });
       }
 
       return res.json({
+        success: true,
         message: "Ticket Found Successfully!",
         data: data,
       });
@@ -192,11 +204,13 @@ export default class ReceiptController {
 
       if (!data) {
         return res.json({
+          success: false,
           error: "failed to Get details!",
         });
       }
 
       return res.json({
+        success: true,
         message: "Details Found Successfully!",
         data: data,
       });
