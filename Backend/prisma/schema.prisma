@@ -74,14 +74,14 @@ model receipts {
   area               parking_area        @relation(fields: [area_id], references: [id])
   vehicle_type       vehicle_type
   type_parking_space type_parking_space?
-  vehicle_no         String
+  vehicle_no         String?
   amount             Int?
   receipt_no         String              @unique
   date               DateTime            @db.Date
   in_time            String
   out_time           String?
   ulb_id             Int                 @default(2)
-  is_paid             Boolean             @default(false)
+  is_paid            Boolean             @default(false)
   created_at         DateTime            @default(now()) @map("created_at")
   updated_at         DateTime            @updatedAt @map("updated_at")
 }

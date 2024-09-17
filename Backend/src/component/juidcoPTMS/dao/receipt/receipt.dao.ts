@@ -273,10 +273,21 @@ class ReceiptDao {
       });
     }
 
+    if (type_parking_space === 'Organized') {
+      const isAlreadyIn = await prisma.receipts.count({
+        where: {
+          vehicle_no: req.body.vehicle_no,
+          out_time: null
+        }
+      })
+      if (isAlreadyIn !== 0) {
+        throw new Error(`The vehicle ${req.body.vehicle_no} has not marked out yet`)
+      }
+    }
 
     const data = await prisma.receipts.create({
       data: {
-        vehicle_no: req.body.vehicle_no,
+        ...(type_parking_space === 'Organized' && { vehicle_no: req.body.vehicle_no }),
         vehicle_type: vehicle_type,
         type_parking_space: type_parking_space,
         incharge_id: req.body.incharge_id,
