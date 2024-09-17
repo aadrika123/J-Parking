@@ -255,23 +255,23 @@ class ReceiptDao {
     const type_parking_space: type_parking_space = req.body.type_parking_space; //UnOrganized || Organized
     const vehicle_type: vehicle_type = req.body.vehicle_type; //four_wheeler || two_wheeler
     const { ulb_id } = req.body.auth
-    let areaAmount: any
+    // let areaAmount: any
 
     const date = new Date();
 
     const receipt_no = generateUniqueId("T0050");
 
-    if (type_parking_space === 'UnOrganized') {
-      areaAmount = await prisma.parking_area.findUnique({
-        where: {
-          id: Number(req.body.area_id),
-        },
-        select: {
-          two_wheeler_rate: true,
-          four_wheeler_rate: true,
-        },
-      });
-    }
+    // if (type_parking_space === 'UnOrganized') {
+    //   areaAmount = await prisma.parking_area.findUnique({
+    //     where: {
+    //       id: Number(req.body.area_id),
+    //     },
+    //     select: {
+    //       two_wheeler_rate: true,
+    //       four_wheeler_rate: true,
+    //     },
+    //   });
+    // }
 
     if (type_parking_space === 'Organized') {
       const isAlreadyIn = await prisma.receipts.count({
@@ -296,8 +296,8 @@ class ReceiptDao {
         in_time: in_time,
         receipt_no: receipt_no,
         ulb_id: ulb_id,
-        ...(type_parking_space === 'UnOrganized' && { out_time: in_time }),
-        ...(type_parking_space === 'UnOrganized' && { amount: vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate })
+        // ...(type_parking_space === 'UnOrganized' && { out_time: in_time }),
+        // ...(type_parking_space === 'UnOrganized' && { amount: vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate })
       },
       select: {
         receipt_no: true
@@ -330,10 +330,6 @@ class ReceiptDao {
       throw new Error('Receipt Number is required')
     }
 
-    if (!out_time) {
-      throw new Error('Out time is required')
-    }
-
     const receipt = await prisma.receipts.findFirst({
       where: {
         receipt_no: receipt_no
@@ -349,6 +345,10 @@ class ReceiptDao {
 
     if (!receipt) {
       throw new Error('No receipt found')
+    }
+
+    if (!out_time && receipt?.type_parking_space === 'Organized') {
+      throw new Error('Out time is required')
     }
 
     if (receipt?.out_time !== null) {
@@ -368,14 +368,14 @@ class ReceiptDao {
     const two_wheeler_rate = getAreaAmount?.two_wheeler_rate || 0;
     const four_wheeler_rate = getAreaAmount?.four_wheeler_rate || 0;
 
-    const time_diff = timeDifferenceInHours(receipt?.in_time, out_time);
+    const time_diff = timeDifferenceInHours(receipt?.in_time, out_time ? out_time : receipt?.in_time);
 
     let amount: number = 0;
 
     if (receipt?.vehicle_type === 'two_wheeler') {
-      amount = two_wheeler_rate * time_diff;
+      amount = receipt?.type_parking_space === 'Organized' ? two_wheeler_rate * time_diff : two_wheeler_rate;
     } else {
-      amount = four_wheeler_rate * time_diff;
+      amount = receipt?.type_parking_space === 'Organized' ? four_wheeler_rate * time_diff : four_wheeler_rate;
     }
 
     return generateRes({ amount: amount });
@@ -388,10 +388,6 @@ class ReceiptDao {
       throw new Error('Receipt Number is required')
     }
 
-    if (!out_time) {
-      throw new Error('Out time is required')
-    }
-
     const receipt = await prisma.receipts.findFirst({
       where: {
         receipt_no: receipt_no
@@ -407,6 +403,10 @@ class ReceiptDao {
 
     if (!receipt) {
       throw new Error('No receipt found')
+    }
+
+    if (!out_time && receipt?.type_parking_space === 'Organized') {
+      throw new Error('Out time is required')
     }
 
     if (receipt?.out_time !== null) {
@@ -426,18 +426,23 @@ class ReceiptDao {
     const two_wheeler_rate = getAreaAmount?.two_wheeler_rate || 0;
     const four_wheeler_rate = getAreaAmount?.four_wheeler_rate || 0;
 
-    const time_diff = timeDifferenceInHours(receipt?.in_time, out_time);
+    const time_diff = timeDifferenceInHours(receipt?.in_time, out_time ? out_time : receipt?.in_time);
 
     let amount: number = 0;
 
+    // if (receipt?.vehicle_type === 'two_wheeler') {
+    //   amount = two_wheeler_rate * time_diff;
+    // } else {
+    //   amount = four_wheeler_rate * time_diff;
+    // }
     if (receipt?.vehicle_type === 'two_wheeler') {
-      amount = two_wheeler_rate * time_diff;
+      amount = receipt?.type_parking_space === 'Organized' ? two_wheeler_rate * time_diff : two_wheeler_rate;
     } else {
-      amount = four_wheeler_rate * time_diff;
+      amount = receipt?.type_parking_space === 'Organized' ? four_wheeler_rate * time_diff : four_wheeler_rate;
     }
 
     if (Number(out_amount) !== amount) {
-      throw new Error('Complete the payment first')
+      throw new Error('Payment amount invalid')
     }
 
     const data = await prisma.receipts.update({
@@ -446,7 +451,7 @@ class ReceiptDao {
       },
       data: {
         amount: amount,
-        out_time: out_time,
+        out_time: out_time ? out_time : receipt?.in_time,
         is_paid: true
       }
     })
