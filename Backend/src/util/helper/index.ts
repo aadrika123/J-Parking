@@ -39,6 +39,12 @@ export function timeDifferenceInHours(startTime: string, endTime: string) {
     diff += 24 * 60 * 60 * 1000;
   }
 
+  // Check if the difference is less than 10 minutes (600,000 ms)
+  if (diff <= 10 * 60 * 1000) {
+    console.log("Time difference is less than 10 minutes");
+    return 0;
+  }
+
   const diffInHours = diff / (1000 * 60 * 60);
   return Math.ceil(diffInHours);
 }

@@ -105,6 +105,31 @@ export default class ReceiptController {
     }
   };
 
+  calculateAmount = async (req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "POST",
+      version: "1.0",
+    };
+
+    try {
+      const data = await ReceiptDao.calculateAmount(req);
+
+      if (!data) {
+        return res.json({
+          error: "failed to calculate amount!",
+        });
+      }
+
+      return res.json({
+        message: "Amount calculated Successfully!",
+        data: data,
+      });
+    } catch (error: any) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
+
   createReceiptOut = async (req: Request, res: Response, apiId: string) => {
     const resObj: resObj = {
       apiId,
