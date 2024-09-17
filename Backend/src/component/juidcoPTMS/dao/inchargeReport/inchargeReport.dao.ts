@@ -12,6 +12,16 @@ class InchargeReportDao {
       throw new Error('incharge ID is required')
     }
 
+    const isInchargeValid = await prisma.parking_incharge.count({
+      where: {
+        cunique_id: incharge_id
+      }
+    })
+
+    if (isInchargeValid === 0) {
+      throw new Error('Invalid incharge ID')
+    }
+
     function qr_func(monthlyWise: boolean, condition?: string) {
       return `
 
@@ -26,6 +36,7 @@ class InchargeReportDao {
               FROM receipts
               LEFT JOIN parking_area AS bm ON receipts.area_id = bm.id
               LEFT JOIN parking_incharge AS cm ON receipts.incharge_id = cm.cunique_id
+              WHERE out_time IS NOT NULL and is_paid = true
               GROUP BY date, receipts.incharge_id
               HAVING receipts.incharge_id = '${incharge_id}'
           ${condition || ""}
@@ -39,6 +50,7 @@ class InchargeReportDao {
           extract(year from date) as year,
           receipts.incharge_id
         FROM receipts 
+        WHERE out_time IS NOT NULL and is_paid = true
         LEFT JOIN parking_area AS bm ON receipts.area_id = bm.id
         LEFT JOIN parking_incharge AS cm ON receipts.incharge_id = cm.cunique_id
         GROUP BY extract(month from date), extract(year from date), receipts.incharge_id

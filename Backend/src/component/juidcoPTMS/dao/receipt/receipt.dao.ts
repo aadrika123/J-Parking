@@ -435,7 +435,8 @@ class ReceiptDao {
       },
       data: {
         amount: amount,
-        out_time: out_time
+        out_time: out_time,
+        is_paid: true
       }
     })
 
