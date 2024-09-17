@@ -454,6 +454,21 @@ class ReceiptDao {
         out_time: out_time ? out_time : receipt?.in_time,
         is_paid: true,
         payment_mode: payment_mode as string
+      },
+      include: {
+        area: {
+          select: {
+            address: true,
+            zip_code: true,
+            station: true,
+            landmark: true,
+            two_wheeler_capacity: true,
+            two_wheeler_rate: true,
+            four_wheeler_capacity: true,
+            four_wheeler_rate: true,
+            total_parking_area: true
+          }
+        }
       }
     })
 
@@ -532,6 +547,21 @@ class ReceiptDao {
         is_paid: true,
         payment_mode: payment_mode as string,
         amount: vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate
+      },
+      include: {
+        area: {
+          select: {
+            address: true,
+            zip_code: true,
+            station: true,
+            landmark: true,
+            two_wheeler_capacity: true,
+            two_wheeler_rate: true,
+            four_wheeler_capacity: true,
+            four_wheeler_rate: true,
+            total_parking_area: true
+          }
+        }
       }
     });
 
