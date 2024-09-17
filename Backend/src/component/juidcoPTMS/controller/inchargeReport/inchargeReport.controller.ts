@@ -15,13 +15,15 @@ export default class InchargeReportController {
     try {
       const data = await InchargeReportDao.report(req);
 
-      if (!data) {
+      if (data === undefined) {
         return res.json({
+          success: false,
           error: "failed to generate report!",
         });
       }
 
       return res.json({
+        success: true,
         message: "Report Generated Successfully!",
         data: data,
       });

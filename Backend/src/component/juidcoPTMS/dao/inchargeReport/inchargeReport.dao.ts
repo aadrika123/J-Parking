@@ -8,6 +8,10 @@ class InchargeReportDao {
   static async report(req: Request) {
     const { incharge_id, date, month, year, from_date, to_date } = req.body;
 
+    if (!incharge_id) {
+      throw new Error('incharge ID is required')
+    }
+
     function qr_func(monthlyWise: boolean, condition?: string) {
       return `
 
