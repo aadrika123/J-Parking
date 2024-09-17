@@ -82,6 +82,7 @@ model receipts {
   out_time           String?
   ulb_id             Int                 @default(2)
   is_paid            Boolean             @default(false)
+  payment_mode       String?
   created_at         DateTime            @default(now()) @map("created_at")
   updated_at         DateTime            @updatedAt @map("updated_at")
 }

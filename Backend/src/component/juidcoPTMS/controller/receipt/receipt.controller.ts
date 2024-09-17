@@ -219,4 +219,58 @@ export default class ReceiptController {
     }
   };
 
+  getAmountUnorganized = async (req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "POST",
+      version: "1.0",
+    };
+
+    try {
+      const data = await ReceiptDao.getAmountUnorganized(req);
+
+      if (!data) {
+        return res.json({
+          success: false,
+          error: "failed to calculate amount!",
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "Amount calculated Successfully!",
+        data: data,
+      });
+    } catch (error: any) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
+
+  createReceiptUnorganized = async (req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "POST",
+      version: "1.0",
+    };
+
+    try {
+      const data = await ReceiptDao.createReceiptUnorganized(req);
+
+      if (!data) {
+        return res.json({
+          success: false,
+          error: "failed to generate ticket!",
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "Ticket Generated Successfully!",
+        data: data,
+      });
+    } catch (error: any) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
+
 }
