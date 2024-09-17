@@ -382,7 +382,7 @@ class ReceiptDao {
   };
 
   static createReceiptOut = async (req: Request) => {
-    const { out_time, receipt_no, out_amount } = req.body;
+    const { out_time, receipt_no, out_amount, payment_mode } = req.body;
 
     if (!receipt_no) {
       throw new Error('Receipt Number is required')
@@ -452,7 +452,8 @@ class ReceiptDao {
       data: {
         amount: amount,
         out_time: out_time ? out_time : receipt?.in_time,
-        is_paid: true
+        is_paid: true,
+        payment_mode: payment_mode as string
       }
     })
 
@@ -474,6 +475,65 @@ class ReceiptDao {
     });
 
     console.log(data)
+
+    return generateRes(data);
+  };
+
+  static getAmountUnorganized = async (req: Request) => {
+    const vehicle_type: vehicle_type = req.body.vehicle_type; //four_wheeler || two_wheeler
+
+    const areaAmount = await prisma.parking_area.findUnique({
+      where: {
+        id: Number(req.body.area_id),
+      },
+      select: {
+        two_wheeler_rate: true,
+        four_wheeler_rate: true,
+      },
+    });
+
+    return generateRes({ areaAmount: vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate });
+  };
+
+  static createReceiptUnorganized = async (req: Request) => {
+    const { in_time, amount, payment_mode } = req.body;
+    const vehicle_type: vehicle_type = req.body.vehicle_type; //four_wheeler || two_wheeler
+    const { ulb_id } = req.body.auth
+
+    const date = new Date();
+
+    const receipt_no = generateUniqueId("T0050");
+
+    const areaAmount = await prisma.parking_area.findUnique({
+      where: {
+        id: Number(req.body.area_id),
+      },
+      select: {
+        two_wheeler_rate: true,
+        four_wheeler_rate: true,
+      },
+    });
+
+    if ((vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate) !== amount) {
+      throw new Error('Invalid payment amount')
+    }
+
+    const data = await prisma.receipts.create({
+      data: {
+        vehicle_type: vehicle_type,
+        type_parking_space: 'UnOrganized',
+        incharge_id: req.body.incharge_id,
+        date: date ? date : new Date(),
+        area_id: Number(req.body.area_id),
+        in_time: in_time,
+        out_time: in_time,
+        receipt_no: receipt_no,
+        ulb_id: ulb_id,
+        is_paid: true,
+        payment_mode: payment_mode as string,
+        amount: vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate
+      }
+    });
 
     return generateRes(data);
   };

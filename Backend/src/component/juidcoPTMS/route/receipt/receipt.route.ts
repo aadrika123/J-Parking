@@ -41,5 +41,13 @@ export default class ReceiptRoute {
       .route(`${baseUrl}/receipt/vehicle/:vehicle_no`)
       .get((req: Request, res: Response) => receipt.getInVehicle(req, res, "0508"));
 
+    app
+      .route(`${baseUrl}/receipt/calculate-amount-unorganized`)
+      .post((req: Request, res: Response) => receipt.getAmountUnorganized(req, res, "0509"));
+
+    app
+      .route(`${baseUrl}/receipt/unorganized`)
+      .post((req: Request, res: Response) => receipt.createReceiptUnorganized(req, res, "0509"));
+
   }
 }
