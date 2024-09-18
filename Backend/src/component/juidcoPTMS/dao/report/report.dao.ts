@@ -315,7 +315,8 @@ class ReportDao {
       `);
     }
 
-    const conditionRegex = /(JOIN|ORDER BY|LIMIT|OFFSET)/i;
+
+    const conditionRegex = /(ORDER BY|LIMIT|OFFSET)/i;
     const whererData = 'where';
     const whereRegex = new RegExp(`\\b${whererData}\\b`, 'i');
 
@@ -370,9 +371,8 @@ class ReportDao {
       }
     }
 
-    const check = await prisma.$queryRawUnsafe(qr_5);
+    // const check = await prisma.$queryRawUnsafe(qr_5);
 
-    console.log(check, "check");
 
     const [data1, data2, data3, data4, data5] = await prisma.$transaction([
       prisma.$queryRawUnsafe(qr_1),
