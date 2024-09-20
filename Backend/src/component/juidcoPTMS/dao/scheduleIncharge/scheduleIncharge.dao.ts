@@ -226,6 +226,7 @@ class ScheduleInchargeDao {
       SELECT DISTINCT ON (scheduler.id) COUNT(*) FROM scheduler 
       JOIN parking_incharge AS pk ON pk.cunique_id = ANY(scheduler.incharge_id::TEXT[])
       JOIN parking_area AS pa ON scheduler.location_id::INT = pa.id
+      where scheduler.ulb_id = ${ulb_id}
       group by scheduler.id
       ${searchConditions};
     `;
@@ -255,7 +256,7 @@ class ScheduleInchargeDao {
         }
       }
 
-      console.log(qr);
+      // console.log(qr);
 
       const dataResult = await prisma.$queryRawUnsafe<any[]>(qr);
 
