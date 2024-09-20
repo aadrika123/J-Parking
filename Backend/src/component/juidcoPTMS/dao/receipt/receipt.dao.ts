@@ -8,6 +8,8 @@ const prisma = new PrismaClient();
 
 export const genrateDate = () => { };
 class ReceiptDao {
+
+
   static getAreaAmount = async (req: Request) => {
     const { area_id } = req.query;
     const data = await prisma.parking_area.findUnique({
@@ -566,6 +568,94 @@ class ReceiptDao {
     });
 
     return generateRes(data);
+  };
+
+  static submitAmount = async (req: Request) => {
+
+    type validationPayload = {
+      incharge_id: string,
+      date?: Date,
+      description: string
+    }
+
+    const { incharge_id, description, date = new Date('2024-07-18') }: validationPayload = req.body;
+
+    const generateTransactionId = () => {
+      const randomFiveDigit = Math.floor(10000 + Math.random() * 90000);
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, '0');  // dd
+      const month = String(now.getMonth() + 1).padStart(2, '0');  // mm (months are zero-indexed)
+      const year = String(now.getFullYear()).slice(-2);  // yy (last 2 digits of year)
+      const hours = String(now.getHours()).padStart(2, '0');  // hh
+      const minutes = String(now.getMinutes()).padStart(2, '0');  // mm
+
+      // Generate a random number between 1 and 9
+      const randomDigit = Math.floor(1 + Math.random() * 9);
+      const generatedString = `${randomFiveDigit}${day}${month}${year}${hours}${minutes}${randomDigit}`;
+
+      // Combine everything into a string
+      return generatedString
+    }
+
+    const receiptsSum = await prisma.receipts.aggregate({
+      where: {
+        incharge_id: incharge_id,
+        date: date,
+        is_validated: false,
+        payment_mode: 'cash',
+        is_paid: true
+      },
+      _sum: {
+        amount: true
+      }
+    })
+
+    if (receiptsSum?._sum?.amount === null) {
+      throw new Error('No receipt for validation')
+    }
+
+    const receipts = await prisma.receipts.findFirst({
+      where: {
+        incharge_id: incharge_id,
+        date: date,
+        is_validated: false,
+        payment_mode: 'cash'
+      },
+      select: {
+        incharge_id: true,
+        area_id: true,
+        is_paid: true
+      }
+    })
+
+    const transactionId = generateTransactionId()
+
+    await prisma.$transaction(async (tx) => {
+      await tx.accounts_summary.create({
+        data: {
+          incharge_id: incharge_id,
+          total_amount: receiptsSum?._sum?.amount || 0,
+          date: date,
+          description: description,
+          transaction_id: transactionId,
+          area_id: receipts?.area_id as number,
+          transaction_type: 'cash'
+        }
+      })
+      await tx.receipts.updateMany({
+        where: {
+          incharge_id: incharge_id,
+          date: date,
+          is_validated: false,
+        },
+        data: {
+          is_validated: true,
+          transaction_id: transactionId
+        }
+      })
+    })
+
+    return generateRes(`${receiptsSum?._sum?.amount || 0} has validated`);
   };
 
 }

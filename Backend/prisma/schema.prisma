@@ -24,6 +24,7 @@ model parking_area {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   receipts              receipts[]
+  accounts_summary      accounts_summary[]
 }
 
 model parking_incharge {
@@ -83,6 +84,8 @@ model receipts {
   ulb_id             Int                 @default(2)
   is_paid            Boolean             @default(false)
   payment_mode       String?
+  transaction_id     String?
+  transaction        accounts_summary?   @relation(fields: [transaction_id], references: [transaction_id])
   created_at         DateTime            @default(now()) @map("created_at")
   updated_at         DateTime            @updatedAt @map("updated_at")
 }
@@ -90,4 +93,19 @@ model receipts {
 enum vehicle_type {
   two_wheeler
   four_wheeler
+}
+
+model accounts_summary {
+  incharge_id      String
+  transaction_id   String       @id @unique
+  receipts         receipts[]
+  total_amount     Int
+  date             DateTime     @default(now())
+  description      String
+  transaction_type String
+  area_id          Int
+  area             parking_area @relation(fields: [area_id], references: [id])
+  status           Int?         @default(0) //0=pending, 1=verified
+  created_at       DateTime     @default(now()) @map("created_at")
+  updated_at       DateTime     @updatedAt
 }

@@ -273,4 +273,31 @@ export default class ReceiptController {
     }
   };
 
+  submitAmount = async (req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "POST",
+      version: "1.0",
+    };
+
+    try {
+      const data = await ReceiptDao.submitAmount(req);
+
+      if (!data) {
+        return res.json({
+          success: false,
+          error: "failed to submit amount",
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "Amount submitted Successfully!",
+        data: data,
+      });
+    } catch (error: any) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
+
 }

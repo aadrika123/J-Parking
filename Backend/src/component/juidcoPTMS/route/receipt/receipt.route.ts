@@ -49,5 +49,9 @@ export default class ReceiptRoute {
       .route(`${baseUrl}/receipt/unorganized`)
       .post((req: Request, res: Response) => receipt.createReceiptUnorganized(req, res, "0509"));
 
+    app
+      .route(`${baseUrl}/receipt/submit`)
+      .post((req: Request, res: Response) => receipt.submitAmount(req, res, "0510"));
+
   }
 }
