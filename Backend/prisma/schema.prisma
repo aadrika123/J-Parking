@@ -85,6 +85,7 @@ model receipts {
   is_paid            Boolean             @default(false)
   payment_mode       String?
   transaction_id     String?
+  is_validated       Boolean             @default(false)
   transaction        accounts_summary?   @relation(fields: [transaction_id], references: [transaction_id])
   created_at         DateTime            @default(now()) @map("created_at")
   updated_at         DateTime            @updatedAt @map("updated_at")
