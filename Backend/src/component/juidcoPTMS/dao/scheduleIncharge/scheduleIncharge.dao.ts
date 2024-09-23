@@ -35,17 +35,18 @@ class ScheduleInchargeDao {
 
     try {
       const new_from_time = Number(from_time.split(":").join(""));
-      const checkFromDate = await prisma.$queryRawUnsafe<any[]>(`
-       select id from scheduler where ulb_id=${ulb_id} and location_id=${location_id} and ('${from_date}' between from_date and to_date 
-       or '${to_date}' between from_date and to_date) and CAST(REPLACE(to_time, ':', '') AS INT) >= ${new_from_time}
-      `);
 
       console.log(
         `
-       select id from scheduler where ulb_id=${ulb_id} and location_id=${location_id} and ('${from_date}' between from_date and to_date 
+       select id from scheduler where ulb_id=${ulb_id} and (location_id=${location_id} or '${incharge_id}' = any(incharge_id)) and ('${from_date}' between from_date and to_date 
        or '${to_date}' between from_date and to_date) and CAST(REPLACE(to_time, ':', '') AS INT) >= ${new_from_time}
       `
-      )
+      ,'abcabcbac')
+
+      const checkFromDate = await prisma.$queryRawUnsafe<any[]>(`
+       select id from scheduler where ulb_id=${ulb_id} and (location_id=${location_id} or '${incharge_id}' = any(incharge_id)) and ('${from_date}' between from_date and to_date 
+       or '${to_date}' between from_date and to_date) and CAST(REPLACE(to_time, ':', '') AS INT) >= ${new_from_time}
+      `);
 
       if (checkFromDate.length > 0) {
         return generateRes({
