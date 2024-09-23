@@ -665,7 +665,7 @@ class ReceiptDao {
     const receiptsSum = await prisma.receipts.aggregate({
       where: {
         incharge_id: incharge_id,
-        date: new Date('2024-09-18'),
+        date: new Date(),
         is_validated: false,
         payment_mode: 'cash',
         is_paid: true
