@@ -300,4 +300,31 @@ export default class ReceiptController {
     }
   };
 
+  getAmount = async (req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "GET",
+      version: "1.0",
+    };
+
+    try {
+      const data = await ReceiptDao.getAmount(req);
+
+      if (!data) {
+        return res.json({
+          success: false,
+          error: "failed to fetch amount",
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "Amount fetched Successfully!",
+        data: data,
+      });
+    } catch (error: any) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
+
 }

@@ -53,5 +53,9 @@ export default class ReceiptRoute {
       .route(`${baseUrl}/receipt/submit`)
       .post((req: Request, res: Response) => receipt.submitAmount(req, res, "0510"));
 
+    app
+      .route(`${baseUrl}/receipt/get-amount/:incharge_id`)
+      .get((req: Request, res: Response) => receipt.getAmount(req, res, "0511"));
+
   }
 }
