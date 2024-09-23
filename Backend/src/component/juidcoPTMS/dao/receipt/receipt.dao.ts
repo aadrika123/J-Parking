@@ -578,7 +578,7 @@ class ReceiptDao {
       description: string
     }
 
-    const { incharge_id, description, date = new Date('2024-07-18') }: validationPayload = req.body;
+    const { incharge_id, description, date = new Date() }: validationPayload = req.body;
 
     const generateTransactionId = () => {
       const randomFiveDigit = Math.floor(10000 + Math.random() * 90000);
@@ -600,7 +600,7 @@ class ReceiptDao {
     const receiptsSum = await prisma.receipts.aggregate({
       where: {
         incharge_id: incharge_id,
-        date: date,
+        date: typeof (date) === 'string' ? new Date(date) : date,
         is_validated: false,
         payment_mode: 'cash',
         is_paid: true
@@ -617,7 +617,7 @@ class ReceiptDao {
     const receipts = await prisma.receipts.findFirst({
       where: {
         incharge_id: incharge_id,
-        date: date,
+        date: typeof (date) === 'string' ? new Date(date) : date,
         is_validated: false,
         payment_mode: 'cash'
       },
@@ -635,7 +635,7 @@ class ReceiptDao {
         data: {
           incharge_id: incharge_id,
           total_amount: receiptsSum?._sum?.amount || 0,
-          date: date,
+          date: typeof (date) === 'string' ? new Date(date) : date,
           description: description,
           transaction_id: transactionId,
           area_id: receipts?.area_id as number,
@@ -645,7 +645,7 @@ class ReceiptDao {
       await tx.receipts.updateMany({
         where: {
           incharge_id: incharge_id,
-          date: date,
+          date: typeof (date) === 'string' ? new Date(date) : date,
           is_validated: false,
         },
         data: {
@@ -656,6 +656,30 @@ class ReceiptDao {
     })
 
     return generateRes(`${receiptsSum?._sum?.amount || 0} has validated`);
+  };
+
+  static getAmount = async (req: Request) => {
+
+    const { incharge_id } = req.params;
+
+    const receiptsSum = await prisma.receipts.aggregate({
+      where: {
+        incharge_id: incharge_id,
+        date: new Date(),
+        is_validated: false,
+        payment_mode: 'cash',
+        is_paid: true
+      },
+      _sum: {
+        amount: true
+      }
+    })
+
+    if (receiptsSum?._sum?.amount === null) {
+      throw new Error('No receipt for validation')
+    }
+
+    return generateRes({ amount: receiptsSum?._sum?.amount });
   };
 
 }

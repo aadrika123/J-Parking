@@ -6,6 +6,7 @@ import ScheduleInchargeRoute from "./route/scheduleIncharge/scheduleIncharge.rou
 import ReceiptRoute from "./route/receipt/receipt.route";
 import ReportRoute from "./route/report/report.route";
 import UserRoute from "./route/user/user.route";
+import AccountantRoute from "./route/accountant/accountant.route";
 
 /*
 |--------------------------------------------------------------------------
@@ -32,5 +33,6 @@ export default class ParkingRoute {
     new ReceiptRoute(app);
     new ReportRoute(app);
     new UserRoute(app);
+    new AccountantRoute(app);
   }
 }
