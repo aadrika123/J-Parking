@@ -600,7 +600,7 @@ class ReceiptDao {
     const receiptsSum = await prisma.receipts.aggregate({
       where: {
         incharge_id: incharge_id,
-        date: date,
+        date: typeof (date) === 'string' ? new Date(date) : date,
         is_validated: false,
         payment_mode: 'cash',
         is_paid: true
@@ -617,7 +617,7 @@ class ReceiptDao {
     const receipts = await prisma.receipts.findFirst({
       where: {
         incharge_id: incharge_id,
-        date: date,
+        date: typeof (date) === 'string' ? new Date(date) : date,
         is_validated: false,
         payment_mode: 'cash'
       },
@@ -635,7 +635,7 @@ class ReceiptDao {
         data: {
           incharge_id: incharge_id,
           total_amount: receiptsSum?._sum?.amount || 0,
-          date: date,
+          date: typeof (date) === 'string' ? new Date(date) : date,
           description: description,
           transaction_id: transactionId,
           area_id: receipts?.area_id as number,
@@ -645,7 +645,7 @@ class ReceiptDao {
       await tx.receipts.updateMany({
         where: {
           incharge_id: incharge_id,
-          date: date,
+          date: typeof (date) === 'string' ? new Date(date) : date,
           is_validated: false,
         },
         data: {
