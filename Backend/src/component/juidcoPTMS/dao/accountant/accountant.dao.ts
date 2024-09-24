@@ -75,7 +75,7 @@ class AccountantDao {
   async getAccSummaryDetails(req: Request) {
     const { transaction_id } = req.params
     const { ulb_id } = req.body.auth
-    const schedule = await prisma.scheduler.findFirst({
+    const schedule: any = await prisma.scheduler.findFirst({
       where: {
         receipts: {
           some: {
@@ -93,6 +93,21 @@ class AccountantDao {
     if (!schedule) {
       throw new Error('No schedule found for this transaction')
     }
+
+    const incharge: any[] = []
+
+    await Promise.all(
+      schedule?.incharge_id.map(async (item: any) => {
+        const inchargeData = await prisma.parking_incharge.findFirst({
+          where: {
+            cunique_id: item
+          }
+        })
+        incharge.push(inchargeData)
+      })
+    )
+
+    schedule.incharge = incharge
 
     return generateRes(schedule);
   }
