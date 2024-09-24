@@ -254,7 +254,9 @@ class ReceiptDao {
 
   static getSchedule = async (incharge_id: string, area_id: number, date: Date, in_time: string) => {
 
-    const inputDateTime = new Date(`${date}T${in_time}:00`);
+    const formattedDate = new Date("2024-09-24T11:49:16.302Z").toISOString().slice(0, 10);
+
+    const inputDateTime = new Date(`${formattedDate}T${in_time}:00`);
 
     const schedule = await prisma.scheduler.findFirst({
       where: {
@@ -794,7 +796,7 @@ class ReceiptDao {
         ]
         : []),
     ]
-    
+
     const receiptDetails = await prisma.receipts.findMany({
       where: whereClause
     })
