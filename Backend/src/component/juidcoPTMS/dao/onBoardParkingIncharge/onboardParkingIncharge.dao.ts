@@ -6,7 +6,7 @@
 
 import { Request } from "express";
 import { generateRes } from "../../../../util/generateRes";
-import generateUniqueId from "../../../../util/helper/generateUniqueNo";
+import { generateInchargeId } from "../../../../util/helper/generateUniqueNo";
 
 import { Prisma, PrismaClient } from "@prisma/client";
 
@@ -25,7 +25,8 @@ class ParkingInchargeDao {
       email_id,
       emergency_mob_no,
       kyc_doc,
-      fitness_doc
+      fitness_doc,
+      zip_code
     } = req.body;
 
     const { ulb_id } = req.body.auth
@@ -47,7 +48,8 @@ class ParkingInchargeDao {
     // `;
 
     // const uniqueId = generateUniqueId(`PMSA-${ulb_code[0]?.code}-`);
-    const uniqueId = generateUniqueId(`PMSA-${ulb_id}-`);
+    // const uniqueId = generateUniqueId(`PMSA-${ulb_id}-`);
+    const uniqueId = await generateInchargeId(ulb_id);
 
     const date = new Date();
     const query: Prisma.parking_inchargeCreateArgs = {
@@ -66,6 +68,7 @@ class ParkingInchargeDao {
         ulb_id: ulb_id,
         cunique_id: uniqueId,
         updated_at: date,
+        zip_code: zip_code
       },
     };
 

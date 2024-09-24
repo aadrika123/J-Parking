@@ -252,6 +252,33 @@ class ReceiptDao {
     return generateRes(data);
   };
 
+  static getSchedule = async (incharge_id: string, area_id: number, date: Date, in_time: string) => {
+
+    const inputDateTime = new Date(`${date}T${in_time}:00`);
+
+    const schedule = await prisma.scheduler.findFirst({
+      where: {
+        incharge_id: {
+          has: incharge_id
+        },
+        location_id: area_id,
+        from_date: {
+          lte: inputDateTime,
+        },
+        to_date: {
+          gte: inputDateTime,
+        },
+        from_time: {
+          lte: in_time,
+        },
+        to_time: {
+          gte: in_time,
+        }
+      }
+    })
+    return schedule
+  }
+
   static createReceipt = async (req: Request) => {
     const { in_time } = req.body;
     const type_parking_space: type_parking_space = req.body.type_parking_space; //UnOrganized || Organized
@@ -262,6 +289,8 @@ class ReceiptDao {
     const date = new Date();
 
     const receipt_no = generateUniqueId("T0050");
+
+    const schedule = await this.getSchedule(req.body.incharge_id, Number(req.body.area_id), date ? date : new Date(), in_time)
 
     // if (type_parking_space === 'UnOrganized') {
     //   areaAmount = await prisma.parking_area.findUnique({
@@ -298,6 +327,7 @@ class ReceiptDao {
         in_time: in_time,
         receipt_no: receipt_no,
         ulb_id: ulb_id,
+        scheduler_id: schedule?.id
         // ...(type_parking_space === 'UnOrganized' && { out_time: in_time }),
         // ...(type_parking_space === 'UnOrganized' && { amount: vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate })
       },
@@ -580,20 +610,28 @@ class ReceiptDao {
 
     const { incharge_id, description, date = new Date() }: validationPayload = req.body;
 
-    const generateTransactionId = () => {
+    function startsWithDigit(id: string) {
+      return /^\d/.test(id);
+    }
+
+    const generateTransactionId = (incharge_id: string) => {
       const randomFiveDigit = Math.floor(10000 + Math.random() * 90000);
       const now = new Date();
-      const day = String(now.getDate()).padStart(2, '0');  // dd
-      const month = String(now.getMonth() + 1).padStart(2, '0');  // mm (months are zero-indexed)
-      const year = String(now.getFullYear()).slice(-2);  // yy (last 2 digits of year)
-      const hours = String(now.getHours()).padStart(2, '0');  // hh
-      const minutes = String(now.getMinutes()).padStart(2, '0');  // mm
+      const day = String(now.getDate()).padStart(2, '0')
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const year = String(now.getFullYear()).slice(-2)
+      const hours = String(now.getHours()).padStart(2, '0')
+      const minutes = String(now.getMinutes()).padStart(2, '0')
 
-      // Generate a random number between 1 and 9
+      let initial = String(randomFiveDigit)
+
+      if (startsWithDigit(incharge_id)) {
+        initial = incharge_id
+      }
+
       const randomDigit = Math.floor(1 + Math.random() * 9);
-      const generatedString = `${randomFiveDigit}${day}${month}${year}${hours}${minutes}${randomDigit}`;
+      const generatedString = `${initial}${day}${month}${year}${hours}${minutes}${randomDigit}`;
 
-      // Combine everything into a string
       return generatedString
     }
 
@@ -624,11 +662,12 @@ class ReceiptDao {
       select: {
         incharge_id: true,
         area_id: true,
-        is_paid: true
+        is_paid: true,
+        scheduler_id: true
       }
     })
 
-    const transactionId = generateTransactionId()
+    const transactionId = generateTransactionId(incharge_id)
 
     await prisma.$transaction(async (tx) => {
       await tx.accounts_summary.create({
@@ -639,7 +678,8 @@ class ReceiptDao {
           description: description,
           transaction_id: transactionId,
           area_id: receipts?.area_id as number,
-          transaction_type: 'cash'
+          transaction_type: 'cash',
+          scheduler_id: receipts?.scheduler_id
         }
       })
       await tx.receipts.updateMany({
@@ -680,6 +720,88 @@ class ReceiptDao {
     }
 
     return generateRes({ amount: receiptsSum?._sum?.amount });
+  };
+
+  static getReceiptData = async (req: Request) => {
+
+    const whereClause: Prisma.receiptsWhereInput = {}
+
+    const { parkingType = 'Organized', fromDate, toDate } = req.query;
+    const search: string | undefined = req?.query?.search ? String(req?.query?.search) : undefined
+
+    // if (!parkingType) {
+    //   throw new Error('Parking type is required as "parkingType"')
+    // }
+
+    whereClause.type_parking_space = parkingType as type_parking_space
+
+    if (search) {
+      whereClause.OR = [
+        {
+          incharge_id: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          parking_incharge: {
+            first_name: {
+              contains: search,
+              mode: 'insensitive',
+            }
+          },
+        },
+        {
+          parking_incharge: {
+            last_name: {
+              contains: search,
+              mode: 'insensitive',
+            }
+          },
+        },
+        {
+          vehicle_no: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          receipt_no: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ]
+    }
+
+    whereClause.AND = [
+      ...(fromDate
+        ? [
+          {
+            date: {
+              gte: new Date(fromDate as string)
+            },
+          },
+        ]
+        : []),
+      ...(toDate
+        ? [
+          {
+            date: {
+              lte: new Date(toDate as string)
+            },
+          },
+        ]
+        : []),
+    ]
+    
+    const receiptDetails = await prisma.receipts.findMany({
+      where: whereClause
+    })
+
+    console.log(receiptDetails)
+
+    return generateRes(receiptDetails);
   };
 
 }

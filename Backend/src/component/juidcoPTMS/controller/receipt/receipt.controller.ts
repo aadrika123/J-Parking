@@ -327,4 +327,31 @@ export default class ReceiptController {
     }
   };
 
+  getReceiptData = async (req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "GET",
+      version: "1.0",
+    };
+
+    try {
+      const data = await ReceiptDao.getReceiptData(req);
+
+      if (!data) {
+        return res.json({
+          success: false,
+          error: "failed to fetch data",
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "Data fetched Successfully!",
+        data: data,
+      });
+    } catch (error: any) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
+
 }

@@ -50,17 +50,19 @@ model parking_incharge {
 }
 
 model scheduler {
-  id             Int      @id @default(autoincrement())
-  incharge_id    String[]
-  location_id    Int?
-  from_date      DateTime @db.Date
-  to_date        DateTime @db.Date
-  from_time      String?
-  to_time        String?
-  extended_hours Json?
-  ulb_id         Int      @default(2)
-  created_at     DateTime @default(now()) @map("created_at")
-  updated_at     DateTime @updatedAt @map("updated_at")
+  id               Int                @id @default(autoincrement())
+  incharge_id      String[]
+  location_id      Int?
+  from_date        DateTime           @db.Date
+  to_date          DateTime           @db.Date
+  from_time        String?
+  to_time          String?
+  extended_hours   Json?
+  ulb_id           Int                @default(2)
+  created_at       DateTime           @default(now()) @map("created_at")
+  updated_at       DateTime           @updatedAt @map("updated_at")
+  receipts         receipts[]
+  accounts_summary accounts_summary[]
 }
 
 enum type_parking_space {
@@ -87,6 +89,8 @@ model receipts {
   payment_mode       String?
   transaction_id     String?
   is_validated       Boolean             @default(false)
+  schedule           scheduler?          @relation(fields: [scheduler_id], references: [id])
+  scheduler_id       Int?
   transaction        accounts_summary?   @relation(fields: [transaction_id], references: [transaction_id])
   created_at         DateTime            @default(now()) @map("created_at")
   updated_at         DateTime            @updatedAt @map("updated_at")
@@ -109,6 +113,8 @@ model accounts_summary {
   area             parking_area     @relation(fields: [area_id], references: [id])
   status           Int?             @default(0) //0=pending, 1=verified
   ulb_id           Int              @default(2)
+  schedule         scheduler?       @relation(fields: [scheduler_id], references: [id])
+  scheduler_id     Int?
   created_at       DateTime         @default(now()) @map("created_at")
   updated_at       DateTime         @updatedAt
   incharge         parking_incharge @relation(fields: [incharge_id], references: [cunique_id])

@@ -14,22 +14,34 @@ class AccountantController {
   constructor() {
     this.accDao = new AccountantDao();
   }
+
   async getAccSummaryList(req: Request, res: Response, apiId: string) {
     const resObj: resObj = {
       apiId,
       action: "GET",
       version: "1.0",
     };
-
     try {
       const data = await this.accDao.getAccSummaryList(req);
-
       return CommonRes.SUCCESS("Summary list fetched Successfully", data, resObj, res);
     } catch (error) {
       return CommonRes.SERVER_ERROR(error, resObj, res);
     }
   }
 
+  async getAccSummaryDetails(req: Request, res: Response, apiId: string) {
+    const resObj: resObj = {
+      apiId,
+      action: "GET",
+      version: "1.0",
+    };
+    try {
+      const data = await this.accDao.getAccSummaryDetails(req);
+      return CommonRes.SUCCESS("Summary details fetched Successfully", data, resObj, res);
+    } catch (error) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  }
 
 }
 export default AccountantController;

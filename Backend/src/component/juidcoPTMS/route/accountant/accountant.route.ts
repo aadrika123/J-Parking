@@ -11,10 +11,17 @@ export default class AccountantRoute {
     app: express.Application,
     accController: AccController
   ): void {
+
     app
       .route(`${baseUrl}/summary`)
       .get((req: Request, res: Response) =>
         accController.getAccSummaryList(req, res, "0701")
+      );
+
+    app
+      .route(`${baseUrl}/summary/:transaction_id`)
+      .get((req: Request, res: Response) =>
+        accController.getAccSummaryDetails(req, res, "0702")
       );
 
   }
