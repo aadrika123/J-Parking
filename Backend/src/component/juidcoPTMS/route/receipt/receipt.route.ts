@@ -34,6 +34,10 @@ export default class ReceiptRoute {
       .post((req: Request, res: Response) => receipt.createReceiptOut(req, res, "0506"));
 
     app
+      .route(`${baseUrl}/receipt/details`)
+      .get((req: Request, res: Response) => receipt.getReceiptData(req, res, "0511"));
+
+    app
       .route(`${baseUrl}/receipt/:receipt_no`)
       .get((req: Request, res: Response) => receipt.getReceipt(req, res, "0507"));
 
@@ -55,7 +59,7 @@ export default class ReceiptRoute {
 
     app
       .route(`${baseUrl}/receipt/get-amount/:incharge_id`)
-      .get((req: Request, res: Response) => receipt.getAmount(req, res, "0511"));
+      .get((req: Request, res: Response) => receipt.getAmount(req, res, "0512"));
 
   }
 }

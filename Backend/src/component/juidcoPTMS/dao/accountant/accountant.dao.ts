@@ -70,8 +70,31 @@ class AccountantDao {
       console.error("Error fetching schedule incharge data: ", error);
       return { error: "Internal Server Error" };
     }
+  }
 
+  async getAccSummaryDetails(req: Request) {
+    const { transaction_id } = req.params
+    const { ulb_id } = req.body.auth
+    const schedule = await prisma.scheduler.findFirst({
+      where: {
+        receipts: {
+          some: {
+            transaction_id: transaction_id
+          }
+        },
+        ulb_id: ulb_id
+      },
+      include: {
+        accounts_summary: true,
+        receipts: true,
+      }
+    })
 
+    if (!schedule) {
+      throw new Error('No schedule found for this transaction')
+    }
+
+    return generateRes(schedule);
   }
 
 }

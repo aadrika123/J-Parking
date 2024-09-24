@@ -1,5 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
 
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient()
+
 export const generateUnique = (initialString?: string): string => {
   const uniqueId = uuidv4();
   console.log(uniqueId, "uniqueIdfucntion res=========>>");
@@ -32,4 +36,40 @@ export default function generateUniqueId(unique: any) {
   }
 
   return unique;
+}
+
+export async function generateInchargeId(ulb_id: any) {
+
+  function startsWithDigit(id: string) {
+    return /^\d/.test(id);
+  }
+
+  function getThreeDigitNumber(num: number) {
+    return num.toString().padStart(3, '0');
+  }
+
+  const lastIncharge = await prisma.parking_incharge.findFirst({
+    orderBy: {
+      created_at: 'desc'
+    },
+    where: {
+      cunique_id: {
+        startsWith: String(ulb_id).padStart(2, '0')
+      }
+    }
+  })
+
+  let lastInchargeIdDigits = '000'
+
+  if (lastIncharge) {
+    if (startsWithDigit(lastIncharge?.cunique_id)) {
+      lastInchargeIdDigits = String(lastIncharge?.cunique_id).slice(2)
+    }
+  }
+
+  const digitsToUse = getThreeDigitNumber(Number(lastInchargeIdDigits) + 1)
+
+  const incharge_id = `${String(ulb_id).padStart(2, '0')}${digitsToUse}`
+
+  return incharge_id;
 }
