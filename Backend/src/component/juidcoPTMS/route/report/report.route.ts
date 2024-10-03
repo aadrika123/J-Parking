@@ -64,5 +64,12 @@ export default class ReportRoute {
       .post((req: Request, res: Response) =>
         reportGeneration.getVehicleCount(req, res, "0508")
       );
+
+    app
+      .route(`${baseUrl}/report/hourly-real-time`)
+      .get((req: Request, res: Response) =>
+        reportGeneration.getHourlyRealtimeData(req, res, "0507")
+      );
+
   }
 }
