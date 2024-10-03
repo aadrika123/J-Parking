@@ -26,6 +26,12 @@ class UserDao {
     user.role_id = data[0].wf_role_id
     user.role_name = roleData[0]?.role_name
 
+    const ulbData: any = await prisma.$queryRaw`
+    select ulb_name, logo from ulb_masters where id=${user?.ulb_id}
+    `
+    user.ulb_name = ulbData[0]?.ulb_name
+    user.ulb_logo = ulbData[0]?.logo
+
     return generateRes(user);
   }
 
