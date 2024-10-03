@@ -456,8 +456,8 @@ class ReportDao {
       }
     }
 
-    console.log('query',qr_1)
-    console.log('query',qr_2)
+    console.log('query', qr_1)
+    console.log('query', qr_2)
 
     const [data1, data2] = await prisma.$transaction([
       prisma.$queryRawUnsafe(qr_1),
@@ -613,6 +613,39 @@ class ReportDao {
   };
 
   //   ------------------------- GET REAL-TIME COLLECTION ----------------------------//
+
+  getHourlyRealtimeData = async (req: Request) => {
+    const { ulb_id } = req.body.auth
+
+    const query = `
+      WITH intervals AS (
+          SELECT 
+              generate_series(0, 22, 2) AS interval_start_hour
+      )
+      SELECT
+          COALESCE(COUNT(r.id), 0)::INT AS customer_count,
+          COALESCE(SUM(r.amount), 0)::INT AS total_amount,
+          i.interval_start_hour,
+          i.interval_start_hour + 2 AS interval_end_hour
+      FROM
+          intervals i
+      LEFT JOIN
+          receipts r
+          ON EXTRACT(HOUR FROM r.created_at)::INT / 2 * 2 = i.interval_start_hour
+          AND r.date = CURRENT_DATE
+          AND r.ulb_id = ${ulb_id}
+      GROUP BY
+          i.interval_start_hour
+      ORDER BY
+          i.interval_start_hour;
+    `
+
+    const data: any[] = await prisma.$queryRawUnsafe(query);
+
+    return data
+  };
+
+
 }
 
 export default ReportDao;
