@@ -348,11 +348,31 @@ class ReceiptDao {
       throw new Error('Receipt Number is required')
     }
 
-    const data = await prisma.receipts.findFirst({
+    const data: any = await prisma.receipts.findFirst({
       where: {
         receipt_no: receipt_no
+      },
+      include: {
+        area: {
+          select: {
+            id: true,
+            address: true,
+            zip_code: true,
+            station: true,
+            landmark: true,
+            two_wheeler_capacity: true,
+            four_wheeler_capacity: true,
+            two_wheeler_rate: true,
+            four_wheeler_rate: true,
+            total_parking_area: true,
+            ulb_id: true,
+            type_parking_space: true,
+          }
+        }
       }
     });
+
+    data.parking_area = `${data?.area?.address}${data?.area?.zip_code ? `, ${data?.area?.zip_code}` : ''}`
 
     return generateRes(data);
   };
