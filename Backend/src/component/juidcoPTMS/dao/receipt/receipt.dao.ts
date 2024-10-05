@@ -372,7 +372,7 @@ class ReceiptDao {
       }
     });
 
-    data.parking_area = `${data?.area?.address}${data?.area?.zip_code ? `, ${data?.area?.zip_code}` : ''}`
+    data.parking_area = data?.area?.address
 
     return generateRes(data);
   };
