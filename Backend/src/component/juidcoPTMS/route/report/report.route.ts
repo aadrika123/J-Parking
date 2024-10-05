@@ -71,5 +71,11 @@ export default class ReportRoute {
         reportGeneration.getHourlyRealtimeData(req, res, "0507")
       );
 
+    app
+      .route(`${baseUrl}/report/incharge-report`)
+      .post((req: Request, res: Response) =>
+        InchargeReportController.inchargeReport(req, res, "05051")
+      );
+
   }
 }

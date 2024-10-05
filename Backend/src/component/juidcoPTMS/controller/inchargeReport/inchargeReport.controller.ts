@@ -32,4 +32,33 @@ export default class InchargeReportController {
       return CommonRes.SERVER_ERROR(error, resObj, res);
     }
   };
+
+  static inchargeReport = async (req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "POST",
+      version: "1.0",
+    };
+
+    try {
+      const data = await InchargeReportDao.inchargeReport(req);
+
+      if (!data) {
+        return res.json({
+          success: false,
+          error: "No data found",
+          data: data
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "Report Generated Successfully!",
+        data: data,
+      });
+    } catch (error) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  };
+
 }
