@@ -115,6 +115,7 @@ model accounts_summary {
   ulb_id           Int              @default(2)
   schedule         scheduler?       @relation(fields: [scheduler_id], references: [id])
   scheduler_id     Int?
+  is_verified      Boolean          @default(false)
   created_at       DateTime         @default(now()) @map("created_at")
   updated_at       DateTime         @updatedAt
   incharge         parking_incharge @relation(fields: [incharge_id], references: [cunique_id])

@@ -19,9 +19,15 @@ export default class AccountantRoute {
       );
 
     app
+      .route(`${baseUrl}/summary/verify`)
+      .post((req: Request, res: Response) =>
+        accController.verify(req, res, "0702")
+      );
+
+    app
       .route(`${baseUrl}/summary/:transaction_id`)
       .get((req: Request, res: Response) =>
-        accController.getAccSummaryDetails(req, res, "0702")
+        accController.getAccSummaryDetails(req, res, "0703")
       );
 
   }

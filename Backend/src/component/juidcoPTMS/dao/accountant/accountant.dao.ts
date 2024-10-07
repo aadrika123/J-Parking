@@ -21,7 +21,8 @@ class AccountantDao {
     try {
 
       const whereClause: Prisma.accounts_summaryWhereInput = {
-        ulb_id: ulb_id
+        ulb_id: ulb_id,
+        is_verified: false
       }
 
       const countResult = await prisma.accounts_summary.count({ where: whereClause })
@@ -52,7 +53,7 @@ class AccountantDao {
             }
           },
           description: true,
-          receipts: true,
+          // receipts: true,
           date: true,
           total_amount: true,
           status: true
@@ -79,14 +80,31 @@ class AccountantDao {
       where: {
         receipts: {
           some: {
-            transaction_id: transaction_id
+            transaction_id: transaction_id,
+            is_validated: true,
+            is_paid: true
           }
         },
-        ulb_id: ulb_id
+        ulb_id: ulb_id,
+        accounts_summary: {
+          some: {
+            is_verified: false
+          }
+        }
       },
       include: {
-        accounts_summary: true,
-        receipts: true,
+        accounts_summary: {
+          include: {
+            area: true,
+            incharge: {
+              select: {
+                first_name: true,
+                last_name: true
+              }
+            }
+          }
+        },
+        receipts: true
       }
     })
 
@@ -110,6 +128,24 @@ class AccountantDao {
     schedule.incharge = incharge
 
     return generateRes(schedule);
+  }
+
+  async verify(transaction_id: string) {
+
+    if (!transaction_id) {
+      throw new Error(`Transaction ID is required as 'transaction_id'`)
+    }
+
+    const updatedData = await prisma.accounts_summary.update({
+      where: {
+        transaction_id: transaction_id
+      },
+      data: {
+        is_verified: true
+      }
+    })
+
+    return generateRes(updatedData);
   }
 
 }

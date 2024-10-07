@@ -43,5 +43,28 @@ class AccountantController {
     }
   }
 
+  async verify(req: Request, res: Response, apiId: string) {
+    const { transaction_id }: { transaction_id: string[] } = req.body
+    const resObj: resObj = {
+      apiId,
+      action: "GET",
+      version: "1.0",
+    };
+    try {
+      const dataToReturn: any[] = []
+      if (transaction_id.length !== 0) {
+        await Promise.all(
+          transaction_id?.map(async (item) => {
+            const data = await this.accDao.verify(item);
+            dataToReturn.push(data)
+          })
+        )
+      }
+      return CommonRes.SUCCESS("Updated Successfully", dataToReturn, resObj, res);
+    } catch (error) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  }
+
 }
 export default AccountantController;

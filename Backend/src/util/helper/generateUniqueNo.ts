@@ -73,3 +73,37 @@ export async function generateInchargeId(ulb_id: any) {
 
   return incharge_id;
 }
+
+export async function generateReceiptNumberV2(inchargeId: any) {
+
+  function startsWithDigit(id: string) {
+    return /^\d/.test(id);
+  }
+
+  function getFourDigitNumber(num: number) {
+    return num.toString().padStart(4, '0');
+  }
+
+  const lastRecipt = await prisma.receipts.findFirst({
+    orderBy: {
+      created_at: 'desc'
+    },
+    select: {
+      receipt_no: true
+    }
+  })
+
+  let lastReceiptNoDigits = '0000'
+
+  if (lastRecipt) {
+    if (startsWithDigit(inchargeId)) {
+      lastReceiptNoDigits = String(lastRecipt?.receipt_no).slice(2)
+    }
+  }
+
+  const digitsToUse = getFourDigitNumber(Number(lastReceiptNoDigits) + 1)
+
+  const incharge_id = `${String(inchargeId).padStart(5, '0')}${digitsToUse}`
+
+  return incharge_id;
+}
