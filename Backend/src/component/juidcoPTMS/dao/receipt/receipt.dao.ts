@@ -1,7 +1,7 @@
 import { Request } from "express";
 import { Prisma, PrismaClient, type_parking_space, vehicle_type } from "@prisma/client";
 import { generateRes } from "../../../../util/generateRes";
-import generateUniqueId from "../../../../util/helper/generateUniqueNo";
+import generateUniqueId, { generateReceiptNumberV2 } from "../../../../util/helper/generateUniqueNo";
 import { timeDifferenceInHours } from "../../../../util/helper";
 
 const prisma = new PrismaClient();
@@ -290,7 +290,8 @@ class ReceiptDao {
 
     const date = new Date();
 
-    const receipt_no = generateUniqueId("T0050");
+    // const receipt_no = generateUniqueId("T0050");
+    const receipt_no = await generateReceiptNumberV2(req.body.incharge_id);
 
     const schedule = await this.getSchedule(req.body.incharge_id, Number(req.body.area_id), date ? date : new Date(), in_time)
 
