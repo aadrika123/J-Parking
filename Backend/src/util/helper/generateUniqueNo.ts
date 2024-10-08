@@ -74,7 +74,7 @@ export async function generateInchargeId(ulb_id: any) {
   return incharge_id;
 }
 
-export async function generateReceiptNumberV2(inchargeId: any) {
+export async function generateReceiptNumberV2(inchargeId: string, ulb_id: string) {
 
   function startsWithDigit(id: string) {
     return /^\d/.test(id);
@@ -94,16 +94,18 @@ export async function generateReceiptNumberV2(inchargeId: any) {
   })
 
   let lastReceiptNoDigits = '0000'
+  let prefixNumber = `${String(ulb_id).padStart(2, '0')}${Math.floor(100 + Math.random() * 900)}`
 
   if (lastRecipt) {
     if (startsWithDigit(inchargeId)) {
       lastReceiptNoDigits = String(lastRecipt?.receipt_no).split('-')[1]
+      prefixNumber = String(inchargeId).padStart(5, '0')
     }
   }
 
   const digitsToUse = getFourDigitNumber(Number(lastReceiptNoDigits) + 1)
 
-  const incharge_id = `${String(inchargeId).padStart(5, '0')}-${digitsToUse}`
+  const receipt_no = `${prefixNumber}-${digitsToUse}`
 
-  return incharge_id;
+  return receipt_no;
 }
