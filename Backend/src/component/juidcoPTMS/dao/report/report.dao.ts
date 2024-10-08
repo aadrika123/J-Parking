@@ -217,7 +217,7 @@ class ReportDao {
 
     function qr_func(condition?: string) {
       return `
-        select count(vehicle_no)::INT, sum(amount)::INT, date from receipts
+        select count(id)::INT, sum(amount)::INT, date from receipts
         ${condition || ""}
         group by vehicle_no, date
       `;
