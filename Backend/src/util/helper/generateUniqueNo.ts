@@ -97,13 +97,13 @@ export async function generateReceiptNumberV2(inchargeId: any) {
 
   if (lastRecipt) {
     if (startsWithDigit(inchargeId)) {
-      lastReceiptNoDigits = String(lastRecipt?.receipt_no).slice(2)
+      lastReceiptNoDigits = String(lastRecipt?.receipt_no).split('-')[1]
     }
   }
 
   const digitsToUse = getFourDigitNumber(Number(lastReceiptNoDigits) + 1)
 
-  const incharge_id = `${String(inchargeId).padStart(5, '0')}${digitsToUse}`
+  const incharge_id = `${String(inchargeId).padStart(5, '0')}-${digitsToUse}`
 
   return incharge_id;
 }
