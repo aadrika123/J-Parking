@@ -291,7 +291,7 @@ class ReceiptDao {
     const date = new Date();
 
     // const receipt_no = generateUniqueId("T0050");
-    const receipt_no = await generateReceiptNumberV2(req.body.incharge_id);
+    const receipt_no = await generateReceiptNumberV2(req.body.incharge_id, ulb_id);
 
     const schedule = await this.getSchedule(req.body.incharge_id, Number(req.body.area_id), date ? date : new Date(), in_time)
 
@@ -573,7 +573,7 @@ class ReceiptDao {
     const date = new Date();
 
     // const receipt_no = generateUniqueId("T0050");
-    const receipt_no = await generateReceiptNumberV2(req.body.incharge_id);
+    const receipt_no = await generateReceiptNumberV2(req.body.incharge_id, ulb_id);
 
     const areaAmount = await prisma.parking_area.findUnique({
       where: {
