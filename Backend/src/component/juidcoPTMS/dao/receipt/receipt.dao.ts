@@ -254,7 +254,8 @@ class ReceiptDao {
 
   static getSchedule = async (incharge_id: string, area_id: number, date: Date, in_time: string) => {
 
-    const formattedDate = new Date("2024-09-24T11:49:16.302Z").toISOString().slice(0, 10);
+    // const formattedDate = new Date("2024-09-24T11:49:16.302Z").toISOString().slice(0, 10);
+    const formattedDate = new Date(date).toISOString().slice(0, 10);
 
     const inputDateTime = new Date(`${formattedDate}T${in_time}:00`);
 
