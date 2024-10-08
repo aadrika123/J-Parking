@@ -573,6 +573,8 @@ class ReceiptDao {
 
     const date = new Date();
 
+    const schedule = await this.getSchedule(req.body.incharge_id, Number(req.body.area_id), date ? date : new Date(), in_time)
+
     // const receipt_no = generateUniqueId("T0050");
     const receipt_no = await generateReceiptNumberV2(req.body.incharge_id, ulb_id);
 
@@ -603,7 +605,8 @@ class ReceiptDao {
         ulb_id: ulb_id,
         is_paid: true,
         payment_mode: payment_mode as string,
-        amount: vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate
+        amount: vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate,
+        scheduler_id: schedule?.id
       },
       include: {
         area: {
