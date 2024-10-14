@@ -552,7 +552,7 @@ class ReportDao {
     const qr_func = (condition?: string) => {
       return `
         	SELECT
-            COUNT(vehicle_no)::INT AS vehicle_count,
+            COUNT(id)::INT AS vehicle_count,
             SUM(amount)::INT AS total_amount,
             date
           FROM receipts
