@@ -552,7 +552,7 @@ class ReportDao {
     const qr_func = (condition?: string) => {
       return `
         	SELECT
-            COUNT(vehicle_no)::INT AS vehicle_count,
+            COUNT(id)::INT AS vehicle_count,
             SUM(amount)::INT AS total_amount,
             date
           FROM receipts
@@ -643,6 +643,113 @@ class ReportDao {
     const data: any[] = await prisma.$queryRawUnsafe(query);
 
     return data
+  };
+
+  generateAllReports = async (req: Request) => {
+    const { from_date, to_date } = req.body;
+    const { ulb_id } = req.body.auth
+    const limit: number = Number(req.query.limit);
+    const page: number = Number(req.query.page);
+
+    const offset = (page - 1) * limit;
+
+    const qr_func = (condition?: string) => {
+      return `
+      SELECT
+      COUNT(receipt_no)::INT AS receipt_count,
+      SUM(amount)::INT AS total_amount, receipts.incharge_id, 
+        pa.id as bus_no, cm.first_name, cm.last_name, cm.age, cm.mobile_no,
+	      pa.id, pa.address, pa.station as station, pa.zip_code as zip_code, receipts.date
+      FROM receipts
+      JOIN parking_area as pa on pa.id = receipts.area_id
+      JOIN parking_incharge as cm on cm.cunique_id = receipts.incharge_id
+      ${condition || ""}
+      GROUP BY receipts.incharge_id, cm.id, pa.id, receipts.date
+      order by date desc
+      LIMIT $1 OFFSET $2
+      `;
+    };
+
+    // const qr_func_2 = (conductor_id?: string, condition?: string) => {
+    //   return `
+    //     select receipts.* , conductor.* as conductor from receipts
+    //     JOIN conductor_master as conductor ON receipts.conductor_id = conductor.cunique_id
+    //     where receipts.conductor_id = '${conductor_id}' ${condition || ""};
+    //   `;
+    // };
+    const qr_func_2 = (incharge_id?: string, condition?: string) => {
+      return `
+        select receipts.* , pa.first_name, pa.last_name, pa.age, pa.mobile_no, pa.emergency_mob_no, pa.email_id  from receipts
+        JOIN parking_incharge as pa ON receipts.incharge_id = pa.cunique_id
+        where receipts.incharge_id = '${incharge_id}' ${condition || ""};
+      `;
+    };
+
+    let qr_1 = qr_func();
+    let qr_2 = qr_func_2();
+
+    if (from_date && to_date) {
+      qr_1 = qr_func(`
+        where date between '${from_date}' and '${to_date}'
+      `);
+    }
+
+    const conditionRegex = /(ORDER BY|GROUP BY|LIMIT|OFFSET)/i;
+    const whereData = 'where';
+    const whereRegex = new RegExp(`\\b${whereData}\\b`, 'i');
+
+    if (whereRegex.test(qr_1)) {
+      qr_1 = qr_1.replace(conditionRegex, `AND receipts.ulb_id = '${ulb_id}' $1`);
+    } else {
+      if (conditionRegex.test(qr_1)) {
+        qr_1 = qr_1.replace(conditionRegex, `WHERE receipts.ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_1 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
+    }
+
+    if (whereRegex.test(qr_2)) {
+      qr_2 = qr_2.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
+    } else {
+      if (conditionRegex.test(qr_2)) {
+        qr_2 = qr_2.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_2 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
+    }
+
+    const [all_conductor] = await prisma.$transaction([
+      prisma.$queryRawUnsafe<any[]>(qr_1, limit, offset),
+    ]);
+
+    const all_conductor_data: any[] = [];
+    if (all_conductor !== null) {
+      const promises = all_conductor.map(async (item: any) => {
+        if (from_date && to_date) {
+          qr_2 = qr_func_2(
+            item?.incharge_id,
+            `AND date between '${from_date}' and '${to_date}'`
+          );
+        } else {
+          qr_2 = qr_func_2(item?.incharge_id);
+        }
+        // const [data] = await prisma.$transaction([
+        //   prisma.$queryRawUnsafe(qr_2),
+        // ]);
+        return {
+          incharge_id: item?.incharge_id,
+          data: { ...item },
+        };
+      });
+
+      const results = await Promise.all(promises);
+
+      results.forEach((result) => {
+        all_conductor_data.push(result);
+      });
+    }
+
+    return generateRes(all_conductor_data);
   };
 
 

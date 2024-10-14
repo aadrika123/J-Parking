@@ -77,5 +77,11 @@ export default class ReportRoute {
         InchargeReportController.inchargeReport(req, res, "05051")
       );
 
+      app
+      .route(`${baseUrl}/report/all`)
+      .post((req: Request, res: Response) =>
+        reportGeneration.generateAllReports(req, res, "05000")
+      );
+
   }
 }

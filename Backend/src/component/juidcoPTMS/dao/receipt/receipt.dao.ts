@@ -703,7 +703,7 @@ class ReceiptDao {
           incharge_id: incharge_id,
           total_amount: receiptsSum?._sum?.amount || 0,
           date: typeof (date) === 'string' ? new Date(date) : date,
-          description: description,
+          description: description || '',
           transaction_id: transactionId,
           area_id: receipts?.area_id as number,
           transaction_type: 'cash',
@@ -723,7 +723,11 @@ class ReceiptDao {
       })
     })
 
-    return generateRes(`${receiptsSum?._sum?.amount || 0} has validated`);
+    return {
+      amount: receiptsSum?._sum?.amount || 0,
+      transaction_id: transactionId,
+      date: typeof (date) === 'string' ? new Date(date) : date
+    }
   };
 
   static getAmount = async (req: Request) => {

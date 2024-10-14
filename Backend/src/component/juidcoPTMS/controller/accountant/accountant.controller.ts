@@ -66,5 +66,23 @@ class AccountantController {
     }
   }
 
+  async getSchedules(req: Request, res: Response, apiId: string) {
+    const resObj: resObj = {
+      apiId,
+      action: "GET",
+      version: "1.0",
+    };
+    let date = new Date()
+    try {
+      if (req.query.date) {
+        date = new Date(String(req.query.date))
+      }
+      const data = await this.accDao.getSchedules(date);
+      return CommonRes.SUCCESS("Schedule list fetched Successfully", data, resObj, res);
+    } catch (error) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  }
+
 }
 export default AccountantController;

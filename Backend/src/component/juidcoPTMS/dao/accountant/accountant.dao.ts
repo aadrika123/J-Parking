@@ -5,24 +5,52 @@
 
 import { Request } from "express";
 import { generateRes } from "../../../../util/generateRes";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 class AccountantDao {
   async getAccSummaryList(req: Request) {
 
-    const limit: number = Number(req.query.limit) || 10;
-    const page: number = Number(req.query.page) || 1;
+    const limit: number = Number(req.query.limit);
+    const page: number = Number(req.query.page);
+    const start = req.query.start
+    const end = req.query.end
+    const incharge = req.query.incharge
     const offset = (page - 1) * limit;
     const { ulb_id } = req.body.auth
 
 
     try {
 
-      const whereClause: Prisma.accounts_summaryWhereInput = {
+      const whereClause: any = {
         ulb_id: ulb_id,
         is_verified: false
+      }
+
+      if (start && end) {
+        whereClause.AND = [
+          ...(whereClause.AND || []),
+          {
+            created_at: {
+              gte: new Date(`${String(start)}`)
+            },
+          },
+          {
+            created_at: {
+              lte: new Date(`${String(end)}T23:59:59.999Z`)
+            },
+          }
+        ]
+      }
+
+      if (incharge) {
+        whereClause.AND = [
+          ...(whereClause.AND || []),
+          {
+            incharge_id: String(incharge)
+          }
+        ]
       }
 
       const countResult = await prisma.accounts_summary.count({ where: whereClause })
@@ -34,8 +62,8 @@ class AccountantDao {
           updated_at: 'desc'
         },
         where: whereClause,
-        skip: offset,
-        take: limit,
+        ...(page && { skip: offset }),
+        ...(limit && { take: limit }),
         select: {
           transaction_id: true,
           incharge: {
@@ -146,6 +174,47 @@ class AccountantDao {
     })
 
     return generateRes(updatedData);
+  }
+
+  async getSchedules(date: Date = new Date()) {
+
+    const data = await prisma.scheduler.findMany({
+      where: {
+        AND: [
+          {
+            from_date: {
+              lte: date
+            }
+          },
+          {
+            to_date: {
+              gte: date
+            }
+          }
+        ]
+      }
+    })
+
+    if (data.length !== 0) {
+      await Promise.all(
+        data.map(async (item: any) => {
+          const locationData = await prisma.parking_area.findFirst({
+            where: {
+              id: item?.location_id as number
+            },
+            select: {
+              id: true,
+              address: true,
+              station: true,
+              zip_code: true
+            }
+          })
+          item.location = locationData
+        })
+      )
+    }
+
+    return generateRes(data);
   }
 
 }
