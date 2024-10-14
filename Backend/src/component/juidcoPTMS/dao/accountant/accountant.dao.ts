@@ -5,7 +5,7 @@
 
 import { Request } from "express";
 import { generateRes } from "../../../../util/generateRes";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -174,6 +174,47 @@ class AccountantDao {
     })
 
     return generateRes(updatedData);
+  }
+
+  async getSchedules(date: Date = new Date()) {
+
+    const data = await prisma.scheduler.findMany({
+      where: {
+        AND: [
+          {
+            from_date: {
+              lte: date
+            }
+          },
+          {
+            to_date: {
+              gte: date
+            }
+          }
+        ]
+      }
+    })
+
+    if (data.length !== 0) {
+      await Promise.all(
+        data.map(async (item: any) => {
+          const locationData = await prisma.parking_area.findFirst({
+            where: {
+              id: item?.location_id as number
+            },
+            select: {
+              id: true,
+              address: true,
+              station: true,
+              zip_code: true
+            }
+          })
+          item.location = locationData
+        })
+      )
+    }
+
+    return generateRes(data);
   }
 
 }

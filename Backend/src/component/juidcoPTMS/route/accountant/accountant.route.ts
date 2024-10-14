@@ -30,5 +30,11 @@ export default class AccountantRoute {
         accController.getAccSummaryDetails(req, res, "0703")
       );
 
+    app
+      .route(`${baseUrl}/get-schedules`)
+      .get((req: Request, res: Response) =>
+        accController.getSchedules(req, res, "0704")
+      );
+
   }
 }
