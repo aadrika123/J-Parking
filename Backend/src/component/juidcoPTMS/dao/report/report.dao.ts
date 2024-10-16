@@ -1,7 +1,7 @@
 import { Request } from "express";
 import { PrismaClient } from "@prisma/client";
 import { generateRes } from "../../../../util/generateRes";
-import { getCurrentWeekRange } from "../../../../util/helper";
+import { getCurrentWeekRange, getCurrentMonthRange } from "../../../../util/helper";
 
 const prisma = new PrismaClient();
 class ReportDao {
@@ -752,6 +752,51 @@ class ReportDao {
     return generateRes(all_conductor_data);
   };
 
+  statistics = async (req: Request) => {
+    const { from_date, to_date } = req.body;
+    const { ulb_id } = req.body.auth
+
+    // const { startOfWeek, endOfWeek } = getCurrentWeekRange();
+    const { startOfMonth, endOfMonth } = getCurrentMonthRange();
+
+    const qr_func = (condition?: string) => {
+      return `
+        	SELECT
+            COUNT(id)::INT AS vehicle_count,
+            SUM(amount)::INT AS total_amount,
+            date
+          FROM receipts
+         ${condition || `where date between '${startOfMonth}' and '${endOfMonth}'`
+        } group by date
+        order by date asc
+      `;
+    };
+
+    let qr_1 = qr_func();
+    if (from_date && to_date) {
+      qr_1 = qr_func(`
+        where date between '${from_date}' and '${to_date}'
+      `);
+    }
+
+    const conditionRegex = /(JOIN|LIMIT|OFFSET)/i;
+    const whereData = 'where';
+    const whereRegex = new RegExp(`\\b${whereData}\\b`, 'i');
+
+    if (whereRegex.test(qr_1)) {
+      qr_1 = qr_1.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
+    } else {
+      if (conditionRegex.test(qr_1)) {
+        qr_1 = qr_1.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
+      } else {
+        qr_1 += ` WHERE ulb_id = '${ulb_id}'`;
+      }
+    }
+
+    const [data] = await prisma.$transaction([prisma.$queryRawUnsafe(qr_1)]);
+
+    return generateRes(data);
+  };
 
 }
 
