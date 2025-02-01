@@ -7,11 +7,7 @@ const prisma = new PrismaClient();
 class ReportDao {
   generateReport = async (req: Request) => {
     const { incharge_id, area_id, from_date, to_date } = req.body;
-<<<<<<< HEAD
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
-=======
     const { ulb_id } = req.body.auth
->>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
     let amounts: any = [];
     let query: string = "";
     const conductor: string = ", receipts.incharge_id ";
@@ -128,11 +124,7 @@ class ReportDao {
 
   getTotalAmount = async (req: Request) => {
     const { area_id, incharge_id, from_date, to_date, curr_date } = req.body;
-<<<<<<< HEAD
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
-=======
     const { ulb_id } = req.body.auth
->>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
     let query: string = "";
     function query_fn(extend_query: string): string {
       return `
@@ -209,11 +201,7 @@ class ReportDao {
 
   getRealTimeCollection = async (req: Request) => {
     const date = new Date().toISOString().split("T")[0];
-<<<<<<< HEAD
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
-=======
     const { ulb_id } = req.body.auth
->>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
     const qr_real_time = `
           SELECT SUM (amount)::INT, extract (HOUR from created_at) as "from" , extract (HOUR from created_at)+1 as "to"  FROM receipts 
         	where ulb_id=${ulb_id} and date = '${date}'
@@ -225,11 +213,7 @@ class ReportDao {
 
   getCollections = async (req: Request) => {
     const { from_date, to_date, area_id, incharge_id } = req.body;
-<<<<<<< HEAD
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
-=======
     const { ulb_id } = req.body.auth
->>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
 
     function qr_func(condition?: string) {
       return `
@@ -411,11 +395,7 @@ class ReportDao {
 
   getWeeklyCollection = async (req: Request) => {
     const { from_date, to_date } = req.body;
-<<<<<<< HEAD
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
-=======
     const { ulb_id } = req.body.auth
->>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
 
     const { startOfWeek, endOfWeek } = getCurrentWeekRange();
 
@@ -493,11 +473,7 @@ class ReportDao {
 
   getVehicleCollection = async (req: Request) => {
     const { from_date, to_date } = req.body;
-<<<<<<< HEAD
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
-=======
     const { ulb_id } = req.body.auth
->>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
 
     const { startOfWeek, endOfWeek } = getCurrentWeekRange();
 
@@ -569,11 +545,7 @@ class ReportDao {
 
   getVehicleCount = async (req: Request) => {
     const { from_date, to_date } = req.body;
-<<<<<<< HEAD
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
-=======
     const { ulb_id } = req.body.auth
->>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
 
     const { startOfWeek, endOfWeek } = getCurrentWeekRange();
 
@@ -643,11 +615,7 @@ class ReportDao {
   //   ------------------------- GET REAL-TIME COLLECTION ----------------------------//
 
   getHourlyRealtimeData = async (req: Request) => {
-<<<<<<< HEAD
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
-=======
     const { ulb_id } = req.body.auth
->>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
 
     const query = `
       WITH intervals AS (
@@ -679,11 +647,7 @@ class ReportDao {
 
   generateAllReports = async (req: Request) => {
     const { from_date, to_date } = req.body;
-<<<<<<< HEAD
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
-=======
     const { ulb_id } = req.body.auth
->>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
     const limit: number = Number(req.query.limit);
     const page: number = Number(req.query.page);
 
@@ -790,11 +754,7 @@ class ReportDao {
 
   statistics = async (req: Request) => {
     const { from_date, to_date } = req.body;
-<<<<<<< HEAD
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
-=======
     const { ulb_id } = req.body.auth
->>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
 
     // const { startOfWeek, endOfWeek } = getCurrentWeekRange();
     const { startOfMonth, endOfMonth } = getCurrentMonthRange();
