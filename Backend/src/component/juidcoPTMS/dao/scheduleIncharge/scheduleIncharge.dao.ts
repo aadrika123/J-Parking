@@ -1,7 +1,6 @@
 import { Request } from "express";
 import { generateRes } from "../../../../util/generateRes";
 import { Prisma, PrismaClient } from "@prisma/client";
-import { differenceInMinutes, parse } from "date-fns";
 
 const prisma = new PrismaClient();
 
@@ -80,181 +79,96 @@ class ScheduleInchargeDao {
     return generateRes(createNewSchedule);
   };
 
-//   async updateSchedulerIncharge(req: Request) {
-//     const {
-//       id,
-//       incharge_id,
-//       from_date,
-//       to_date,
-//       from_time,
-//       to_time,
-//       extended_hours
-//     } = req.body;
+  async updateSchedulerIncharge(req: Request) {
+    const {
+      id,
+      incharge_id,
+      from_date,
+      to_date,
+      from_time,
+      to_time,
+      extended_hours
+    } = req.body;
 
-//     // const setFromTime = Number(from_time.replace(":", "").padStart(4, "0"));
-//     // const setToTime = Number(to_time.replace(":", "").padStart(4, "0"));
+    // const setFromTime = Number(from_time.replace(":", "").padStart(4, "0"));
+    // const setToTime = Number(to_time.replace(":", "").padStart(4, "0"));
 
-//     //   const query = `
-//     //   UPDATE scheduler 
-//     //   SET 
-//     //     location_id = $1,
-//     //     incharge_id = $2,
-//     //     from_date = $3,
-//     //     to_date = $4,
-//     //     from_time = $5,
-//     //     to_time = $6,
-//     //     extended_hours = $8,
-//     //     updated_at = NOW()
-//     //   WHERE id = $7
-//     //   RETURNING *;
-//     // `;
+    //   const query = `
+    //   UPDATE scheduler 
+    //   SET 
+    //     location_id = $1,
+    //     incharge_id = $2,
+    //     from_date = $3,
+    //     to_date = $4,
+    //     from_time = $5,
+    //     to_time = $6,
+    //     extended_hours = $8,
+    //     updated_at = NOW()
+    //   WHERE id = $7
+    //   RETURNING *;
+    // `;
 
-//     const query = `
-//   UPDATE scheduler 
-//   SET 
-//     incharge_id = $1,
-//     from_date = $2,
-//     to_date = $3,
-//     from_time = $4,
-//     to_time = $5,
-//     extended_hours = $7,
-//     updated_at = NOW()
-//   WHERE id = $6
-//   RETURNING *;
-// `;
+    const query = `
+  UPDATE scheduler 
+  SET 
+    incharge_id = $1,
+    from_date = $2,
+    to_date = $3,
+    from_time = $4,
+    to_time = $5,
+    extended_hours = $7,
+    updated_at = NOW()
+  WHERE id = $6
+  RETURNING *;
+`;
 
-//     const values = [
-//       incharge_id,
-//       new Date(from_date),
-//       new Date(to_date),
-//       from_time,
-//       to_time,
-//       id,
-//       extended_hours
-//     ];
+    const values = [
+      incharge_id,
+      new Date(from_date),
+      new Date(to_date),
+      from_time,
+      to_time,
+      id,
+      extended_hours
+    ];
 
-//     try {
-//       const result = await prisma.$queryRawUnsafe<any[]>(query, ...values);
-//       if (result.length > 0) {
-//         return {
-//           status: "success",
-//           data: result[0],
-//         };
-//       } else {
-//         return {
-//           status: "error",
-//           message: "Scheduler not found",
-//         };
-//       }
-//     } catch (error) {
-//       console.error("Error executing query", error);
-//       return {
-//         status: "error",
-//         message: "Internal Server Error",
-//       };
-//     }
-//   }
-
-async updateSchedulerIncharge(req: Request) {
-  const {
-    id,
-    incharge_id,
-    from_date,
-    to_date,
-    from_time,
-    to_time
-  } = req.body;
-
-  try {
-    // Fetch current to_time before update
-    const existingRecord = await prisma.scheduler.findUnique({
-      where: { id: Number(id) },
-      select: { to_time: true, extended_hours: true }
-    });
-
-    if (!existingRecord) {
+    try {
+      const result = await prisma.$queryRawUnsafe<any[]>(query, ...values);
+      if (result.length > 0) {
+        return {
+          status: "success",
+          data: result[0],
+        };
+      } else {
+        return {
+          status: "error",
+          message: "Scheduler not found",
+        };
+      }
+    } catch (error) {
+      console.error("Error executing query", error);
       return {
         status: "error",
-        message: "Scheduler not found"
+        message: "Internal Server Error",
       };
     }
-
-    let updatedExtendedHours: string[] = [];
-
-    if (existingRecord.extended_hours && Array.isArray(existingRecord.extended_hours)) {
-      updatedExtendedHours = existingRecord.extended_hours as string[];
-    }
-
-    if (existingRecord.to_time) {
-      // Parse old and new to_time values
-      const oldTime = parse(existingRecord.to_time, "HH:mm", new Date());
-      const newTime = parse(to_time, "HH:mm", new Date());
-
-      const timeDifferenceInMinutes = differenceInMinutes(newTime, oldTime); // Get difference in minutes
-
-      if (timeDifferenceInMinutes > 0) {
-        if (timeDifferenceInMinutes < 60) {
-          updatedExtendedHours.push(`${timeDifferenceInMinutes} minutes, ${existingRecord.to_time} - ${to_time}`);
-        } else {
-          const timeDifferenceInHours = timeDifferenceInMinutes / 60;
-
-          // If hours is not a whole number, split it into hours and minutes
-          const hours = Math.floor(timeDifferenceInHours);
-          const minutes = Math.round((timeDifferenceInHours - hours) * 60);
-
-          if (minutes > 0) {
-            updatedExtendedHours.push(`${hours} hour ${minutes} minutes, ${existingRecord.to_time} - ${to_time}`);
-          } else {
-            updatedExtendedHours.push(`${hours} hours, ${existingRecord.to_time} - ${to_time}`);
-          }
-        }
-      }
-    }
-
-    // Update the record
-    const updatedScheduler = await prisma.scheduler.update({
-      where: { id: Number(id) },
-      data: {
-        incharge_id,
-        from_date: new Date(from_date),
-        to_date: new Date(to_date),
-        from_time,
-        to_time,
-        extended_hours: updatedExtendedHours, // Store as JSON array
-        updated_at: new Date()
-      }
-    });
-
-    return {
-      status: true,
-      message: "Scheduler updated successfully",
-      data: updatedScheduler
-    };
-  } catch (error) {
-    console.error("Error updating scheduler", error);
-    return {
-      status: "error",
-      message: "Internal Server Error"
-    };
   }
-}
 
   deleteScheduler = async (req: Request) => {
     const { id } = req.body;
 
     try {
-      const updatedScheduler = await prisma.scheduler.update({
-        where: { id: id },
-        data: { is_scheduled: false },  // Instead of deleting, set isScheduled to false
+      await prisma.scheduler.delete({
+        where: {
+          id: id,
+        },
       });
 
-      return generateRes({ updated: updatedScheduler });
+      return generateRes({ deleted: id });
     } catch (error) {
-      console.error("Error updating scheduler:", error);
       return { error: "Internal Server Error" };
     }
-};
-
+  };
 
   async getScheduleIncharge(req: Request) {
     const { incharge_id, incharge_name, search } = req.query;
@@ -280,7 +194,6 @@ async updateSchedulerIncharge(req: Request) {
         JOIN parking_incharge AS pk ON pk.cunique_id = ANY(scheduler.incharge_id::TEXT[])
         JOIN parking_area AS pa ON scheduler.location_id::INT = pa.id
         ${extend ? extend : ""}
-        WHERE scheduler.is_scheduled = true
         group by scheduler.id, pa.address, pk.cunique_id, pk.first_name, pk.middle_name, pk.last_name 
         LIMIT ${limit} OFFSET ${offset}
       `;
@@ -508,22 +421,23 @@ async updateSchedulerIncharge(req: Request) {
     const { incharge_id, from_date, to_date } = req.body;
     const ulb_id = req?.body?.auth?.ulb_id || 2;
 
+    // const query: string = `
+    //   select scheduler.*, parking_area.* from scheduler
+    // 	where ulb_id=${ulb_id} and incharge_id = '${incharge_id}' AND '${from_date}' between from_date and to_date 
+    //   or '${to_date}' between from_date and to_date
+    //   join parking_area on scheduler.location_id::INT = parking_area.id
+    // `;
     const query: string = `
-        SELECT scheduler.id AS scheduler_id, scheduler.*, parking_area.* 
-        FROM scheduler
-        JOIN parking_area ON scheduler.location_id::INT = parking_area.id
-        WHERE scheduler.ulb_id = ${ulb_id} 
-        AND '${incharge_id}' = ANY(scheduler.incharge_id) 
-        AND ('${from_date}' BETWEEN scheduler.from_date AND scheduler.to_date 
-        OR '${to_date}' BETWEEN scheduler.from_date AND scheduler.to_date);
+	    select scheduler.*, parking_area.* from scheduler
+      join parking_area on scheduler.location_id::INT = parking_area.id
+    	where scheduler.ulb_id=${ulb_id} and '${incharge_id}' = ANY(incharge_id) AND '${from_date}' between from_date and to_date 
+      or '${to_date}' between from_date and to_date;
     `;
 
     const data = await prisma.$queryRawUnsafe<any[]>(query);
-    return generateRes(data.map(item => ({ ...item, scheduler_id: item.scheduler_id })));
-};
-
-
-
+    // console.log(data);
+    return generateRes(data);
+  };
 }
 
 export default ScheduleInchargeDao;

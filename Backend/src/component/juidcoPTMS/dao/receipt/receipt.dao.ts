@@ -350,7 +350,23 @@ class ReceiptDao {
     const ulb_id = req?.body?.auth?.ulb_id || 2;
 
     const date = new Date();
+
+    // const receipt_no = generateUniqueId("T0050");
     const receipt_no = await generateReceiptNumberV2(req.body.incharge_id, ulb_id);
+
+    const schedule = await this.getSchedule(req.body.incharge_id, Number(req.body.area_id), date ? date : new Date(), in_time)
+
+    // if (type_parking_space === 'UnOrganized') {
+    //   areaAmount = await prisma.parking_area.findUnique({
+    //     where: {
+    //       id: Number(req.body.area_id),
+    //     },
+    //     select: {
+    //       two_wheeler_rate: true,
+    //       four_wheeler_rate: true,
+    //     },
+    //   });
+    // }
 
     if (type_parking_space === 'Organized') {
       const isAlreadyIn = await prisma.receipts.count({
@@ -358,9 +374,9 @@ class ReceiptDao {
           vehicle_no: req.body.vehicle_no,
           out_time: null
         }
-      });
+      })
       if (isAlreadyIn !== 0) {
-        throw new Error(`The vehicle ${req.body.vehicle_no} has not marked out yet`);
+        throw new Error(`The vehicle ${req.body.vehicle_no} has not marked out yet`)
       }
     }
 
@@ -370,12 +386,14 @@ class ReceiptDao {
         vehicle_type: vehicle_type,
         type_parking_space: type_parking_space,
         incharge_id: req.body.incharge_id,
-        date: date,
+        date: date ? date : new Date(),
         area_id: Number(req.body.area_id),
         in_time: in_time,
         receipt_no: receipt_no,
         ulb_id: ulb_id,
-        scheduler_id: scheduler_id // Now taking scheduler_id from request payload
+        scheduler_id: schedule?.id
+        // ...(type_parking_space === 'UnOrganized' && { out_time: in_time }),
+        // ...(type_parking_space === 'UnOrganized' && { amount: vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate })
       },
       select: {
         receipt_no: true
@@ -384,8 +402,6 @@ class ReceiptDao {
 
     return generateRes(data);
   };
-
-
 
   static getReceipt = async (req: Request) => {
     const { receipt_no } = req.params;
@@ -843,7 +859,6 @@ class ReceiptDao {
         scheduler_id: true
       }
     })
-    console.log(receipts,"recccccc")
 
     const transactionId = generateTransactionId(incharge_id)
 
@@ -860,7 +875,6 @@ class ReceiptDao {
           scheduler_id: receipts?.scheduler_id
         }
       })
-      // console.log(accounts_summary)
       await tx.receipts.updateMany({
         where: {
           incharge_id: incharge_id,

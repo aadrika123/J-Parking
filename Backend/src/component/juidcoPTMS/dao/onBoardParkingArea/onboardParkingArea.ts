@@ -28,7 +28,11 @@ class ParkingAreaDao {
       four_wheeler_rate,
     } = req.body;
 
+<<<<<<< HEAD
     const ulb_id  = req?.body?.auth?.ulb_id || 2
+=======
+    const { ulb_id } = req.body.auth
+>>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
 
     const query: Prisma.parking_areaCreateArgs = {
       data: {
@@ -57,7 +61,11 @@ class ParkingAreaDao {
     const { zip_code, station, search } = req.query;
     const limit: number = Number(req.query.limit);
     const page: number = Number(req.query.page);
+<<<<<<< HEAD
     const ulb_id  = req?.body?.auth?.ulb_id || 2
+=======
+    const { ulb_id } = req.body.auth
+>>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
 
     try {
       const offset = (page - 1) * limit;
@@ -159,7 +167,11 @@ class ParkingAreaDao {
   }
 
   async get_all_parking_area(req: Request) {
+<<<<<<< HEAD
     const ulb_id  = req?.body?.auth?.ulb_id || 2
+=======
+    const { ulb_id } = req.body.auth
+>>>>>>> ec82b18eeebf329b113f2557ddd6e6d8b3d72716
     const data = await prisma.parking_area.findMany({
       where: {
         ulb_id: ulb_id
