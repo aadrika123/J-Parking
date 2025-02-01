@@ -29,7 +29,7 @@ class ReceiptDao {
     const { in_time, out_time } = req.body;
     const type_parking_space: number = Number(req.body.type_parking_space);
     const vehicle_type: number = req.body.vehicle_type;
-    const {ulb_id} = req.body.auth || 2
+    const ulb_id = req.body.auth || 2
 
     const date = new Date();
 
@@ -122,7 +122,7 @@ class ReceiptDao {
     const page: number = Number(req.query.page);
     const limit: number = Number(req.query.limit);
     const search: string = String(req.query.search);
-    const {ulb_id} = req.body.auth || 2
+    const ulb_id = req.body.auth || 2
 
     const d1 = new Date(from_date);
     const d2 = new Date(to_date);
@@ -243,7 +243,7 @@ class ReceiptDao {
   };
 
   four_wheeler_status = async (req: Request) => {
-    const {ulb_id} = req.body.auth || 2
+    const ulb_id = req.body.auth || 2
     const date = new Date().toISOString().split("T")[0];
     const data = await prisma.$queryRawUnsafe(`
         SELECT COUNT(id)::INT FROM receipts where ulb_id=${ulb_id} and date = '${date}';
@@ -286,7 +286,7 @@ class ReceiptDao {
   //   const { in_time } = req.body;
   //   const type_parking_space: type_parking_space = req.body.type_parking_space; //UnOrganized || Organized
   //   const vehicle_type: vehicle_type = req.body.vehicle_type; //four_wheeler || two_wheeler
-  //   const {ulb_id}  = req.body.auth || 2
+  //   const ulb_id  = req.body.auth || 2
   //   // let areaAmount: any
 
   //   const date = new Date();
@@ -347,7 +347,7 @@ class ReceiptDao {
     const { in_time, scheduler_id } = req.body;
     const type_parking_space: type_parking_space = req.body.type_parking_space; // UnOrganized || Organized
     const vehicle_type: vehicle_type = req.body.vehicle_type; // four_wheeler || two_wheeler
-    const {ulb_id} = req.body.auth || 2;
+    const ulb_id = req.body.auth || 2;
 
     const date = new Date();
     const receipt_no = await generateReceiptNumberV2(req.body.incharge_id, ulb_id);
@@ -718,7 +718,7 @@ class ReceiptDao {
   static createReceiptUnorganized = async (req: Request) => {
     const { in_time, amount, payment_mode } = req.body;
     const vehicle_type: vehicle_type = req.body.vehicle_type; //four_wheeler || two_wheeler
-    const {ulb_id} = req.body.auth || 2
+    const ulb_id = req.body.auth || 2
 
     const date = new Date();
 

@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 class ScheduleInchargeDao {
   getDetailsByLocation = async (req: Request) => {
     const location: string = String(req.body.location);
-    const {ulb_id}  = req.body.auth || 2
+    const ulb_id  = req.body.auth || 2
 
     const qr_1 = await prisma.$queryRawUnsafe(`
       select address from parking_area where ulb_id=${ulb_id} and address ILIKE '%${location}%'
@@ -29,7 +29,7 @@ class ScheduleInchargeDao {
   createScheduleIncharge = async (req: Request) => {
     const { location_id, incharge_id, from_date, to_date, from_time, to_time } =
       req.body;
-    const {ulb_id}  = req.body.auth || 2
+    const ulb_id  = req.body.auth || 2
 
     // const setFromTime = Number(from_time.replace(":", "").padStart(4, "0"));
     // const setToTime = Number(to_time.replace(":", "").padStart(4, "0"));
@@ -261,7 +261,7 @@ async updateSchedulerIncharge(req: Request) {
     const limit: number = Number(req.query.limit) || 10;
     const page: number = Number(req.query.page) || 1;
     const offset = (page - 1) * limit;
-    const {ulb_id}  = req.body.auth || 2 
+    const ulb_id  = req.body.auth || 2 
 
     // const qr_func = (extend?: string) => {
     //   return `
@@ -484,7 +484,7 @@ async updateSchedulerIncharge(req: Request) {
 
   // getAreaScheduleIncharge = async (req: Request) => {
   //   const { incharge_id, from_date, to_date } = req.body;
-  //   const {ulb_id}  = req.body.auth || 2
+  //   const ulb_id  = req.body.auth || 2
 
   //   // const query: string = `
   //   //   select scheduler.*, parking_area.* from scheduler
@@ -506,7 +506,7 @@ async updateSchedulerIncharge(req: Request) {
 
   getAreaScheduleIncharge = async (req: Request) => {
     const { incharge_id, from_date, to_date } = req.body;
-    const {ulb_id} = req.body.auth || 2;
+    const ulb_id = req.body.auth || 2;
 
     const query: string = `
         SELECT scheduler.id AS scheduler_id, scheduler.*, parking_area.* 
