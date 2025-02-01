@@ -11,109 +11,107 @@ const prisma = new PrismaClient();
 
 class AccountantDao {
   async getAccSummaryList(req: Request) {
-
     const limit: number = Number(req.query.limit);
     const page: number = Number(req.query.page);
-    const start = req.query.start
-    const end = req.query.end
-    const incharge = req.query.incharge
     const offset = (page - 1) * limit;
-    const { ulb_id } = req.body.auth
+    const ulb_id = req?.body?.auth?.ulb_id || 2;
 
+    // Ensure query params are strings
+    const start = req.query.start as string | undefined;
+    const end = req.query.end as string | undefined;
+    const incharge = req.query.incharge as string | undefined;
 
     try {
+        const whereClause: any = {
+            ulb_id: ulb_id,
+            is_verified: false
+        };
 
-      const whereClause: any = {
-        ulb_id: ulb_id,
-        is_verified: false
-      }
+        if (start && end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            endDate.setHours(23, 59, 59, 999); // Ensure full-day filtering
 
-      if (start && end) {
-        whereClause.AND = [
-          ...(whereClause.AND || []),
-          {
-            created_at: {
-              gte: new Date(`${String(start)}`)
-            },
-          },
-          {
-            created_at: {
-              lte: new Date(`${String(end)}T23:59:59.999Z`)
-            },
-          }
-        ]
-      }
-
-      if (incharge) {
-        whereClause.AND = [
-          ...(whereClause.AND || []),
-          {
-            incharge_id: String(incharge)
-          }
-        ]
-      }
-
-      const countResult = await prisma.accounts_summary.count({ where: whereClause })
-      const totalItems = Number(countResult);
-      const totalPages = Math.ceil(totalItems / limit);
-
-      const dataResult = await prisma.accounts_summary.findMany({
-        orderBy: {
-          updated_at: 'desc'
-        },
-        where: whereClause,
-        ...(page && { skip: offset }),
-        ...(limit && { take: limit }),
-        select: {
-          transaction_id: true,
-          incharge: {
-            select: {
-              cunique_id: true,
-              first_name: true,
-              middle_name: true,
-              last_name: true
-            }
-          },
-          area: {
-            select: {
-              id: true,
-              address: true,
-            }
-          },
-          description: true,
-          // receipts: true,
-          date: true,
-          total_amount: true,
-          status: true
+            whereClause.created_at = {
+                gte: startDate.toISOString(),
+                lte: endDate.toISOString(),
+            };
         }
-      });
 
+        if (incharge) {
+            whereClause.AND = [
+                ...(whereClause.AND || []),
+                { incharge_id: incharge }
+            ];
+        }
 
-      return generateRes({
-        page,
-        totalItems,
-        totalPages,
-        data: dataResult,
-      });
+        console.log("whereClause:", JSON.stringify(whereClause, null, 2)); // Debugging
+
+        const countResult = await prisma.accounts_summary.count({ where: whereClause });
+        const totalItems = Number(countResult);
+        const totalPages = Math.ceil(totalItems / limit);
+
+        const dataResult = await prisma.accounts_summary.findMany({
+            orderBy: { updated_at: 'desc' },
+            where: whereClause,
+            ...(page && { skip: offset }),
+            ...(limit && { take: limit }),
+            select: {
+                transaction_id: true,
+                incharge: {
+                    select: {
+                        cunique_id: true,
+                        first_name: true,
+                        middle_name: true,
+                        last_name: true
+                    }
+                },
+                area: {
+                    select: {
+                        id: true,
+                        address: true,
+                    }
+                },
+                description: true,
+                date: true,
+                total_amount: true,
+                status: true
+            }
+        });
+
+        return generateRes({
+            page,
+            totalItems,
+            totalPages,
+            data: dataResult,
+        });
     } catch (error) {
-      console.error("Error fetching schedule incharge data: ", error);
-      return { error: "Internal Server Error" };
+        console.error("Error fetching account summary data: ", error);
+        return { error: "Internal Server Error" };
     }
-  }
+}
+
 
   async getAccSummaryDetails(req: Request) {
     const { transaction_id } = req.params
-    const { ulb_id } = req.body.auth
+    console.log(transaction_id,"trannnnnnnnnnnn")
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
     const schedule: any = await prisma.scheduler.findFirst({
-      where: {
-        receipts: {
-          some: {
-            transaction_id: transaction_id,
-            is_validated: true,
-            is_paid: true
-          }
-        },
-        ulb_id: ulb_id,
+      // where: {
+        // receipts: {
+        //   some: {
+        //     transaction_id: transaction_id,
+        //     is_validated: true,
+        //     is_paid: true
+        //   }
+        // },
+        where: {
+          receipts: {
+            some: {
+              transaction_id: transaction_id
+            }
+          },
+        // ulb_id: ulb_id,
         accounts_summary: {
           some: {
             is_verified: false
@@ -157,6 +155,9 @@ class AccountantDao {
 
     return generateRes(schedule);
   }
+
+
+
 
   async verify(transaction_id: string) {
 
