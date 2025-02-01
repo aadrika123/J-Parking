@@ -57,13 +57,15 @@ model scheduler {
   to_date          DateTime           @db.Date
   from_time        String?
   to_time          String?
-  extended_hours   Json?
+  extended_hours   Json?              @default("[]") // Store previous to_time values as JSON array
+  is_scheduled      Boolean            @default(true)
   ulb_id           Int                @default(2)
   created_at       DateTime           @default(now()) @map("created_at")
   updated_at       DateTime           @updatedAt @map("updated_at")
   receipts         receipts[]
   accounts_summary accounts_summary[]
 }
+
 
 enum type_parking_space {
   Organized
