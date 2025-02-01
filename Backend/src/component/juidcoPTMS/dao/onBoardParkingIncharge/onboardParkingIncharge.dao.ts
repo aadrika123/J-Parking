@@ -29,7 +29,7 @@ class ParkingInchargeDao {
       zip_code
     } = req.body;
 
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
+    const { ulb_id } = req.body.auth
 
     const isExistingConductorEmail = await prisma.parking_incharge.findFirst({
       where: { email_id: email_id },
@@ -81,7 +81,7 @@ class ParkingInchargeDao {
     const { cunique_id, name, search } = req.query;
     const limit: number = Number(req.query.limit);
     const page: number = Number(req.query.page);
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
+    const { ulb_id } = req.body.auth
 
     const offset = (page - 1) * limit;
 

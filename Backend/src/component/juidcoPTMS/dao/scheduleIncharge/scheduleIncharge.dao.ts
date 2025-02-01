@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 class ScheduleInchargeDao {
   getDetailsByLocation = async (req: Request) => {
     const location: string = String(req.body.location);
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
+    const { ulb_id } = req.body.auth
 
     const qr_1 = await prisma.$queryRawUnsafe(`
       select address from parking_area where ulb_id=${ulb_id} and address ILIKE '%${location}%'
@@ -28,7 +28,7 @@ class ScheduleInchargeDao {
   createScheduleIncharge = async (req: Request) => {
     const { location_id, incharge_id, from_date, to_date, from_time, to_time } =
       req.body;
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
+    const { ulb_id } = req.body.auth
 
     // const setFromTime = Number(from_time.replace(":", "").padStart(4, "0"));
     // const setToTime = Number(to_time.replace(":", "").padStart(4, "0"));
@@ -175,7 +175,7 @@ class ScheduleInchargeDao {
     const limit: number = Number(req.query.limit) || 10;
     const page: number = Number(req.query.page) || 1;
     const offset = (page - 1) * limit;
-    const ulb_id  = req?.body?.auth?.ulb_id || 2 
+    const { ulb_id } = req.body.auth
 
     // const qr_func = (extend?: string) => {
     //   return `
@@ -395,31 +395,9 @@ class ScheduleInchargeDao {
   //   }
   // }
 
-  // getAreaScheduleIncharge = async (req: Request) => {
-  //   const { incharge_id, from_date, to_date } = req.body;
-  //   const ulb_id  = req?.body?.auth?.ulb_id || 2
-
-  //   // const query: string = `
-  //   //   select scheduler.*, parking_area.* from scheduler
-  //   // 	where ulb_id=${ulb_id} and incharge_id = '${incharge_id}' AND '${from_date}' between from_date and to_date 
-  //   //   or '${to_date}' between from_date and to_date
-  //   //   join parking_area on scheduler.location_id::INT = parking_area.id
-  //   // `;
-  //   const query: string = `
-	//     select scheduler.*, parking_area.* from scheduler
-  //     join parking_area on scheduler.location_id::INT = parking_area.id
-  //   	where scheduler.ulb_id=${ulb_id} and '${incharge_id}' = ANY(incharge_id) AND '${from_date}' between from_date and to_date 
-  //     or '${to_date}' between from_date and to_date;
-  //   `;
-
-  //   const data = await prisma.$queryRawUnsafe<any[]>(query);
-  //   // console.log(data); 
-  //   return generateRes(data);
-  // };
-
   getAreaScheduleIncharge = async (req: Request) => {
     const { incharge_id, from_date, to_date } = req.body;
-    const ulb_id = req?.body?.auth?.ulb_id || 2;
+    const { ulb_id } = req.body.auth
 
     // const query: string = `
     //   select scheduler.*, parking_area.* from scheduler
