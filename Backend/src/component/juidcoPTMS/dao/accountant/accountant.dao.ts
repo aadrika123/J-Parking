@@ -18,7 +18,7 @@ class AccountantDao {
     const end = req.query.end
     const incharge = req.query.incharge
     const offset = (page - 1) * limit;
-    const { ulb_id } = req.body.auth
+    const ulb_id = req?.body?.auth?.ulb_id || 2;
 
 
     try {
@@ -103,7 +103,8 @@ class AccountantDao {
 
   async getAccSummaryDetails(req: Request) {
     const { transaction_id } = req.params
-    const { ulb_id } = req.body.auth
+    console.log(transaction_id,"trannnnnnnnnnnn")
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
     const schedule: any = await prisma.scheduler.findFirst({
       where: {
         receipts: {
