@@ -92,34 +92,93 @@ class AccountantDao {
 }
 
 
+  // async getAccSummaryDetails(req: Request) {
+  //   const { transaction_id } = req.params
+  //   console.log(transaction_id,"trannnnnnnnnnnn")
+  //   const ulb_id  = req?.body?.auth?.ulb_id || 2
+  //   const schedule: any = await prisma.scheduler.findFirst({
+  //     // where: {
+  //       // receipts: {
+  //       //   some: {
+  //       //     transaction_id: transaction_id,
+  //       //     is_validated: true,
+  //       //     is_paid: true
+  //       //   }
+  //       // },
+  //       where: {
+  //         receipts: {
+  //           some: {
+  //             transaction_id: transaction_id
+  //           }
+  //         },
+  //       // ulb_id: ulb_id,
+  //       accounts_summary: {
+  //         some: {
+  //           is_verified: false
+  //         }
+  //       }
+  //     },
+  //     include: {
+  //       accounts_summary: {
+  //         include: {
+  //           area: true,
+  //           incharge: {
+  //             select: {
+  //               first_name: true,
+  //               last_name: true
+  //             }
+  //           }
+  //         }
+  //       },
+  //       receipts: true
+  //     }
+  //   })
+
+  //   if (!schedule) {
+  //     throw new Error('No schedule found for this transaction')
+  //   }
+
+  //   const incharge: any[] = []
+
+  //   await Promise.all(
+  //     schedule?.incharge_id.map(async (item: any) => {
+  //       const inchargeData = await prisma.parking_incharge.findFirst({
+  //         where: {
+  //           cunique_id: item
+  //         }
+  //       })
+  //       incharge.push(inchargeData)
+  //     })
+  //   )
+
+  //   schedule.incharge = incharge
+
+  //   return generateRes(schedule);
+  // }
+
   async getAccSummaryDetails(req: Request) {
-    const { transaction_id } = req.params
-    console.log(transaction_id,"trannnnnnnnnnnn")
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
+    const { transaction_id } = req.params;
+    console.log(transaction_id, "trannnnnnnnnnnn");
+    const ulb_id = req?.body?.auth?.ulb_id || 2;
+
     const schedule: any = await prisma.scheduler.findFirst({
-      // where: {
-        // receipts: {
-        //   some: {
-        //     transaction_id: transaction_id,
-        //     is_validated: true,
-        //     is_paid: true
-        //   }
-        // },
-        where: {
-          receipts: {
-            some: {
-              transaction_id: transaction_id
-            }
-          },
-        // ulb_id: ulb_id,
+      where: {
+        receipts: {
+          some: {
+            transaction_id: transaction_id
+          }
+        },
         accounts_summary: {
           some: {
-            is_verified: false
+            is_verified: false,  // Only fetch records where `is_verified` is false
           }
         }
       },
       include: {
         accounts_summary: {
+          where: {
+            is_verified: false  // Ensure only unverified summaries are returned
+          },
           include: {
             area: true,
             incharge: {
@@ -132,13 +191,13 @@ class AccountantDao {
         },
         receipts: true
       }
-    })
+    });
 
     if (!schedule) {
-      throw new Error('No schedule found for this transaction')
+      throw new Error('No schedule found for this transaction');
     }
 
-    const incharge: any[] = []
+    const incharge: any[] = [];
 
     await Promise.all(
       schedule?.incharge_id.map(async (item: any) => {
@@ -146,15 +205,16 @@ class AccountantDao {
           where: {
             cunique_id: item
           }
-        })
-        incharge.push(inchargeData)
+        });
+        incharge.push(inchargeData);
       })
-    )
+    );
 
-    schedule.incharge = incharge
+    schedule.incharge = incharge;
 
     return generateRes(schedule);
-  }
+}
+
 
 
 
