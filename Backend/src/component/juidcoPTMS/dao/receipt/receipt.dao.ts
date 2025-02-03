@@ -682,24 +682,25 @@ class ReceiptDao {
 // };
 
 static createReceiptOut = async (req: Request) => {
-  const { out_time, receipt_no, out_amount, payment_mode, area_Id, ulb_Id } = req.body;
+  const { out_time, receipt_no, out_amount, payment_mode, area_Id, ulb_Id, transaction_id } = req.body;
 
   if (!receipt_no) {
       throw new Error('Receipt Number is required');
   }
 
+
   // Fetch the receipt details from the database
   const receipt = await prisma.receipts.findFirst({
-      where: {
-          receipt_no: receipt_no
-      },
+      where: { receipt_no },
       select: {
           in_time: true,
           type_parking_space: true,
           vehicle_type: true,
           area_id: true,
-          ulb_id: true, 
-          out_time: true
+          ulb_id: true,
+          out_time: true,
+          amount: true,
+          is_validated: true
       }
   });
 
@@ -707,65 +708,84 @@ static createReceiptOut = async (req: Request) => {
       throw new Error('No receipt found');
   }
 
-  // Check if the area_id and ulb_id in the request match the ones in the receipt
-  // if (receipt.area_id !== area_Id || receipt.ulb_id !== ulb_Id) {
-  //     throw new Error('Area or ULB ID mismatch');
-  // }
 
-  // Check if out_time is provided for Organized parking space
-  if (!out_time && receipt?.type_parking_space === 'Organized') {
+  // Ensure out_time is provided for Organized parking space
+  if (!out_time && receipt.type_parking_space === 'Organized') {
       throw new Error('Out time is required');
   }
 
   // Check if the vehicle is already marked out
-  if (receipt?.out_time !== null) {
+  if (receipt.out_time !== null) {
       throw new Error('Vehicle already marked out');
   }
 
+
   // Retrieve the parking area rates
   const getAreaAmount = await prisma.parking_area.findUnique({
-      where: {
-          id: receipt.area_id,
-      },
-      select: {
-          two_wheeler_rate: true,
-          four_wheeler_rate: true,
-      },
+      where: { id: receipt.area_id },
+      select: { two_wheeler_rate: true, four_wheeler_rate: true }
   });
 
-  const two_wheeler_rate = getAreaAmount?.two_wheeler_rate || 0;
-  const four_wheeler_rate = getAreaAmount?.four_wheeler_rate || 0;
+  // Ensure rates are valid numbers (fallback to 0)
+  const two_wheeler_rate = getAreaAmount?.two_wheeler_rate ?? 0;
+  const four_wheeler_rate = getAreaAmount?.four_wheeler_rate ?? 0;
 
-  // Ensure out_time is a Date
-  const validOutTime = out_time ? new Date(out_time) : new Date();
+  // Ensure in_time is valid
+  if (!receipt.in_time) {
+      throw new Error('Invalid receipt entry: in_time is missing');
+  }
+    
+    
+    // Ensure out_time is stored as a string
+    const validOutTime = out_time ? String(out_time) : String(new Date());
+    
 
-  // Calculate the time difference
-  const time_diff = timeDifferenceInHours(receipt.in_time, String(validOutTime));
+    // Calculate the time difference correctly
 
-  let amount: number = 0;
+  // const time_diff = timeDifferenceInHours(String(new Date(receipt.in_time)), String(new Date(validOutTime)));/
+  const time_diff = timeDifferenceInHours(receipt.in_time, validOutTime);
+  
+
+  if (isNaN(time_diff) || time_diff < 0) {
+      throw new Error(`Invalid time difference: ${time_diff}`);
+  }
+
+  let calculatedAmount = 0;
 
   // Calculate the amount based on vehicle type and parking space type
   if (receipt.vehicle_type === 'two_wheeler') {
-      amount = receipt.type_parking_space === 'Organized' ? two_wheeler_rate * time_diff : two_wheeler_rate;
+      calculatedAmount = receipt.type_parking_space === 'Organized' 
+          ? two_wheeler_rate * time_diff 
+          : two_wheeler_rate;
   } else {
-      amount = receipt.type_parking_space === 'Organized' ? four_wheeler_rate * time_diff : four_wheeler_rate;
+      calculatedAmount = receipt.type_parking_space === 'Organized' 
+          ? four_wheeler_rate * time_diff 
+          : four_wheeler_rate;
   }
 
-  // Check if the out_amount is correct
-  if (Number(out_amount) !== amount) {
-      throw new Error('Payment amount invalid');
+  // Ensure amount is a valid integer
+  calculatedAmount = Math.round(calculatedAmount);
+
+  if (isNaN(calculatedAmount)) {
+      throw new Error('Calculated amount is invalid (NaN)');
+  }
+
+  // Check if the out_amount matches the calculated amount
+  if (Number(out_amount) !== calculatedAmount) {
+      throw new Error(`Payment amount invalid. Expected: ${calculatedAmount}, Received: ${out_amount}`);
   }
 
   // Update the receipt with the calculated amount and other details
   const data = await prisma.receipts.update({
-      where: {
-          receipt_no: receipt_no
-      },
+      where: { receipt_no },
       data: {
-          amount: amount,
-          out_time: String(validOutTime), // Ensures a valid Date type
+          amount: calculatedAmount,
+          out_time: String(validOutTime),  // Stored as string
           is_paid: true,
-          payment_mode: payment_mode as string
+          payment_mode: payment_mode as string,
+          transaction_id: transaction_id ?? null,  // Optional transaction ID
+          is_validated: true, // Assuming validation occurs after payment
+          updated_at: new Date()
       },
       include: {
           area: {
@@ -786,6 +806,8 @@ static createReceiptOut = async (req: Request) => {
 
   return generateRes(data);
 };
+
+
 
 
   static getInVehicle = async (req: Request) => {
