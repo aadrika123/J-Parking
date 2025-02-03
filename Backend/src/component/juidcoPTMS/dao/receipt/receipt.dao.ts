@@ -708,9 +708,9 @@ static createReceiptOut = async (req: Request) => {
   }
 
   // Check if the area_id and ulb_id in the request match the ones in the receipt
-  if (receipt.area_id !== area_Id || receipt.ulb_id !== ulb_Id) {
-      throw new Error('Area or ULB ID mismatch');
-  }
+  // if (receipt.area_id !== area_Id || receipt.ulb_id !== ulb_Id) {
+  //     throw new Error('Area or ULB ID mismatch');
+  // }
 
   // Check if out_time is provided for Organized parking space
   if (!out_time && receipt?.type_parking_space === 'Organized') {
