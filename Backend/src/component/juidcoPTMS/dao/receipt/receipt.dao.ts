@@ -353,9 +353,9 @@ class ReceiptDao {
     const date = new Date();
 
     // const receipt_no = generateUniqueId("T0050");
-    const receipt_no = await generateReceiptNumberV2(req.body.incharge_id, ulb_id);
+    const receipt_no = await generateReceiptNumberV2(req?.body?.incharge_id, ulb_id);
 
-    const schedule = await this.getSchedule(req.body.incharge_id, Number(req.body.area_id), date ? date : new Date(), in_time)
+    const schedule = await this.getSchedule(req?.body?.incharge_id, Number(req?.body?.area_id), date ? date : new Date(), in_time)
 
     // if (type_parking_space === 'UnOrganized') {
     //   areaAmount = await prisma.parking_area.findUnique({
@@ -372,23 +372,23 @@ class ReceiptDao {
     if (type_parking_space === 'Organized') {
       const isAlreadyIn = await prisma.receipts.count({
         where: {
-          vehicle_no: req.body.vehicle_no,
+          vehicle_no: req?.body?.vehicle_no,
           out_time: null
         }
       })
       if (isAlreadyIn !== 0) {
-        throw new Error(`The vehicle ${req.body.vehicle_no} has not marked out yet`)
+        throw new Error(`The vehicle ${req?.body?.vehicle_no} has not marked out yet`)
       }
     }
 
     const data = await prisma.receipts.create({
       data: {
-        ...(type_parking_space === 'Organized' && { vehicle_no: req.body.vehicle_no }),
+        ...(type_parking_space === 'Organized' && { vehicle_no: req?.body?.vehicle_no }),
         vehicle_type: vehicle_type,
         type_parking_space: type_parking_space,
-        incharge_id: req.body.incharge_id,
+        incharge_id: req?.body?.incharge_id,
         date: date ? date : new Date(),
-        area_id: Number(req.body.area_id),
+        area_id: Number(req?.body?.area_id),
         in_time: in_time,
         receipt_no: receipt_no,
         ulb_id: ulb_id,
