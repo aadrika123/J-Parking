@@ -719,7 +719,7 @@ static createReceiptOut = async (req: Request) => {
       throw new Error('Vehicle already marked out');
   }
 
-
+console.log(receipt)
   // Retrieve the parking area rates
   const getAreaAmount = await prisma.parking_area.findUnique({
       where: { id: receipt.area_id },
@@ -784,7 +784,7 @@ static createReceiptOut = async (req: Request) => {
           is_paid: true,
           payment_mode: payment_mode as string,
           transaction_id: transaction_id ?? null,  // Optional transaction ID
-          is_validated: true, // Assuming validation occurs after payment
+          is_validated: false, // Assuming validation occurs after payment
           updated_at: new Date()
       },
       include: {
@@ -916,6 +916,7 @@ static createReceiptOut = async (req: Request) => {
     }
 
     const { incharge_id, description, date = new Date() }: validationPayload = req.body;
+    console.log(req.body,"bodyyyyyyyyyyyy")
 
     function startsWithDigit(id: string) {
       return /^\d/.test(id);
