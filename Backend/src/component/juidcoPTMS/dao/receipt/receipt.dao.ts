@@ -345,8 +345,8 @@ class ReceiptDao {
 
   static createReceipt = async (req: Request) => {
     const { in_time } = req.body;
-    const type_parking_space: type_parking_space = req.body.type_parking_space; //UnOrganized || Organized
-    const vehicle_type: vehicle_type = req.body.vehicle_type; //four_wheeler || two_wheeler
+    const type_parking_space: type_parking_space = req?.body?.type_parking_space; //UnOrganized || Organized
+    const vehicle_type: vehicle_type = req?.body?.vehicle_type || "two_wheeler"; //four_wheeler || two_wheeler
     const  ulb_id  = req?.body?.auth?.ulb_id || 2
     // let areaAmount: any
 
