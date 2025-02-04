@@ -188,7 +188,7 @@ export async function generateReceiptNumberV2(inchargeId: string, ulb_id: string
   }
 
   // Increment the last four digits
-  const newReceiptNoDigits = getFourDigitNumber(Number(lastReceiptNoDigits) + 2);
+  const newReceiptNoDigits = getFourDigitNumber(Number(lastReceiptNoDigits) + 1);
   const receipt_no = `${prefixNumber}-${newReceiptNoDigits}`;
 
   return receipt_no;
