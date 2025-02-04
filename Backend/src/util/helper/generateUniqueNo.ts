@@ -110,8 +110,54 @@ export async function generateInchargeId(ulb_id: any) {
 //   return receipt_no;
 // }
 
-export async function generateReceiptNumberV2(inchargeId: string, ulb_id: string) {
+// export async function generateReceiptNumberV2(inchargeId: string, ulb_id: string) {
 
+//   function startsWithDigit(id: string) {
+//     return /^\d/.test(id);
+//   }
+
+//   function getFourDigitNumber(num: number) {
+//     return num.toString().padStart(4, '0');
+//   }
+
+//   const lastRecipt = await prisma.receipts.findFirst({
+//     orderBy: {
+//       created_at: 'desc'
+//     },
+//     select: {
+//       receipt_no: true
+//     }
+//   })
+
+//   let lastReceiptNoDigits = '0000'
+//   const data:any  = await prisma.receipts.findMany({
+//     orderBy: { id: 'desc' },
+//     take: 1,
+//   });
+
+//   if(data?.length >0 ){
+//     console.log("data",data?.receipt_no)
+//   }
+
+//   let prefixNumber = `${String(ulb_id).padStart(2, '0')}${Math.floor(100 + Math.random() * 900)}`
+
+//   if (lastRecipt) {
+//     if (startsWithDigit(inchargeId)) {
+//       lastReceiptNoDigits = String(lastRecipt?.receipt_no).split('-')[1]
+//       prefixNumber = String(inchargeId).padStart(5, '0')
+//     }
+//   }
+
+//   const digitsToUse = getFourDigitNumber(Number(lastReceiptNoDigits) + 1)
+
+//   const receipt_no = `${prefixNumber}-${digitsToUse}`
+
+//   return receipt_no;
+// }
+
+
+
+export async function generateReceiptNumberV2(inchargeId: string, ulb_id: string) {
   function startsWithDigit(id: string) {
     return /^\d/.test(id);
   }
@@ -120,28 +166,30 @@ export async function generateReceiptNumberV2(inchargeId: string, ulb_id: string
     return num.toString().padStart(4, '0');
   }
 
-  const lastRecipt = await prisma.receipts.findFirst({
-    orderBy: {
-      created_at: 'desc'
-    },
-    select: {
-      receipt_no: true
+  // Fetch the last receipt
+  const lastReceipt = await prisma.receipts.findFirst({
+    orderBy: { id: 'desc' },
+    select: { receipt_no: true },
+  });
+
+  let lastReceiptNoDigits = '0000';
+  let prefixNumber = `${String(ulb_id).padStart(2, '0')}${Math.floor(100 + Math.random() * 900)}`;
+
+  if (lastReceipt?.receipt_no) {
+    const receiptParts = lastReceipt.receipt_no.split('-');
+    
+    if (receiptParts.length === 2) {
+      lastReceiptNoDigits = receiptParts[1]; // Extract the last four digits
     }
-  })
 
-  let lastReceiptNoDigits = '0000'
-  let prefixNumber = `${String(ulb_id).padStart(2, '0')}${Math.floor(100 + Math.random() * 900)}`
-
-  if (lastRecipt) {
     if (startsWithDigit(inchargeId)) {
-      lastReceiptNoDigits = String(lastRecipt?.receipt_no).split('-')[1]
-      prefixNumber = String(inchargeId).padStart(5, '0')
+      prefixNumber = String(inchargeId).padStart(5, '0'); // Ensure inchargeId is formatted correctly
     }
   }
 
-  const digitsToUse = getFourDigitNumber(Number(lastReceiptNoDigits) + 1)
-
-  const receipt_no = `${prefixNumber}-${digitsToUse}`
+  // Increment the last four digits
+  const newReceiptNoDigits = getFourDigitNumber(Number(lastReceiptNoDigits) + 1);
+  const receipt_no = `${prefixNumber}-${newReceiptNoDigits}`;
 
   return receipt_no;
 }
