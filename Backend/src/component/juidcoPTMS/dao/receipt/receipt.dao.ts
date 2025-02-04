@@ -834,6 +834,8 @@ static createReceiptOut = async (req: Request) => {
     return generateRes({ areaAmount: vehicle_type === 'two_wheeler' ? areaAmount?.two_wheeler_rate : areaAmount?.four_wheeler_rate });
   };
 
+  
+
   static createReceiptUnorganized = async (req: Request) => {
     const { in_time, amount, payment_mode } = req.body;
     const vehicle_type: vehicle_type = req.body.vehicle_type; //four_wheeler || two_wheeler
