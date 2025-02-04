@@ -240,22 +240,78 @@ async updateSchedulerIncharge(req: Request) {
   }
 }
 
-  deleteScheduler = async (req: Request) => {
-    const { id } = req.body;
+//   deleteScheduler = async (req: Request) => {
+//     const { id } = req.body;
 
-    try {
-      const updatedScheduler = await prisma.scheduler.update({
-        where: { id: id },
-        data: { is_scheduled: false },  // Instead of deleting, set isScheduled to false
-      });
+//     try {
+//       const updatedScheduler = await prisma.scheduler.update({
+//         where: { id: id },
+//         data: { is_scheduled: false },  // Instead of deleting, set isScheduled to false
+//       });
 
-      return generateRes({ updated: updatedScheduler });
-    } catch (error) {
-      console.error("Error updating scheduler:", error);
-      return { error: "Internal Server Error" };
+//       return generateRes({ updated: updatedScheduler });
+//     } catch (error) {
+//       console.error("Error updating scheduler:", error);
+//       return { error: "Internal Server Error" };
+//     }
+// };
+
+deleteScheduler = async (req: Request) => {
+  const { id } = req.body;
+
+  try {
+    // Find the existing scheduler entry
+    const schedulerEntry = await prisma.scheduler.findUnique({
+      where: { id },
+    });
+
+    if (!schedulerEntry) {
+      return { status: "error", message: "Scheduler entry not found" };
     }
-};
 
+    // Safely parse extended_hours
+    let updatedExtendedHours: string[] = [];
+
+    if (schedulerEntry.extended_hours) {
+      try {
+        updatedExtendedHours = JSON.parse(schedulerEntry.extended_hours as unknown as string);
+        if (!Array.isArray(updatedExtendedHours)) {
+          updatedExtendedHours = [];
+        }
+      } catch (error) {
+        updatedExtendedHours = [];
+      }
+    }
+
+    // Move data to backup_scheduler table
+    await prisma.backup_scheduler.create({
+      data: {
+        original_id: schedulerEntry.id,
+        incharge_id: schedulerEntry.incharge_id,
+        location_id: schedulerEntry.location_id,
+        from_date: schedulerEntry.from_date,
+        to_date: schedulerEntry.to_date,
+        from_time: schedulerEntry.from_time,
+        to_time: schedulerEntry.to_time,
+        extended_hours: updatedExtendedHours,
+        is_scheduled: schedulerEntry.is_scheduled,
+        ulb_id: schedulerEntry.ulb_id,
+        created_at: schedulerEntry.created_at,
+        updated_at: schedulerEntry.updated_at,
+      },
+    });
+
+    // Delete the scheduler entry
+    await prisma.scheduler.delete({
+      where: { id },
+    });
+
+    return { status: "success", message: "Scheduler entry deleted and backed up successfully" };
+  } catch (error:any) {
+    console.error("Error deleting scheduler:", error);
+    return { status: "error", message: "Failed to delete scheduler entry", details: error.message };
+  }
+};
 
   async getScheduleIncharge(req: Request) {
     const { incharge_id, incharge_name, search } = req.query;
