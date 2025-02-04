@@ -354,6 +354,7 @@ class ReceiptDao {
 
     // const receipt_no = generateUniqueId("T0050");
     const receipt_no = await generateReceiptNumberV2(req?.body?.incharge_id, ulb_id);
+    // console.log("receipt_noreceipt_noreceipt_no",receipt_no)
 
     const schedule = await this.getSchedule(req?.body?.incharge_id, Number(req?.body?.area_id), date ? date : new Date(), in_time)
 
@@ -376,6 +377,8 @@ class ReceiptDao {
           out_time: null
         }
       })
+      // console.log("isAlreadyIn line 379",isAlreadyIn)
+
       if (isAlreadyIn !== 0) {
         throw new Error(`The vehicle ${req?.body?.vehicle_no} has not marked out yet`)
       }
