@@ -841,6 +841,8 @@ static createReceiptOut = async (req: Request) => {
     const vehicle_type: vehicle_type = req.body.vehicle_type; //four_wheeler || two_wheeler
     const ulb_id = req?.body?.auth?.ulb_id || 2
 
+    console.log(req.body,"------------------------------->>>>>")
+
     const date = new Date();
 
     const schedule = await this.getSchedule(req.body.incharge_id, Number(req.body.area_id), date ? date : new Date(), in_time)
@@ -903,10 +905,11 @@ static createReceiptOut = async (req: Request) => {
     type validationPayload = {
       incharge_id: string,
       date?: Date,
-      description: string
+      description: string,
+      schedular_id:Number
     }
 
-    const { incharge_id, description, date = new Date() }: validationPayload = req.body;
+    const { incharge_id, description, schedular_id, date = new Date() }: validationPayload = req.body;
     console.log(req.body,"bodyyyyyyyyyyyy")
 
     function startsWithDigit(id: string) {
@@ -969,6 +972,8 @@ static createReceiptOut = async (req: Request) => {
 
     const transactionId = generateTransactionId(incharge_id)
 
+
+    console.log(receipts, "recipttttttttttttttttttttttttttttt")
     await prisma.$transaction(async (tx) => {
       await tx.accounts_summary.create({
         data: {
@@ -979,7 +984,7 @@ static createReceiptOut = async (req: Request) => {
           transaction_id: transactionId,
           area_id: receipts?.area_id as number,
           transaction_type: 'cash',
-          scheduler_id: receipts?.scheduler_id
+          scheduler_id: Number(schedular_id)
         }
       })
       // console.log(accounts_summary)

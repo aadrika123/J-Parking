@@ -84,12 +84,15 @@ class ScheduleInchargeController {
       const data = await this.scheduleIncharge.deleteScheduler(req);
 
       return res.json({
+        status:true,
+        message:"schedular deleted successfully",
         data: data,
       });
     } catch (error) {
       return CommonRes.SERVER_ERROR(error, resObj, res);
     }
   }
+
 
   async getScheduleIncharge(req: Request, res: Response, apiId: string) {
     const resObj: resObj = {

@@ -240,22 +240,37 @@ async updateSchedulerIncharge(req: Request) {
   }
 }
 
-  deleteScheduler = async (req: Request) => {
-    const { id } = req.body;
+//   deleteScheduler = async (req: Request) => {
+//     const { id } = req.body;
 
-    try {
-      const updatedScheduler = await prisma.scheduler.update({
-        where: { id: id },
-        data: { is_scheduled: false },  // Instead of deleting, set isScheduled to false
-      });
+//     try {
+//       const updatedScheduler = await prisma.scheduler.update({
+//         where: { id: id },
+//         data: { is_scheduled: false },  // Instead of deleting, set isScheduled to false
+//       });
 
-      return generateRes({ updated: updatedScheduler });
-    } catch (error) {
-      console.error("Error updating scheduler:", error);
-      return { error: "Internal Server Error" };
-    }
+//       return generateRes({ updated: updatedScheduler });
+//     } catch (error) {
+//       console.error("Error updating scheduler:", error);
+//       return { error: "Internal Server Error" };
+//     }
+// };
+
+deleteScheduler = async (req: Request) => {
+  const { id } = req.body;
+
+  try {
+    await prisma.scheduler.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    return generateRes({ deleted: id });
+  } catch (error) {
+    return { error: "Internal Server Error" };
+  }
 };
-
 
   async getScheduleIncharge(req: Request) {
     const { incharge_id, incharge_name, search } = req.query;
