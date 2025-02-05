@@ -160,21 +160,6 @@ class AccountantDao {
     const { transaction_id } = req.params;
     console.log(transaction_id, "trannnnnnnnnnnn");
     const ulb_id = req?.body?.auth?.ulb_id || 2;
-    const schedules: any = await prisma.scheduler.findFirst({
-      where: {
-        receipts: {
-          some: {
-            transaction_id: transaction_id
-          }
-        },
-        accounts_summary: {
-          some: {
-            is_verified: true,  // Only fetch records where `is_verified` is false
-          }
-        }
-      }
-    })
-    console.log(schedules,"-------------->")
 
     const schedule: any = await prisma.scheduler.findFirst({
       where: {
