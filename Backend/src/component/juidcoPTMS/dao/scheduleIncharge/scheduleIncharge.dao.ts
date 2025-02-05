@@ -256,7 +256,6 @@ async updateSchedulerIncharge(req: Request) {
 //     }
 // };
 
-
 deleteScheduler = async (req: Request) => {
   const { id } = req.body;
 

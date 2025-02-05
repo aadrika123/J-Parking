@@ -66,6 +66,7 @@ model scheduler {
   accounts_summary accounts_summary[]
 }
 
+
 enum type_parking_space {
   Organized
   UnOrganized
