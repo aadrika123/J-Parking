@@ -66,11 +66,36 @@ model scheduler {
   accounts_summary accounts_summary[]
 }
 
-
 enum type_parking_space {
   Organized
   UnOrganized
 }
+
+// model receipts {
+//   id                 Int                 @id @default(autoincrement())
+//   incharge_id        String
+//   parking_incharge   parking_incharge    @relation(fields: [incharge_id], references: [cunique_id])
+//   area_id            Int
+//   area               parking_area        @relation(fields: [area_id], references: [id])
+//   vehicle_type       vehicle_type
+//   type_parking_space type_parking_space?
+//   vehicle_no         String?
+//   amount             Int?
+//   receipt_no         String              @unique
+//   date               DateTime            @db.Date
+//   in_time            String
+//   out_time           String?
+//   ulb_id             Int                 @default(2)
+//   is_paid            Boolean             @default(false)
+//   payment_mode       String?
+//   transaction_id     String?
+//   is_validated       Boolean             @default(false)
+//   schedule           scheduler?          @relation(fields: [scheduler_id], references: [id])
+//   scheduler_id       Int?
+//   transaction        accounts_summary?   @relation(fields: [transaction_id], references: [transaction_id])
+//   created_at         DateTime            @default(now()) @map("created_at")
+//   updated_at         DateTime            @updatedAt @map("updated_at")
+// }
 
 model receipts {
   id                 Int                 @id @default(autoincrement())
@@ -91,12 +116,13 @@ model receipts {
   payment_mode       String?
   transaction_id     String?
   is_validated       Boolean             @default(false)
-  schedule           scheduler?          @relation(fields: [scheduler_id], references: [id])
+  schedule           scheduler?          @relation(fields: [scheduler_id], references: [id], onDelete: Cascade) // ⬅️ Added cascade delete
   scheduler_id       Int?
   transaction        accounts_summary?   @relation(fields: [transaction_id], references: [transaction_id])
   created_at         DateTime            @default(now()) @map("created_at")
   updated_at         DateTime            @updatedAt @map("updated_at")
 }
+
 
 enum vehicle_type {
   two_wheeler
