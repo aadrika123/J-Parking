@@ -12,7 +12,8 @@ import { Prisma, PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 class ParkingAreaDao {
-  async create(req: Request) {
+ async create(req: Request) {
+  try {
     const {
       address,
       zip_code,
@@ -20,38 +21,74 @@ class ParkingAreaDao {
       landmark,
       two_wheeler_capacity,
       four_wheeler_capacity,
-
       total_parking_area,
       type_parking_space,
+      sub_type_parking_space,
       agreement_doc,
       two_wheeler_rate,
       four_wheeler_rate,
     } = req.body;
 
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
+    const ulb_id = req?.body?.auth?.ulb_id || 2;
+
+    const parkingType: "Organized" | "UnOrganized" =
+      Number(type_parking_space) === 0 ? "Organized" : "UnOrganized";
+
+    const allowedSubTypes = [
+      "Indoor",
+      "Outdoor",
+      "Covered",
+      "Open",
+      "Basement",
+      "Rooftop",
+      "Automated",
+      "Others",
+    ];
+
+    if (parkingType === "Organized" && !sub_type_parking_space) {
+      return {
+        status: "ERROR",
+        detail: "sub_type_parking_space is required for Organized parking type",
+      };
+    }
+
+    if (
+      parkingType === "Organized" &&
+      !allowedSubTypes.includes(sub_type_parking_space)
+    ) {
+      return {
+        status: "ERROR",
+        detail: "Invalid sub_type_parking_space. Allowed values: " + allowedSubTypes.join(", "),
+      };
+    }
 
     const query: Prisma.parking_areaCreateArgs = {
       data: {
-        address: address,
-        zip_code: zip_code,
-        station: station,
-        landmark: landmark,
+        address,
+        zip_code,
+        station,
+        landmark,
         two_wheeler_capacity: parseInt(two_wheeler_capacity),
         four_wheeler_capacity: parseInt(four_wheeler_capacity),
         total_parking_area: parseInt(total_parking_area),
-        type_parking_space:
-          Number(type_parking_space) === 0 ? "Organized" : "UnOrganized",
-        agreement_doc: agreement_doc,
+        type_parking_space: parkingType,
+        sub_type_parking_space: parkingType === "Organized" ? sub_type_parking_space : undefined,
+        agreement_doc,
         two_wheeler_rate: parseInt(two_wheeler_rate),
         four_wheeler_rate: parseInt(four_wheeler_rate),
-        ulb_id: ulb_id,
+        ulb_id,
       },
     };
 
     const data = await prisma.parking_area.create(query);
-
     return generateRes(data);
+  } catch (error: any) {
+    return {
+      status: "ERROR",
+      detail: error.message || "Something went wrong",
+    };
   }
+}
 
   async get(req: Request) {
     const { zip_code, station, search } = req.query;
