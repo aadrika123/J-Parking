@@ -21,6 +21,7 @@ model parking_area {
   agreement_doc         String?
   ulb_id                Int                 @default(2)
   type_parking_space    type_parking_space?
+  sub_type_parking_space  sub_type_parking_space? // optional, only relevant for 'Organized'
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   receipts              receipts[]
@@ -43,6 +44,8 @@ model parking_incharge {
   fitness_doc      String?
   zip_code         String?
   ulb_id           Int                @default(2)
+  is_approved      Boolean            @default(false)
+  is_active        Boolean            @default(true)
   created_at       DateTime           @default(now()) @map("created_at")
   updated_at       DateTime           @updatedAt @map("updated_at")
   receipts         receipts[]
@@ -70,6 +73,16 @@ model scheduler {
 enum type_parking_space {
   Organized
   UnOrganized
+}
+enum sub_type_parking_space {
+ Indoor
+  Outdoor
+  Covered
+  Open
+  Basement
+  Rooftop
+  Automated
+  Others
 }
 
 // model receipts {
