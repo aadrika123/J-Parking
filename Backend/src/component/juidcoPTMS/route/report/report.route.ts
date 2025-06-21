@@ -88,6 +88,17 @@ export default class ReportRoute {
       .post((req: Request, res: Response) =>
         reportGeneration.statistics(req, res, "05002")
       );
+    app
+      .route(`${baseUrl}/report/monthly`)
+      .get((req: Request, res: Response) =>
+        reportGeneration.getMonthlyCollection(req, res, "05003")
+      );
+
+    app
+      .route(`${baseUrl}/report/yearly`)
+      .get((req: Request, res: Response) =>
+        reportGeneration.getYearlyCollection(req, res, "05002")
+      );
 
   }
 }
