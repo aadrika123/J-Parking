@@ -135,5 +135,50 @@ class ParkingAreaController {
       return CommonRes.SERVER_ERROR(error, resObj, res);
     }
   };
+
+  getActiveParkingAreas = async(req: Request, res: Response, apiId: string) => {
+    const resObj: resObj = {
+      apiId,
+      action: "GET",
+      version: "1.0",
+    };
+
+    try {
+      const data = await this.parkingAreaDao.getActiveOnly();
+
+      return CommonRes.SUCCESS("Active Parking Areas fetched successfully", data, resObj, res);
+    } catch (error) {
+      return CommonRes.SERVER_ERROR(error, resObj, res);
+    }
+  }
+
+
+ updateStatus = async(req: Request, res: Response, apiId: string) => {
+  const resObj: resObj = {
+    apiId,
+    action: "POST",
+    version: "1.0",
+  };
+
+  try {
+    const { id, status } = req.body;
+
+    // if (typeof id === "undefined" || typeof status === "undefined") {
+    //   return CommonRes.BAD_REQUEST("Missing 'id' or 'status' in request", resObj, res);
+    // }
+
+    const data = await this.parkingAreaDao.updateStatus(id, status);
+
+    if (data.status === "ERROR") {
+      return res.json({ error: data.detail });
+    }
+
+    return CommonRes.SUCCESS("Parking status updated", data, resObj, res);
+  } catch (error) {
+    return CommonRes.SERVER_ERROR(error, resObj, res);
+  }
+}
+
+
 }
 export default ParkingAreaController;
