@@ -27,6 +27,7 @@ class ParkingAreaDao {
       agreement_doc,
       two_wheeler_rate,
       four_wheeler_rate,
+      status = 1,
     } = req.body;
 
     const ulb_id = req?.body?.auth?.ulb_id || 2;
@@ -35,14 +36,7 @@ class ParkingAreaDao {
       Number(type_parking_space) === 0 ? "Organized" : "UnOrganized";
 
     const allowedSubTypes = [
-      "Indoor",
-      "Outdoor",
-      "Covered",
-      "Open",
-      "Basement",
-      "Rooftop",
-      "Automated",
-      "Others",
+      "Indoor", "Outdoor", "Covered", "Open", "Basement", "Rooftop", "Automated", "Others",
     ];
 
     if (parkingType === "Organized" && !sub_type_parking_space) {
@@ -70,13 +64,14 @@ class ParkingAreaDao {
         landmark,
         two_wheeler_capacity: parseInt(two_wheeler_capacity),
         four_wheeler_capacity: parseInt(four_wheeler_capacity),
-        total_parking_area: parseInt(total_parking_area),
+        total_parking_area: total_parking_area ? parseInt(total_parking_area) : null,
         type_parking_space: parkingType,
         sub_type_parking_space: parkingType === "Organized" ? sub_type_parking_space : undefined,
         agreement_doc,
         two_wheeler_rate: parseInt(two_wheeler_rate),
         four_wheeler_rate: parseInt(four_wheeler_rate),
         ulb_id,
+        status: parseInt(status),
       },
     };
 
@@ -89,6 +84,7 @@ class ParkingAreaDao {
     };
   }
 }
+
 
   async get(req: Request) {
     const { zip_code, station, search } = req.query;
@@ -220,6 +216,40 @@ class ParkingAreaDao {
 
     return generateRes(data);
   }
+
+  async getActiveOnly() {
+  try {
+    const data = await prisma.parking_area.findMany({
+      where: { status: 1 },
+      orderBy: { created_at: 'desc' },
+    });
+
+    return generateRes(data);
+  } catch (error: any) {
+    return {
+      status: "ERROR",
+      detail: error.message || "Failed to fetch active parking areas",
+    };
+  }
+}
+
+async updateStatus(id: number, status: number) {
+  try {
+    const data = await prisma.parking_area.update({
+      where: { id },
+      data: { status },
+    });
+
+    return generateRes(data);
+  } catch (error: any) {
+    return {
+      status: "ERROR",
+      detail: error.message || "Failed to update status",
+    };
+  }
+}
+
+
 }
 
 export default ParkingAreaDao;
