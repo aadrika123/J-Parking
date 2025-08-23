@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import ParkingRoute from "./component/juidcoPTMS/router";
 import cors from "cors";
@@ -11,6 +11,10 @@ app.use(cors());
 // app.use(bodyParser.urlencoded());
 // in latest body-parser use like below.
 app.use(express.urlencoded({ extended: true }));
+// Root route
+app.get("/", (req: Request, res: Response) => {
+  res.send("Welcome to J-Parking Backend");
+});
 
 /// Parking ///
 new ParkingRoute(app);
