@@ -29,7 +29,7 @@ class ParkingInchargeDao {
       zip_code
     } = req.body;
 
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
 
     const isExistingConductorEmail = await prisma.parking_incharge.findFirst({
       where: { email_id: email_id },
@@ -81,7 +81,7 @@ class ParkingInchargeDao {
     const { cunique_id, name, search } = req.query;
     const limit: number = Number(req.query.limit);
     const page: number = Number(req.query.page);
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
 
     const offset = (page - 1) * limit;
 
@@ -159,6 +159,43 @@ class ParkingInchargeDao {
 
     return generateRes({ page, totalItems, totalPages, data: dataResult });
   }
+
+
+ async updateStatusById(
+  id: number,
+  data: { is_approved?: boolean; is_active?: boolean }
+) {
+  try {
+    const updated = await prisma.parking_incharge.update({
+      where: { id },
+      data,
+    });
+
+    return updated;
+  } catch (error: any) {
+    return { status: "ERROR", detail: error.message };
+  }
+}
+
+async getApprovedIncharges(req: Request) {
+  try {
+    const ulb_id = req?.body?.auth?.ulb_id || 2;
+
+    const data = await prisma.parking_incharge.findMany({
+      where: {
+        is_approved: true,
+        ulb_id: ulb_id,
+      },
+      orderBy: {
+        id: "desc",
+      },
+    });
+
+    return generateRes(data);
+  } catch (error: any) {
+    return { status: "ERROR", detail: error.message };
+  }
+}
 
   async delete(req: Request) {
     const { id } = req.body;

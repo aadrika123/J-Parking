@@ -24,6 +24,17 @@ export default class OnBoardingInchargeRoute {
       );
 
     app
+      .route(`${baseUrl}/update-parking-incharge`)
+      .post((req: Request, res: Response) =>
+        parkingInchargeController.updateStatusById(req, res, "0104")
+      );
+    app
+      .route(`${baseUrl}/incharges/approved`)
+      .get((req: Request, res: Response) =>
+        parkingInchargeController.getApprovedIncharges(req, res, "0104")
+      );
+
+    app
       .route(`${baseUrl}/delete-parking-incharge`)
       .post((req: Request, res: Response) =>
         parkingInchargeController.delete(req, res, "0103")

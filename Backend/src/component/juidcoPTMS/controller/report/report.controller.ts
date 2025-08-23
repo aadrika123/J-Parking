@@ -306,6 +306,46 @@ class ReportController {
     }
   };
 
+  getMonthlyCollection = async (req: Request, res: Response, apiId: string) => {
+  const resObj: resObj = {
+    apiId,
+    action: "POST",
+    version: "1.0",
+  };
+
+  try {
+    const data = await this.reportDao.getMonthlyCollection(req);
+    if (!data) {
+      return CommonRes.NOT_FOUND("No data found", data, resObj, res);
+    }
+
+    return CommonRes.SUCCESS("Monthly collection fetched", data, resObj, res);
+  } catch (error) {
+    return CommonRes.SERVER_ERROR(error, resObj, res);
+  }
+};
+
+
+getYearlyCollection = async (req: Request, res: Response, apiId: string) => {
+  const resObj: resObj = {
+    apiId,
+    action: "POST",
+    version: "1.0",
+  };
+
+  try {
+    const data = await this.reportDao.getYearlyCollection(req);
+    if (!data) {
+      return CommonRes.NOT_FOUND("No data found", data, resObj, res);
+    }
+
+    return CommonRes.SUCCESS("Yearly collection fetched", data, resObj, res);
+  } catch (error) {
+    return CommonRes.SERVER_ERROR(error, resObj, res);
+  }
+};
+
+
 }
 
 export default ReportController;

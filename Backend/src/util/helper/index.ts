@@ -67,3 +67,23 @@ export function getCurrentMonthRange() {
     endOfMonth: formatDate(endOfMonth),
   };
 }
+
+export const getCurrentMonthsRange = () => {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return {
+    startOfMonth: startOfMonth.toISOString().split("T")[0],
+    endOfMonth: endOfMonth.toISOString().split("T")[0],
+  };
+};
+
+export const getCurrentYearRange = () => {
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const endOfYear = new Date(now.getFullYear(), 11, 31);
+  return {
+    startOfYear: startOfYear.toISOString().split("T")[0],
+    endOfYear: endOfYear.toISOString().split("T")[0],
+  };
+};

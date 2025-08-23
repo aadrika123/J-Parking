@@ -12,7 +12,8 @@ import { Prisma, PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 class ParkingAreaDao {
-  async create(req: Request) {
+ async create(req: Request) {
+  try {
     const {
       address,
       zip_code,
@@ -20,44 +21,76 @@ class ParkingAreaDao {
       landmark,
       two_wheeler_capacity,
       four_wheeler_capacity,
-
       total_parking_area,
       type_parking_space,
+      sub_type_parking_space,
       agreement_doc,
       two_wheeler_rate,
       four_wheeler_rate,
+      status = 1,
     } = req.body;
 
-    const { ulb_id } = req.body.auth
+    const ulb_id = req?.body?.auth?.ulb_id || 2;
+
+    const parkingType: "Organized" | "UnOrganized" =
+      Number(type_parking_space) === 0 ? "Organized" : "UnOrganized";
+
+    const allowedSubTypes = [
+      "Indoor", "Outdoor", "Covered", "Open", "Basement", "Rooftop", "Automated", "Others",
+    ];
+
+    if (parkingType === "Organized" && !sub_type_parking_space) {
+      return {
+        status: "ERROR",
+        detail: "sub_type_parking_space is required for Organized parking type",
+      };
+    }
+
+    if (
+      parkingType === "Organized" &&
+      !allowedSubTypes.includes(sub_type_parking_space)
+    ) {
+      return {
+        status: "ERROR",
+        detail: "Invalid sub_type_parking_space. Allowed values: " + allowedSubTypes.join(", "),
+      };
+    }
 
     const query: Prisma.parking_areaCreateArgs = {
       data: {
-        address: address,
-        zip_code: zip_code,
-        station: station,
-        landmark: landmark,
+        address,
+        zip_code,
+        station,
+        landmark,
         two_wheeler_capacity: parseInt(two_wheeler_capacity),
         four_wheeler_capacity: parseInt(four_wheeler_capacity),
-        total_parking_area: parseInt(total_parking_area),
-        type_parking_space:
-          Number(type_parking_space) === 0 ? "Organized" : "UnOrganized",
-        agreement_doc: agreement_doc,
+        total_parking_area: total_parking_area ? parseInt(total_parking_area) : null,
+        type_parking_space: parkingType,
+        sub_type_parking_space: parkingType === "Organized" ? sub_type_parking_space : undefined,
+        agreement_doc,
         two_wheeler_rate: parseInt(two_wheeler_rate),
         four_wheeler_rate: parseInt(four_wheeler_rate),
-        ulb_id: ulb_id,
+        ulb_id,
+        status: parseInt(status),
       },
     };
 
     const data = await prisma.parking_area.create(query);
-
     return generateRes(data);
+  } catch (error: any) {
+    return {
+      status: "ERROR",
+      detail: error.message || "Something went wrong",
+    };
   }
+}
+
 
   async get(req: Request) {
     const { zip_code, station, search } = req.query;
     const limit: number = Number(req.query.limit);
     const page: number = Number(req.query.page);
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
 
     try {
       const offset = (page - 1) * limit;
@@ -159,7 +192,7 @@ class ParkingAreaDao {
   }
 
   async get_all_parking_area(req: Request) {
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
     const data = await prisma.parking_area.findMany({
       where: {
         ulb_id: ulb_id
@@ -183,6 +216,40 @@ class ParkingAreaDao {
 
     return generateRes(data);
   }
+
+  async getActiveOnly() {
+  try {
+    const data = await prisma.parking_area.findMany({
+      where: { status: 1 },
+      orderBy: { created_at: 'desc' },
+    });
+
+    return generateRes(data);
+  } catch (error: any) {
+    return {
+      status: "ERROR",
+      detail: error.message || "Failed to fetch active parking areas",
+    };
+  }
+}
+
+async updateStatus(id: number, status: number) {
+  try {
+    const data = await prisma.parking_area.update({
+      where: { id },
+      data: { status },
+    });
+
+    return generateRes(data);
+  } catch (error: any) {
+    return {
+      status: "ERROR",
+      detail: error.message || "Failed to update status",
+    };
+  }
+}
+
+
 }
 
 export default ParkingAreaDao;

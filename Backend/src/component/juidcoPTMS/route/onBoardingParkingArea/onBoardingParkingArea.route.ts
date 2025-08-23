@@ -35,5 +35,17 @@ export default class OnBoardingAreaRoute {
       .post((req: Request, res: Response) =>
         parkingAreaController.delete_parking_area(req, res, "0104")
       );
+
+    app
+      .route(`${baseUrl}/parking-area/active`)
+      .get((req: Request, res: Response) =>
+        parkingAreaController.getActiveParkingAreas(req, res, "0105")
+      );
+
+    app
+      .route(`${baseUrl}/parking-area/update-status`)
+      .post((req: Request, res: Response) =>
+        parkingAreaController.updateStatus(req, res, "0106")
+      );
   }
 }

@@ -1,13 +1,13 @@
 import { Request } from "express";
 import { PrismaClient } from "@prisma/client";
 import { generateRes } from "../../../../util/generateRes";
-import { getCurrentWeekRange, getCurrentMonthRange } from "../../../../util/helper";
+import { getCurrentWeekRange, getCurrentMonthRange , getCurrentMonthsRange, getCurrentYearRange} from "../../../../util/helper";
 
 const prisma = new PrismaClient();
 class ReportDao {
   generateReport = async (req: Request) => {
     const { incharge_id, area_id, from_date, to_date } = req.body;
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
     let amounts: any = [];
     let query: string = "";
     const conductor: string = ", receipts.incharge_id ";
@@ -124,7 +124,7 @@ class ReportDao {
 
   getTotalAmount = async (req: Request) => {
     const { area_id, incharge_id, from_date, to_date, curr_date } = req.body;
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
     let query: string = "";
     function query_fn(extend_query: string): string {
       return `
@@ -201,7 +201,7 @@ class ReportDao {
 
   getRealTimeCollection = async (req: Request) => {
     const date = new Date().toISOString().split("T")[0];
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
     const qr_real_time = `
           SELECT SUM (amount)::INT, extract (HOUR from created_at) as "from" , extract (HOUR from created_at)+1 as "to"  FROM receipts 
         	where ulb_id=${ulb_id} and date = '${date}'
@@ -213,7 +213,7 @@ class ReportDao {
 
   getCollections = async (req: Request) => {
     const { from_date, to_date, area_id, incharge_id } = req.body;
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
 
     function qr_func(condition?: string) {
       return `
@@ -395,7 +395,7 @@ class ReportDao {
 
   getWeeklyCollection = async (req: Request) => {
     const { from_date, to_date } = req.body;
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
 
     const { startOfWeek, endOfWeek } = getCurrentWeekRange();
 
@@ -473,7 +473,7 @@ class ReportDao {
 
   getVehicleCollection = async (req: Request) => {
     const { from_date, to_date } = req.body;
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
 
     const { startOfWeek, endOfWeek } = getCurrentWeekRange();
 
@@ -545,7 +545,7 @@ class ReportDao {
 
   getVehicleCount = async (req: Request) => {
     const { from_date, to_date } = req.body;
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
 
     const { startOfWeek, endOfWeek } = getCurrentWeekRange();
 
@@ -615,7 +615,7 @@ class ReportDao {
   //   ------------------------- GET REAL-TIME COLLECTION ----------------------------//
 
   getHourlyRealtimeData = async (req: Request) => {
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
 
     const query = `
       WITH intervals AS (
@@ -647,7 +647,7 @@ class ReportDao {
 
   generateAllReports = async (req: Request) => {
     const { from_date, to_date } = req.body;
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
     const limit: number = Number(req.query.limit);
     const page: number = Number(req.query.page);
 
@@ -754,7 +754,7 @@ class ReportDao {
 
   statistics = async (req: Request) => {
     const { from_date, to_date } = req.body;
-    const { ulb_id } = req.body.auth
+    const ulb_id  = req?.body?.auth?.ulb_id || 2
 
     // const { startOfWeek, endOfWeek } = getCurrentWeekRange();
     const { startOfMonth, endOfMonth } = getCurrentMonthRange();
@@ -798,6 +798,120 @@ class ReportDao {
     return generateRes(data);
   };
 
+  getMonthlyCollection = async (req: Request) => {
+  const { from_date, to_date } = req.body;
+  const ulb_id = req?.body?.auth?.ulb_id || 2;
+  const { startOfMonth, endOfMonth } = getCurrentMonthsRange();
+
+  const qr_func = (condition?: string) => `
+    SELECT
+      COUNT(vehicle_no)::INT AS vehicle_count,
+      SUM(amount)::INT AS total_amount,
+      pa.type_parking_space,
+      incharge_id,
+      date
+    FROM receipts
+    JOIN parking_area AS pa ON receipts.area_id = pa.id
+    ${condition || `WHERE date BETWEEN '${startOfMonth}' AND '${endOfMonth}'`}
+    GROUP BY date, incharge_id, pa.type_parking_space
+    ORDER BY date, incharge_id;
+  `;
+
+  let qr_1 = qr_func(`WHERE pa.type_parking_space = 'UnOrganized'`);
+  let qr_2 = qr_func(`WHERE pa.type_parking_space = 'Organized'`);
+
+  if (from_date && to_date) {
+    qr_1 = qr_func(`WHERE date BETWEEN '${from_date}' AND '${to_date}' AND pa.type_parking_space = 'UnOrganized'`);
+    qr_2 = qr_func(`WHERE date BETWEEN '${from_date}' AND '${to_date}' AND pa.type_parking_space = 'Organized'`);
+  }
+
+  const conditionRegex = /(GROUP BY|LIMIT|OFFSET)/i;
+  const whereRegex = /\bwhere\b/i;
+
+  [qr_1, qr_2].forEach((qr, idx) => {
+    if (whereRegex.test(qr)) {
+      if (idx === 0) qr_1 = qr.replace(conditionRegex, `AND receipts.ulb_id = '${ulb_id}' $1`);
+      else qr_2 = qr.replace(conditionRegex, `AND receipts.ulb_id = '${ulb_id}' $1`);
+    } else {
+      if (conditionRegex.test(qr)) {
+        if (idx === 0) qr_1 = qr.replace(conditionRegex, `WHERE receipts.ulb_id = '${ulb_id}' $1`);
+        else qr_2 = qr.replace(conditionRegex, `WHERE receipts.ulb_id = '${ulb_id}' $1`);
+      } else {
+        if (idx === 0) qr_1 += ` WHERE receipts.ulb_id = '${ulb_id}'`;
+        else qr_2 += ` WHERE receipts.ulb_id = '${ulb_id}'`;
+      }
+    }
+  });
+
+  const [data1, data2] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(qr_1),
+    prisma.$queryRawUnsafe(qr_2),
+  ]);
+
+  return generateRes({
+    UnOrganized: data1,
+    Organized: data2,
+  });
+};
+
+getYearlyCollection = async (req: Request) => {
+  const { from_date, to_date } = req.body;
+  const ulb_id = req?.body?.auth?.ulb_id || 2;
+  const { startOfYear, endOfYear } = getCurrentYearRange();
+
+  const qr_func = (condition?: string) => `
+    SELECT
+      COUNT(vehicle_no)::INT AS vehicle_count,
+      SUM(amount)::INT AS total_amount,
+      pa.type_parking_space,
+      incharge_id,
+      date
+    FROM receipts
+    JOIN parking_area AS pa ON receipts.area_id = pa.id
+    ${condition || `WHERE date BETWEEN '${startOfYear}' AND '${endOfYear}'`}
+    GROUP BY date, incharge_id, pa.type_parking_space
+    ORDER BY date, incharge_id;
+  `;
+
+  let qr_1 = qr_func(`WHERE pa.type_parking_space = 'UnOrganized'`);
+  let qr_2 = qr_func(`WHERE pa.type_parking_space = 'Organized'`);
+
+  if (from_date && to_date) {
+    qr_1 = qr_func(`WHERE date BETWEEN '${from_date}' AND '${to_date}' AND pa.type_parking_space = 'UnOrganized'`);
+    qr_2 = qr_func(`WHERE date BETWEEN '${from_date}' AND '${to_date}' AND pa.type_parking_space = 'Organized'`);
+  }
+
+  const conditionRegex = /(GROUP BY|LIMIT|OFFSET)/i;
+  const whereRegex = /\bwhere\b/i;
+
+  [qr_1, qr_2].forEach((qr, idx) => {
+    if (whereRegex.test(qr)) {
+      if (idx === 0) qr_1 = qr.replace(conditionRegex, `AND receipts.ulb_id = '${ulb_id}' $1`);
+      else qr_2 = qr.replace(conditionRegex, `AND receipts.ulb_id = '${ulb_id}' $1`);
+    } else {
+      if (conditionRegex.test(qr)) {
+        if (idx === 0) qr_1 = qr.replace(conditionRegex, `WHERE receipts.ulb_id = '${ulb_id}' $1`);
+        else qr_2 = qr.replace(conditionRegex, `WHERE receipts.ulb_id = '${ulb_id}' $1`);
+      } else {
+        if (idx === 0) qr_1 += ` WHERE receipts.ulb_id = '${ulb_id}'`;
+        else qr_2 += ` WHERE receipts.ulb_id = '${ulb_id}'`;
+      }
+    }
+  });
+
+  const [data1, data2] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(qr_1),
+    prisma.$queryRawUnsafe(qr_2),
+  ]);
+
+  return generateRes({
+    UnOrganized: data1,
+    Organized: data2,
+  });
+};
+
+
 }
+
 
 export default ReportDao;
