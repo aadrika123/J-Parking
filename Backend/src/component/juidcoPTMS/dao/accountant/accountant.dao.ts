@@ -158,11 +158,12 @@ class AccountantDao {
 
   async getAccSummaryDetails(req: Request) {
     const { transaction_id } = req.params;
-    console.log(transaction_id, "trannnnnnnnnnnn");
-    const ulb_id = req?.body?.auth?.ulb_id || 2;
+    // console.log(transaction_id, "trannnnnnnnnnnn");
+    const {ulb_id} = req?.body?.auth || {ulb_id: 2};
 
     const schedule: any = await prisma.scheduler.findFirst({
       where: {
+        ulb_id: ulb_id, 
         receipts: {
           some: {
             transaction_id: transaction_id
@@ -203,6 +204,7 @@ class AccountantDao {
       schedule?.incharge_id.map(async (item: any) => {
         const inchargeData = await prisma.parking_incharge.findFirst({
           where: {
+             ulb_id: ulb_id ,
             cunique_id: item
           }
         });
@@ -237,7 +239,8 @@ class AccountantDao {
     return generateRes(updatedData);
   }
 
-  async getSchedules(date: Date = new Date()) {
+  async getSchedules(req: Request, date: Date = new Date()) {
+     const {ulb_id} = req?.body?.auth || {ulb_id: 2};
 
     const data = await prisma.scheduler.findMany({
       where: {

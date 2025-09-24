@@ -77,7 +77,7 @@ class AccountantController {
       if (req.query.date) {
         date = new Date(String(req.query.date))
       }
-      const data = await this.accDao.getSchedules(date);
+      const data = await this.accDao.getSchedules(req, date );
       return CommonRes.SUCCESS("Schedule list fetched Successfully", data, resObj, res);
     } catch (error) {
       return CommonRes.SERVER_ERROR(error, resObj, res);

@@ -1122,87 +1122,174 @@ static createReceiptOut = async (req: Request) => {
     return generateRes({ amount: receiptsSum?._sum?.amount });
   };
 
+  // static getReceiptData = async (req: Request) => {
+
+  //   const whereClause: Prisma.receiptsWhereInput = {}
+
+  //   const { parkingType = 'Organized', fromDate, toDate } = req.query;
+  //   const search: string | undefined = req?.query?.search ? String(req?.query?.search) : undefined
+
+  //   // if (!parkingType) {
+  //   //   throw new Error('Parking type is required as "parkingType"')
+  //   // }
+
+  //   whereClause.type_parking_space = parkingType as type_parking_space
+
+  //   if (search) {
+  //     whereClause.OR = [
+  //       {
+  //         incharge_id: {
+  //           contains: search,
+  //           mode: 'insensitive',
+  //         },
+  //       },
+  //       {
+  //         parking_incharge: {
+  //           first_name: {
+  //             contains: search,
+  //             mode: 'insensitive',
+  //           }
+  //         },
+  //       },
+  //       {
+  //         parking_incharge: {
+  //           last_name: {
+  //             contains: search,
+  //             mode: 'insensitive',
+  //           }
+  //         },
+  //       },
+  //       {
+  //         vehicle_no: {
+  //           contains: search,
+  //           mode: 'insensitive',
+  //         },
+  //       },
+  //       {
+  //         receipt_no: {
+  //           contains: search,
+  //           mode: 'insensitive',
+  //         },
+  //       },
+  //     ]
+  //   }
+
+  //   whereClause.AND = [
+  //     ...(fromDate
+  //       ? [
+  //         {
+  //           date: {
+  //             gte: new Date(fromDate as string)
+  //           },
+  //         },
+  //       ]
+  //       : []),
+  //     ...(toDate
+  //       ? [
+  //         {
+  //           date: {
+  //             lte: new Date(toDate as string)
+  //           },
+  //         },
+  //       ]
+  //       : []),
+  //   ]
+
+  //   const receiptDetails = await prisma.receipts.findMany({
+  //     where: whereClause
+  //   })
+
+  //   console.log(receiptDetails)
+
+  //   return generateRes(receiptDetails);
+  // };
+
+
+
   static getReceiptData = async (req: Request) => {
+  const whereClause: Prisma.receiptsWhereInput = {};
 
-    const whereClause: Prisma.receiptsWhereInput = {}
+  const { parkingType = "Organized", fromDate, toDate } = req.query;
+  const search: string | undefined = req?.query?.search ? String(req?.query?.search) : undefined;
+  const ulb_id = req?.body?.auth?.ulb_id || 2; // ✅ fallback if not in body
 
-    const { parkingType = 'Organized', fromDate, toDate } = req.query;
-    const search: string | undefined = req?.query?.search ? String(req?.query?.search) : undefined
+  // Parking type condition
+  whereClause.type_parking_space = parkingType as type_parking_space;
 
-    // if (!parkingType) {
-    //   throw new Error('Parking type is required as "parkingType"')
-    // }
+  // ✅ Always filter by ULB
+  whereClause.ulb_id = Number(ulb_id);
 
-    whereClause.type_parking_space = parkingType as type_parking_space
-
-    if (search) {
-      whereClause.OR = [
-        {
-          incharge_id: {
+  // Search filters
+  if (search) {
+    whereClause.OR = [
+      {
+        incharge_id: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      {
+        parking_incharge: {
+          first_name: {
             contains: search,
-            mode: 'insensitive',
+            mode: "insensitive",
           },
         },
-        {
-          parking_incharge: {
-            first_name: {
-              contains: search,
-              mode: 'insensitive',
-            }
-          },
-        },
-        {
-          parking_incharge: {
-            last_name: {
-              contains: search,
-              mode: 'insensitive',
-            }
-          },
-        },
-        {
-          vehicle_no: {
+      },
+      {
+        parking_incharge: {
+          last_name: {
             contains: search,
-            mode: 'insensitive',
+            mode: "insensitive",
           },
         },
-        {
-          receipt_no: {
-            contains: search,
-            mode: 'insensitive',
-          },
+      },
+      {
+        vehicle_no: {
+          contains: search,
+          mode: "insensitive",
         },
-      ]
-    }
+      },
+      {
+        receipt_no: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+    ];
+  }
 
-    whereClause.AND = [
-      ...(fromDate
-        ? [
+  // Date filters
+  whereClause.AND = [
+    ...(fromDate
+      ? [
           {
             date: {
-              gte: new Date(fromDate as string)
+              gte: new Date(fromDate as string),
             },
           },
         ]
-        : []),
-      ...(toDate
-        ? [
+      : []),
+    ...(toDate
+      ? [
           {
             date: {
-              lte: new Date(toDate as string)
+              lte: new Date(toDate as string),
             },
           },
         ]
-        : []),
-    ]
+      : []),
+  ];
 
-    const receiptDetails = await prisma.receipts.findMany({
-      where: whereClause
-    })
+  const receiptDetails = await prisma.receipts.findMany({
+    where: whereClause,
+    include: {
+      parking_incharge: true, // ✅ if you want incharge details too
+    },
+  });
 
-    console.log(receiptDetails)
-
-    return generateRes(receiptDetails);
-  };
+  return generateRes(receiptDetails);
+};
 
 }
 
