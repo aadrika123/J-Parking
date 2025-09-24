@@ -144,7 +144,7 @@ class ParkingAreaController {
     };
 
     try {
-      const data = await this.parkingAreaDao.getActiveOnly();
+      const data = await this.parkingAreaDao.getActiveOnly(req);
 
       return CommonRes.SUCCESS("Active Parking Areas fetched successfully", data, resObj, res);
     } catch (error) {
