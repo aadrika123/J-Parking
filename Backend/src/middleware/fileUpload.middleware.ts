@@ -18,7 +18,7 @@ function fileFilter(
   } else {
     cb(
       new Error(
-        "Error: Only images (JPEG, JPG, PNG, GIF) and documents(PDF, CSV, xlsx) are allowed!"
+        "Error: Only images (JPEG, JPG, PNG) and documents(PDF) are allowed!"
       )
     );
   }
