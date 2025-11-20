@@ -1,35 +1,47 @@
 import multer, { FileFilterCallback } from "multer";
 import { Request } from "express";
 import path from "path";
+import { fileTypeFromBuffer } from "file-type";
 
 const storage = multer.memoryStorage();
 
-function fileFilter(
+const allowedMime = ["image/jpeg", "image/png", "application/pdf"];
+const allowedExt = ["jpg", "jpeg", "png", "pdf"];
+
+async function secureFileFilter(
   req: Request,
   file: Express.Multer.File,
   cb: FileFilterCallback
 ) {
-  const filetypes = /jpeg|jpg|png|pdf/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
+  try {
+    // 1. Validate Extension
+    const ext = path.extname(file.originalname).replace(".", "").toLowerCase();
+    if (!allowedExt.includes(ext)) {
+      return cb(new Error("Invalid file extension!"));
+    }
 
-  if (mimetype && extname) {
+    // 2. Validate MIME Type (declared)
+    if (!allowedMime.includes(file.mimetype)) {
+      return cb(new Error("Invalid MIME type!"));
+    }
+
+    // 3. Validate actual file signature using Magic Number
+    const detected = await fileTypeFromBuffer(new Uint8Array(file.buffer));
+
+    if (!detected || !allowedMime.includes(detected.mime)) {
+      return cb(new Error("Invalid file signature! Possible malicious file."));
+    }
+
     cb(null, true);
-  } else {
-    cb(
-      new Error(
-        "Error: Only images (JPEG, JPG, PNG) and documents(PDF) are allowed!"
-      )
-    );
+  } catch (error) {
+    cb(new Error("File validation failed!"));
   }
 }
 
 export const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
+  storage,
   limits: { fileSize: 2 * 1024 * 1024 },
-});
-
-export const receivingUpload = multer({
-  dest: "upload/receivedInventory/receivings",
+  fileFilter: (req, file, cb) => {
+    secureFileFilter(req, file, cb);
+  },
 });
