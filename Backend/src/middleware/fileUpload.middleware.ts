@@ -1,7 +1,7 @@
 import multer, { FileFilterCallback } from "multer";
 import { Request } from "express";
 import path from "path";
-import { fileTypeFromBuffer } from "file-type";
+const FileType = require("file-type");
 
 const storage = multer.memoryStorage();
 
@@ -20,21 +20,23 @@ async function secureFileFilter(
       return cb(new Error("Invalid file extension!"));
     }
 
-    // 2. Validate MIME Type (declared)
+    // 2. Validate declared MIME
     if (!allowedMime.includes(file.mimetype)) {
       return cb(new Error("Invalid MIME type!"));
     }
 
-    // 3. Validate actual file signature using Magic Number
-    const detected = await fileTypeFromBuffer(new Uint8Array(file.buffer));
+    // 3. Validate Magic Number (Actual File Signature)
+    const detected = await FileType.fromBuffer(file.buffer);
 
     if (!detected || !allowedMime.includes(detected.mime)) {
-      return cb(new Error("Invalid file signature! Possible malicious file."));
+      return cb(
+        new Error("Invalid file signature! Possible malicious file upload.")
+      );
     }
 
-    cb(null, true);
-  } catch (error) {
-    cb(new Error("File validation failed!"));
+    return cb(null, true);
+  } catch (err) {
+    return cb(new Error("File validation failed!"));
   }
 }
 
