@@ -11,8 +11,17 @@ export default class FileUploadRoute {
   init(app: express.Application, uploadImg: UploadImgServices): void {
     app
       .route(`${baseUrl}/file-upload`)
-      .post(upload.array("file"), (req: Request, res: Response) =>
-        uploadImg.imageUpload(req, res)
+      .post(
+        upload.array("file", 5),
+        (err: any, req: Request, res: Response, next: any) => {
+          if (err) {
+            return res.status(400).json({ error: err.message });
+          }
+          next();
+        },
+        (req: Request, res: Response) => {
+          uploadImg.imageUpload(req, res);
+        }
       );
   }
 }
