@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { baseUrl } from "../../../util/common";
 import UploadImgServices from "../controller/common/uploadImg.services";
 import { upload } from "../../../middleware/fileUpload.middleware";
+import { validateUploadedFiles } from "../../../middleware/validateFile.middleware";
 
 export default class FileUploadRoute {
   constructor(app: express.Application) {
@@ -19,6 +20,7 @@ export default class FileUploadRoute {
           }
           next();
         },
+        validateUploadedFiles,
         (req: Request, res: Response) => {
           uploadImg.imageUpload(req, res);
         }
