@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import OnBoardingInchargeRoute from "./route/onBoardingParkingIncharge/onBoardingParkingIncharge.route";
 import OnBoardingAreaRoute from "./route/onBoardingParkingArea/onBoardingParkingArea.route";
 import FileUploadRoute from "./route/fileUpload.route";
@@ -26,6 +26,12 @@ import AccountantRoute from "./route/accountant/accountant.route";
 
 export default class ParkingRoute {
   constructor(app: express.Application) {
+    app.get(`/api/parking/health-check`, (req: Request, res: Response) => {
+      res.status(200).json({
+        status: "ok",
+      });
+    });
+
     new FileUploadRoute(app);
     new OnBoardingInchargeRoute(app);
     new OnBoardingAreaRoute(app);
