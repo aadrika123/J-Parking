@@ -104,11 +104,15 @@ export const imageUploader = async (file: any) => {
 
         const fullPath = getResponse?.data?.data?.fullPath;
 
-        if (fullPath) {
-          toReturn.push(fullPath);
-        } else {
+        if (!fullPath) {
           throw new Error("Failed to retrieve file path from DMS.");
         }
+
+        // Return both values
+        toReturn.push({
+          referenceNo: referenceNo,
+          fullPath: fullPath,
+        });
 
       } catch (err) {
         throw err;
