@@ -77,88 +77,72 @@ class ParkingInchargeDao {
     return generateRes(data);
   }
 
-  async get(req: Request) {
-    const { cunique_id, name, search } = req.query;
-    const limit: number = Number(req.query.limit);
-    const page: number = Number(req.query.page);
-    const ulb_id  = req?.body?.auth?.ulb_id || 2
+async get(req: Request) {
 
-    const offset = (page - 1) * limit;
+  const { cunique_id, name, search } = req.query;
 
-    const qr_func = (extend?: string) => {
-      return `
-        SELECT * FROM parking_incharge ${extend ? extend : ""
-        } LIMIT $1 OFFSET $2
-      `;
-    };
-    let qr = qr_func();
+  const limit: number = Number(req.query.limit);
+  const page: number = Number(req.query.page);
+  const ulb_id = req?.body?.auth?.ulb_id || 2;
 
-    let searchConditions = "";
+  const offset = (page - 1) * limit;
 
-    // ------------------  FILTER ------------------//
+  const conditions: string[] = [`ulb_id = '${ulb_id}'`];
 
-    if (search !== "" && search !== undefined) {
-      qr = qr_func(`
-        WHERE 
-        first_name ILIKE '%${search}%' 
+  // ------------------ FILTER ------------------ //
+
+  if (search) {
+    conditions.push(`
+      (
+        first_name ILIKE '%${search}%'
         OR last_name ILIKE '%${search}%'
         OR CAST(cunique_id AS TEXT) ILIKE '%${search}%'
-      `);
-    } else if (
-      (cunique_id !== "" && cunique_id !== undefined) ||
-      (name !== "" && name !== undefined)
-    ) {
-      const condition: string[] = [];
-
-      if (cunique_id) {
-        condition.push(`
-          WHERE cunique_id ILIKE '${cunique_id}'
-        `);
-      }
-
-      if (name) {
-        condition.push(`
-          WHERE first_name ILIKE '${name}'
-        `);
-      }
-
-      searchConditions += condition.join(" AND ");
-
-      qr = qr_func(searchConditions);
-
-    }
-    const conditionRegex = /(JOIN|ORDER BY|LIMIT|OFFSET)/i;
-    const data = 'where';
-    const whereRegex = new RegExp(`\\b${data}\\b`, 'i');
-
-    // First, check if WHERE clause exists
-    if (whereRegex.test(qr)) {
-      // If WHERE exists, insert ulb_id before JOIN, ORDER BY, LIMIT, or OFFSET
-      qr = qr.replace(conditionRegex, `AND ulb_id = '${ulb_id}' $1`);
-    } else {
-      // If WHERE does not exist, insert WHERE ulb_id before JOIN, ORDER BY, LIMIT, or OFFSET
-      if (conditionRegex.test(qr)) {
-        // If there is a JOIN, ORDER BY, LIMIT, or OFFSET, insert WHERE ulb_id before them
-        qr = qr.replace(conditionRegex, `WHERE ulb_id = '${ulb_id}' $1`);
-      } else {
-        // If no JOIN, ORDER BY, LIMIT, or OFFSET, just append WHERE ulb_id
-        qr += ` WHERE ulb_id = '${ulb_id}'`;
-      }
-    }
-
-    const countQuery = `
-      SELECT COUNT(id)::INT FROM parking_incharge ${searchConditions};
-    `;
-    // -------------------  FILTER -------------------//
-
-    const countResult = await prisma.$queryRawUnsafe<any[]>(countQuery);
-    const totalItems = parseInt(countResult[0].count);
-    const totalPages = Math.ceil(totalItems / limit);
-
-    const dataResult = await prisma.$queryRawUnsafe<any[]>(qr, limit, offset);
-
-    return generateRes({ page, totalItems, totalPages, data: dataResult });
+      )
+    `);
   }
+
+  if (cunique_id) {
+    conditions.push(`cunique_id ILIKE '${cunique_id}'`);
+  }
+
+  if (name) {
+    conditions.push(`first_name ILIKE '${name}'`);
+  }
+
+  const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  // ------------------- DATA QUERY ------------------- //
+
+  const dataQuery = `
+  SELECT * 
+  FROM parking_incharge
+  ${whereClause}
+  ORDER BY id DESC
+  LIMIT $1 OFFSET $2
+`;
+
+  // ------------------- COUNT QUERY ------------------- //
+
+  const countQuery = `
+    SELECT COUNT(id)::INT 
+    FROM parking_incharge
+    ${whereClause}
+  `;
+
+  const countResult = await prisma.$queryRawUnsafe<any[]>(countQuery);
+
+  const totalItems = Number(countResult[0].count);
+  const totalPages = Math.ceil(totalItems / limit);
+
+  const dataResult = await prisma.$queryRawUnsafe<any[]>(dataQuery, limit, offset);
+
+  return generateRes({
+    page,
+    totalItems,
+    totalPages,
+    data: dataResult
+  });
+}
 
 
  async updateStatusById(
