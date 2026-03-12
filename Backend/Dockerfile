@@ -22,8 +22,7 @@ COPY --from=deps /app/package.json /app/package-lock.json ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/prisma ./prisma
 COPY --chown=dockeruser:dockeruser --from=build /app/build ./build
-RUN mkdir -p log && chown dockeruser:dockeruser log
-RUN mkdir -p log && chown dockeruser:dockeruser log
+RUN mkdir -p log upload && chown -R dockeruser:dockeruser log upload
 USER dockeruser
 EXPOSE 6002
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
